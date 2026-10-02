@@ -1,13 +1,19 @@
 """CLI regression checks, including one small headless figure-generation run."""
 
 import json
+import builtins
+from contextlib import redirect_stderr, redirect_stdout
+import io
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock, patch
 
 from cli import parse_args
+import main
 
 
 ROOT = Path(__file__).resolve().parent
@@ -34,22 +40,53 @@ class CliChecks(unittest.TestCase):
                     self.assertIn(expected, result.stdout)
                 self.assertEqual(result.stderr, "")
 
-    def test_valid_inputs_reach_unimplemented_path(self):
+    def test_main_passes_parameters_without_opening_gui(self):
         cases = (
             ([], 0.8, 1.0 / 240.0),
             (["--restitution=0", "--dt=0.01"], 0.0, 0.01),
             (["--restitution=1", "--dt=1e-3"], 1.0, 0.001),
             (["--restitution=0.25", "--dt=0.02"], 0.25, 0.02),
         )
-        for entry in ("main.py",):
-            for options, restitution, dt in cases:
-                with self.subTest(entry=entry, options=options):
-                    result = self.invoke(entry, *options)
-                    self.assertEqual(result.returncode, 1, result.stderr)
-                    self.assertIn("not implemented", result.stderr)
-                    self.assertIn(f"restitution={restitution}", result.stderr)
-                    self.assertIn(f"dt={dt} s", result.stderr)
-                    self.assertEqual(result.stdout, "")
+        for options, restitution, dt in cases:
+            with self.subTest(options=options):
+                launch = Mock()
+                fake = SimpleNamespace(run_simulation=launch, RenderingDependencyError=RuntimeError)
+                with patch.dict(sys.modules, {"rendering": fake}):
+                    self.assertEqual(main.main(options), 0)
+                launch.assert_called_once()
+                parameters = launch.call_args.args[0]
+                self.assertEqual(parameters.restitution, restitution)
+                self.assertEqual(parameters.dt, dt)
+
+    def test_main_help_and_invalid_args_do_not_import_rendering(self):
+        original_import = builtins.__import__
+
+        def guarded_import(name, *args, **kwargs):
+            if name in {"rendering", "pyvista"}:
+                raise AssertionError(f"Premature import: {name}")
+            return original_import(name, *args, **kwargs)
+
+        for options, expected in ((["--help"], 0), (["--dt=0"], 2), (["--restitution=nan"], 2)):
+            with patch("builtins.__import__", side_effect=guarded_import):
+                with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as caught:
+                        main.main(options)
+                    self.assertEqual(caught.exception.code, expected)
+
+    def test_main_dependency_message_and_unexpected_errors(self):
+        class MissingDependency(RuntimeError):
+            pass
+
+        fake = SimpleNamespace(run_simulation=Mock(side_effect=MissingDependency("Install PyVista/VTK")),
+                               RenderingDependencyError=MissingDependency)
+        output = io.StringIO()
+        with patch.dict(sys.modules, {"rendering": fake}), redirect_stderr(output):
+            self.assertEqual(main.main([]), 1)
+        self.assertIn("Install PyVista/VTK", output.getvalue())
+        fake.run_simulation.side_effect = ValueError("unexpected programming error")
+        with patch.dict(sys.modules, {"rendering": fake}):
+            with self.assertRaisesRegex(ValueError, "unexpected programming error"):
+                main.main([])
 
     def test_figure_options(self):
         args = parse_args("Figures", [], figures=True)
@@ -108,7 +145,6 @@ class CliChecks(unittest.TestCase):
                         self.assertEqual(result.returncode, 2, result.stderr)
                         self.assertIn("error:", result.stderr)
                         self.assertIn(option, result.stderr)
-                        self.assertNotIn("not implemented (Stage", result.stderr)
 
     def test_missing_values(self):
         for entry in ("main.py", "make_figures.py"):

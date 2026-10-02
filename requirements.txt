@@ -1,5 +1,5 @@
-# Full project dependencies; use requirements-figures.txt for Stage 4 only.
+# Full project dependencies; separate lists support staged installation.
 # Versions remain unpinned until actual installation is verified.
 -r requirements-figures.txt
-pyvista
+-r requirements-rendering.txt
 reportlab

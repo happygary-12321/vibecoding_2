@@ -1,0 +1,2 @@
+# API floor checked against upstream source; local runtime verification pending.
+pyvista>=0.46.3
