@@ -1,18 +1,28 @@
 # vibecoding_2
 
-Circle simulation assignment. Stage 3 adds floor and side-wall contact handling
-and a complete physics step to the SI-unit state and contact-free integrator.
-Rendering and figure generation are not implemented yet.
-The application entry points retain their Stage 1 unfinished-path behavior;
-neither opens a window or writes output files.
+Circle simulation assignment. Stage 4 adds headless numerical validation,
+energy accounting, PNG figures, and JSON results. Physics includes SI-unit
+state, semi-implicit Euler, and floor/side-wall contacts. Runtime and visual
+verification of Stage 4 remain pending local execution. `main.py` still reports
+that real-time simulation is not implemented; rendering is reserved for Stage 5.
 
 ## Python and dependencies
 
 Use **Python 3.12.10** consistently. Check `python --version` before running
 commands; the unqualified `py` launcher may select a different version.
-The current scaffold and its CLI checks need only the Python standard library.
-`requirements.txt` lists dependencies planned for later stages; they have not
-yet been installed or compatibility-tested in this session.
+Physics, contact checks, and integration checks need only the standard library.
+Figure generation and its CLI smoke test require Matplotlib and its dependencies.
+Install only the Stage 4 requirements in the same Python 3.12.10 environment:
+
+```text
+python --version
+python -m pip install -r requirements-figures.txt
+python -m pip check
+```
+
+No packages were installed in the agent session: Python execution is unavailable.
+Successful generation records actual Python, executable, Matplotlib, NumPy, and
+plotting dependency versions in `results.json`; no versions are guessed.
 
 For later stages, create an environment using the verified interpreter:
 
@@ -38,14 +48,15 @@ python check_contacts.py
 Both entry points accept `--restitution` (default 0.8, finite and in [0, 1])
 and `--dt` (seconds, default 1/240, finite and greater than zero). Supply a
 decimal or scientific-notation number, not a literal expression such as `1/240`.
-Invalid inputs exit with status 2. Help exits with status 0. Valid simulation
-requests currently print the parsed settings and an explicit **not implemented**
-message to stderr, then exit with status 1. That is expected scaffold behavior,
-not a completed simulation or a successful numerical validation.
+Invalid inputs exit with status 2. Help exits with status 0. `main.py` prints
+the parsed settings and an explicit **not implemented** message to stderr,
+then exits with status 1. `make_figures.py` now exits with status 0 only after
+all required numerical checks and figure writes succeed; failures exit nonzero.
 
 `check_cli.py` requires Python 3.12.10 and checks both help paths, parsed defaults,
-custom values, restitution endpoints, invalid numbers, missing values, and
-the explicit unfinished-path behavior. It does not test physics.
+custom values, restitution endpoints, invalid numbers, missing values, duration
+constraints, the unfinished `main.py` path, and a small headless figure run in
+a temporary output directory. That run also executes the physics regression suites.
 
 `check_integration.py` also requires Python 3.12.10. It prints expected and
 measured values for one-step motion, zero gravity, and one-second free fall at
@@ -104,12 +115,79 @@ and a 2400-step default trajectory. Direct checks use absolute tolerance 1e-12
 in the relevant SI unit: enough for roundoff over a few operations, much smaller
 than the response being tested. Representative expected/measured values are
 printed, including the upward-moving floor overlap (expected y=0.2, vy=+2).
-Stage 3 runtime verification and regression reruns are pending local execution.
+Stage 3 was accepted and committed at `a5f5654`. Stage 4 regression reruns remain pending.
 
 Planned: `rendering.py` alone owns PyVista, camera, meshes,
 colors, display settings, and fixed-step real-time scheduling. `validation.py`
-will provide deterministic headless checks and plots. No ceiling collision.
+now provides deterministic headless checks and plots. No ceiling collision.
 Unimplemented modules are not represented by empty placeholder files.
+
+## Headless numerical validation (Stage 4)
+
+```text
+python check_contacts.py
+python check_integration.py
+python check_cli.py
+python make_figures.py --output-dir figures
+python make_figures.py --restitution 0.6 --dt 0.0020833333333333333 --output-dir figures_fine
+```
+
+`--duration` sets free-fall duration (default 1 second); `--bounce-duration` sets
+each bouncing run's duration (default 10 seconds). Both must be positive, finite,
+and aligned to whole timesteps. Alignment allows eight ulps of quotient roundoff;
+errors suggest an aligned duration. dt is never silently adjusted. The free-fall
+fine run uses dt/2 and must have exactly twice the coarse step count. A requested
+duration is rejected if the predicted coarse free-fall endpoint reaches the floor.
+Experiments are limited to one million steps per run to bound trace size and work;
+larger requests receive an error suggesting a shorter duration or larger dt.
+
+Free fall starts at rest at (50, 10) m in a 100-by-100 m box. Every sample,
+including time zero, is saved. The integrator produces the trajectories; analytical
+formulas are used only as references. Matching samples check the signed error
+`-g*dt*t/2` and that halving dt halves it. Both per-step and cumulative contact-free
+energy drift are checked. Defaults expect heights 5.0745625 m and 5.08478125 m
+against 5.095 m analytical height, and final vy=-9.81 m/s. Expected energy drifts
+are -0.200491875 J and -0.1002459375 J. These are references, not measured results.
+
+Bouncing uses `complete_step` for both the selected restitution and an additional
+e=1 diagnostic. Recorded normal velocities give measured contact kinetic-energy
+changes; signed position corrections give `m*g*dy`. Subtracting those from the
+post-step energy reconstructs pre-contact energy without duplicating integration.
+Checks compare integration drift with `-m*g*g*dt*dt/2`, inward-contact restitution
+loss with `-m*(1-e*e)*vn_before*vn_before/2`, and total/cumulative accounting.
+Correction energy is a numerical artifact, not physical restitution loss. Even
+the elastic discrete simulation can drift; no exact-conservation claim is made.
+
+Tolerances use `max(base, 8*machine_epsilon*step_count*max(1, scale))`, with bases
+1e-10 m or m/s and 1e-9 J; scale is the experiment's height, speed, or energy.
+The factor-eight budget allows accumulated arithmetic roundoff, not truncation
+error. Matching-error tolerance is coarse tolerance plus twice fine tolerance.
+Direct contact checks retain 1e-12 SI. Actual tolerances and residuals are saved.
+
+Outputs (existing files with these names are replaced on rerun):
+
+| File | Caption / interpretation |
+|---|---|
+| `free_fall.png` | Height and signed error versus time, dt and dt/2, with analytical predictions. Measured/predicted error lines should overlap. |
+| `free_fall_energy.png` | Measured and predicted contact-free energy drift; finer steps reduce drift. |
+| `bouncing_energy.png` | Selected e and elastic runs; actual floor/left/right impacts marked above, cumulative integration/restitution/correction contributions below. |
+| `contact_direction.png` | Upward-moving floor overlap: real resolver preserves +2 m/s; illustrative faulty rule gives -1.6 m/s. Both correct y to 0.2 m. |
+| `results.json` | Parameters, durations, versions, check outcomes/tolerances, expected/measured values, complete numerical traces, residuals, contact records, and impact counts. |
+| `regression_checks.txt` | Actual integration/contact regression output, including failures if any. |
+
+The direction comparison always uses e=0.8, independently of the CLI choice.
+It calls the real resolver for the correct response and checks y=0.2, vy=+2,
+and no impact. The faulty comparison is isolated in validation code and is
+explicitly **not evidence of an injected production-code defect**.
+
+Matplotlib uses Agg, selected before importing pyplot. The validation path never
+imports PyVista or rendering, and checks loaded modules for those imports.
+Failed numerical checks retain traces and diagnostic figures when possible;
+unexpected errors save a traceback in `results.json` and cause a nonzero exit.
+Check `status` and the figure list in the current JSON: old PNG files can remain
+after a failed rerun. Unwritable output directories are reported to stderr.
+No actual Stage 4 plots, installed versions, or passing runtime results are claimed
+until local execution and visual review have taken place.
 
 ## Plans, review, and evidence
 

@@ -1,0 +1,2 @@
+# Stage 4 only. Actual installed versions are recorded in figures/results.json.
+matplotlib

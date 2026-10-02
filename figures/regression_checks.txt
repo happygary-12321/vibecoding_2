@@ -1,0 +1,41 @@
+test_defaults_and_geometry (check_integration.IntegrationChecks.test_defaults_and_geometry) ... ok
+test_free_fall_and_refinement (check_integration.IntegrationChecks.test_free_fall_and_refinement) ... dt=1/240 final y (m): expected=5.0745625, measured=5.0745625, absolute tolerance=1e-10
+dt=1/240 final vy (m/s): expected=-9.81, measured=-9.81, absolute tolerance=1e-10
+dt=1/240 signed height error (m): expected=-0.0204375, measured=-0.0204375, absolute tolerance=1e-10
+dt=1/240: exact final y=5.095 m; max signed-error formula residual=6.33174068732e-15 m
+dt=1/480 final y (m): expected=5.08478125, measured=5.08478125, absolute tolerance=1e-10
+dt=1/480 final vy (m/s): expected=-9.81, measured=-9.81, absolute tolerance=1e-10
+dt=1/480 signed height error (m): expected=-0.01021875, measured=-0.01021875, absolute tolerance=1e-10
+dt=1/480: exact final y=5.095 m; max signed-error formula residual=7.35349281467e-15 m
+final coarse/fine error ratio: expected=2, measured=2, absolute tolerance=1e-07
+ok
+test_invalid_state_and_parameters (check_integration.IntegrationChecks.test_invalid_state_and_parameters) ... ok
+test_one_step (check_integration.IntegrationChecks.test_one_step) ... one step vy (m/s): expected=2.019, measured=2.019, absolute tolerance=1e-12
+one step y (m): expected=2.2019, measured=2.2019, absolute tolerance=1e-12
+one step x (m): expected=1.15, measured=1.15, absolute tolerance=1e-12
+one step time (s): expected=0.8, measured=0.8, absolute tolerance=1e-12
+ok
+test_zero_gravity (check_integration.IntegrationChecks.test_zero_gravity) ... zero gravity x (m): expected=-1, measured=-1, absolute tolerance=1e-10
+zero gravity y (m): expected=5, measured=5, absolute tolerance=1e-10
+ok
+test_both_corners (check_contacts.ContactChecks.test_both_corners) ... ok
+test_complete_step_order (check_contacts.ContactChecks.test_complete_step_order) ... ok
+test_default_trajectory (check_contacts.ContactChecks.test_default_trajectory) ... Default trajectory: measured steps=2400, time=10 s; expected steps=2400, time=10 s; impact surfaces=['floor', 'left', 'right']
+ok
+test_no_contact_and_no_ceiling (check_contacts.ContactChecks.test_no_contact_and_no_ceiling) ... ok
+test_restitution_endpoints (check_contacts.ContactChecks.test_restitution_endpoints) ... ok
+test_surfaces_and_directions (check_contacts.ContactChecks.test_surfaces_and_directions) ... floor, initial vy=-2: expected y=0.2, vy=+1.6; measured y=0.2, vy=+1.6; impact=True
+floor, initial vy=+2: expected y=0.2, vy=+2; measured y=0.2, vy=+2; impact=False
+floor, initial vy=+0: expected y=0.2, vy=+0; measured y=0.2, vy=+0; impact=False
+left, initial vx=-2: expected x=0.2, vx=+1.6; measured x=0.2, vx=+1.6; impact=True
+left, initial vx=+2: expected x=0.2, vx=+2; measured x=0.2, vx=+2; impact=False
+left, initial vx=+0: expected x=0.2, vx=+0; measured x=0.2, vx=+0; impact=False
+right, initial vx=+2: expected x=3.8, vx=-1.6; measured x=3.8, vx=-1.6; impact=True
+right, initial vx=-2: expected x=3.8, vx=-2; measured x=3.8, vx=-2; impact=False
+right, initial vx=+0: expected x=3.8, vx=+0; measured x=3.8, vx=+0; impact=False
+ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.006s
+
+OK
