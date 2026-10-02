@@ -1,5 +1,5 @@
-# Planned dependencies for later stages; Stage 1 uses only the standard library.
-# Versions remain unpinned until installation and compatibility are verified.
+# Full project dependencies; use requirements-figures.txt for Stage 4 only.
+# Versions remain unpinned until actual installation is verified.
+-r requirements-figures.txt
 pyvista
-matplotlib
 reportlab
