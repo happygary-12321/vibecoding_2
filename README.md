@@ -1,8 +1,8 @@
 # vibecoding_2
 
-Circle simulation assignment. Stage 2 adds SI-unit state and contact-free
-semi-implicit Euler integration, with a standard-library headless check script.
-Contact handling, rendering, and figure generation are not implemented yet.
+Circle simulation assignment. Stage 3 adds floor and side-wall contact handling
+and a complete physics step to the SI-unit state and contact-free integrator.
+Rendering and figure generation are not implemented yet.
 The application entry points retain their Stage 1 unfinished-path behavior;
 neither opens a window or writes output files.
 
@@ -32,6 +32,7 @@ python main.py --restitution 0.8 --dt 0.004166666666666667
 python make_figures.py --restitution 0.8 --dt 0.004166666666666667
 python check_cli.py
 python check_integration.py
+python check_contacts.py
 ```
 
 Both entry points accept `--restitution` (default 0.8, finite and in [0, 1])
@@ -52,7 +53,7 @@ measured values for one-step motion, zero gravity, and one-second free fall at
 every sample and compares coarse samples with every second fine sample.
 Expected final heights are 5.0745625 m and 5.08478125 m, respectively; both final
 vertical velocities are -9.81 m/s. These are references, not claimed test results.
-Stage 2 runtime verification is pending a local run.
+Stage 2 was accepted and committed by the user at `1c9fdce`.
 
 Checks use absolute tolerances of 1e-12 for single-step values and 1e-10 m or
 m/s for trajectories of at most 480 steps, allowing roundoff while remaining far
@@ -78,8 +79,34 @@ count once. vx is unchanged. This contact-free function assumes valid input
 state and does not use box geometry or enforce boundaries. `check_integration.py`
 is the Stage 2 verification command. No third-party dependencies are required.
 
-Planned: `contacts.py` corrects floor and side-wall penetration and reflects
-only inward normal velocity. `rendering.py` alone owns PyVista, camera, meshes,
+`contacts.resolve_contacts(state, parameters, box)` corrects floor, left-wall,
+and right-wall contacts in that order, reflecting only inward normal velocity.
+Outward and zero normal velocity are preserved, as is tangential velocity.
+Direct resolution does not advance time. Both floor-wall corner components are
+resolved independently. There is no ceiling, friction, rotation, continuous
+collision detection, or resting-contact threshold.
+
+`integration.complete_step(state, parameters, box)` calls the existing contact-free
+`step` once, then resolves contacts and returns records. It increments the count
+exactly once through `step`. Keep using `step` for contact-free validation.
+
+Each `ContactRecord` contains `surface` (`floor`, `left`, or `right`), signed
+`position_correction` `(dx, dy)` in meters, and normal velocities before and after
+response in m/s. Normals point into the allowed region: +y, +x, and -x respectively.
+Thus positive normal velocity means moving away, including at the right wall.
+`is_impact` is true only when normal velocity actually changes. Touching or
+position-only correction still produces a record but is not an impact.
+
+`check_contacts.py` uses Python 3.12.10 and the standard library. It checks all
+three surfaces, inward/outward/zero velocities, exact touching, no contact,
+tangential preservation, corners, restitution endpoints, records, step order,
+and a 2400-step default trajectory. Direct checks use absolute tolerance 1e-12
+in the relevant SI unit: enough for roundoff over a few operations, much smaller
+than the response being tested. Representative expected/measured values are
+printed, including the upward-moving floor overlap (expected y=0.2, vy=+2).
+Stage 3 runtime verification and regression reruns are pending local execution.
+
+Planned: `rendering.py` alone owns PyVista, camera, meshes,
 colors, display settings, and fixed-step real-time scheduling. `validation.py`
 will provide deterministic headless checks and plots. No ceiling collision.
 Unimplemented modules are not represented by empty placeholder files.
