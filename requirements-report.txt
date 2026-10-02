@@ -1,0 +1,3 @@
+# PDF generation and byte-preserved original-plan attachment.
+reportlab
+pypdf

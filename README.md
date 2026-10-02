@@ -3,8 +3,9 @@
 Circle simulation assignment. Stage 5 adds native PyVista real-time rendering.
 Physics includes SI-unit state, semi-implicit Euler, and floor/side-wall contacts.
 Headless validation, energy accounting, PNG figures, and JSON results remain
-available independently. The accepted baseline is `38cd01e`; Stage 5 automated
-reruns and interactive GUI verification are pending local execution.
+available independently. The accepted production baseline is `71834cd`. The user
+reports that the local GUI works correctly. Stage 6 documentation and packaging
+are under review; fresh final verification and PDF generation remain pending.
 
 ## Python and dependencies
 
@@ -128,7 +129,7 @@ in the relevant SI unit: enough for roundoff over a few operations, much smaller
 than the response being tested. Representative expected/measured values are
 printed, including the upward-moving floor overlap (expected y=0.2, vy=+2).
 Stage 3 was accepted at `a5f5654`; Stage 4 and its dependency update were accepted
-through `38cd01e`. Stage 5 regression reruns remain pending.
+through `38cd01e`; Stage 5 was accepted at `71834cd`.
 
 `rendering.py` alone owns PyVista, camera, meshes,
 colors, display settings, and fixed-step real-time scheduling. `validation.py`
@@ -277,20 +278,64 @@ shutdown output, and any traceback. Check:
 - If overload occurs, discarded time increases while motion remains based on
   fixed physics steps. The deterministic overload check supplies repeatable evidence.
 
-All Stage 5 runtime, installed-version, and interactive observations remain pending
-until the user supplies the actual local results. No report or deliberate bug work
-is included in this stage.
+The user subsequently accepted Stage 5 and reported that the GUI works. The
+detailed checklist above describes suggested observations, not an assertion that
+each was reported. Stage 6 final checks record the currently installed versions.
 
 ## Plans, review, and evidence
 
 The [original plan](docs/original_plan.md) is unchanged. The
 [approved revisions](docs/change_log.md) record both user requests and reasons,
 and the final staged workflow. [Provenance](docs/provenance.md) distinguishes
-known metadata from unavailable evidence. Complete transcript export remains
-outstanding; these documents do not substitute for it.
+known metadata from unavailable evidence. An actual raw session-log snapshot is
+preserved in docs/transcript; refresh it after the final review for complete
+coverage. These explanatory documents do not substitute for that original log.
 
 Each significant task starts from an accepted committed baseline. Show changes
 and actual verification results, then wait for user acceptance before committing
 or beginning the next stage. Never upload an intentionally broken branch without
 explicit authorization. Existing Word files are preserved; temporary files and
 the unrelated `test.txt` are excluded from commits.
+
+## Stage 6 local verification and submission
+
+Both intentionally faulty branches remain local. Their actual-module plots,
+complete test output, exit codes, commit identifiers, and defect diffs are in
+`evidence/bug_a` and `evidence/bug_b`; see `docs/bug_cases.md`. The agent inspected
+these artifacts and plots. The tests were run by the user locally, not by the agent.
+
+Run in local CMD from this repository with Python 3.12.10:
+
+```text
+python --version
+python -m pip install -r requirements-report.txt
+python final_verify.py
+echo Final verification exit code: %ERRORLEVEL%
+python build_report.py
+echo Report generation exit code: %ERRORLEVEL%
+```
+
+Stop and inspect any nonzero result. `final_verify.py` runs all four check scripts,
+headless figure generation into `evidence/final/figures`, and `pip check`. Complete
+logs, exit codes, environment versions, and the current commit are captured in
+`evidence/final`. It opens no GUI and leaves accepted figures intact.
+
+`docs/report.md` is the editable report source. `build_report.py` expands the
+actual inventory/provenance/check status into `docs/report.expanded.md` and creates
+`report.pdf`. It verifies the original plan against its documentation baseline,
+reproduces it literally in Appendix A, and embeds the exact source as an attachment.
+It uses Windows Arial and Consolas fonts by default. `docs/report_build.json`
+records the PDF hash, page count, and attachment check. Generation is not visual QA:
+open the PDF and inspect every page for clipping, unreadable captions, broken
+symbols, missing figures, and appendix completeness. If Poppler is available:
+
+```text
+pdftoppm -png -r 120 report.pdf tmp\pdfs\report
+```
+
+Reflection and root-cause wording are drafts for the student's review. Record only
+actual review in `docs/report_review.json`, including the reviewed PDF's SHA-256
+from `docs/report_build.json`. Rebuilding the PDF invalidates that reviewed hash.
+See `docs/transcript/README.md` for final transcript refresh and archive instructions.
+No new script has yet been executed in the agent session; local execution and PDF
+inspection are pending. No final main commit or push is authorized before review.

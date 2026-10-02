@@ -2,4 +2,4 @@
 # Versions remain unpinned until actual installation is verified.
 -r requirements-figures.txt
 -r requirements-rendering.txt
-reportlab
+-r requirements-report.txt

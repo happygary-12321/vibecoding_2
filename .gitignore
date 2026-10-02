@@ -5,3 +5,6 @@ __pycache__/
 ~$*
 ~WRL*.tmp
 test.txt
+.bug-worktrees/
+tmp/pdfs/
+submission/

@@ -1,0 +1,7 @@
+{
+  "reflection_reviewed_by_user": false,
+  "root_cause_wording_reviewed_by_user": false,
+  "pdf_all_pages_visually_reviewed": false,
+  "reviewed_pdf_sha256": null,
+  "notes": "Pending user review. Do not set these fields true without the actual reviews."
+}

@@ -1,0 +1,19 @@
+{
+    "source":  "D:\\CodexCLI\\data\\sessions\\2026\\10\\01\\rollout-2026-10-01T21-07-30-01a0fa26-efc6-7f61-9193-fb16ebf88047.jsonl",
+    "file":  "snapshot-20261002T0932437266802Z-rollout-2026-10-01T21-07-30-01a0fa26-efc6-7f61-9193-fb16ebf88047.jsonl",
+    "sha256":  "5b1136d493bdd1b098b25388ca78861f4a1db64bae2b29e4655985efb4b537b7",
+    "bytes":  4238600,
+    "session_id":  "01a0fa26-efc6-7f61-9193-fb16ebf88047",
+    "originator":  "codex-tui",
+    "cli_version":  "0.157.0",
+    "source_interface":  "vscode",
+    "models":  [
+                   "gpt-6-astra"
+               ],
+    "records":  749,
+    "user_messages":  20,
+    "first_record":  "2026-10-02T01:07:39.270Z",
+    "last_record":  "2026-10-02T09:32:43.074Z",
+    "last_user_record":  "2026-10-02T09:21:43.963Z",
+    "final_coverage_confirmed_by_user":  false
+}
