@@ -1,0 +1,120 @@
+Assignment 3 Part 3 verification
+Baseline: fd1192f5b13c10936710525f1e2cd36c82302ac9
+Working directory: D:\CodexCLI\vibecoding\HW2
+Part 2 committed: confirmed by git rev-parse HEAD and accepted commit subject.
+Initial 12-source diff: empty. Resumption: no part3_* artifacts existed.
+
+Actual verification command (PowerShell; approved execution outside sandbox):
+@'
+import ast
+import doctest
+import importlib
+import io
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tokenize
+
+baseline = "fd1192f5b13c10936710525f1e2cd36c82302ac9"
+files = "main.py make_figures.py cli.py state.py integration.py contacts.py rendering.py validation.py check_cli.py check_integration.py check_contacts.py check_scheduling.py".split()
+def git(*args):
+    return subprocess.check_output(["git", "-c", "core.autocrlf=false", *args])
+assert sys.version_info[:3] == (3, 12, 10)
+assert git("rev-parse", "HEAD").decode().strip() == baseline
+assert sorted(p.name for p in Path(".").glob("*.py")) == sorted(files)
+print("Baseline:", baseline)
+print("Interpreter:", sys.executable)
+print("Python:", sys.version)
+operational = re.compile(r"coding\s*[:=]|^#!|type:\s*|noqa|fmt:|isort:|pylint:|pyright:|mypy:|ruff:|yapf:|nosec|pragma|coverage", re.I)
+def tokens(source):
+    stream = list(tokenize.generate_tokens(io.StringIO(source).readline))
+    directives = [t.string for t in stream if t.type == tokenize.COMMENT and operational.search(t.string)]
+    ordinary_excluded = [(t.type, t.string) for t in stream if t.type not in (tokenize.COMMENT, tokenize.NL)]
+    return ordinary_excluded, directives
+for name in files:
+    old = git("show", baseline + ":" + name).decode("utf-8").replace("\r\n", "\n")
+    new = Path(name).read_text(encoding="utf-8")
+    assert ast.dump(ast.parse(old, type_comments=True), include_attributes=False) == ast.dump(ast.parse(new, type_comments=True), include_attributes=False), name + " AST"
+    assert tokens(old) == tokens(new), name + " tokens/directives"
+    print(name + ": PASS full AST (docstrings retained), non-comment tokens, operational comments")
+total = 0
+for name in ("state", "integration", "contacts"):
+    result = doctest.testmod(importlib.import_module(name), verbose=False)
+    print(f"{name}: {result.attempted} doctest examples, {result.failed} failures")
+    assert result.failed == 0
+    total += result.attempted
+print(f"Doctest total: {total} examples, 0 failures")
+result = subprocess.run(["git", "-c", "core.autocrlf=false", "diff", "--check"], capture_output=True, text=True)
+print("git diff --check exit:", result.returncode)
+print(result.stdout + result.stderr, end="")
+assert result.returncode == 0
+patch = git("diff", "--no-ext-diff", baseline, "--", *files)
+Path("assign3/part3_source_diff.patch").write_bytes(patch)
+print("Wrote assign3/part3_source_diff.patch (12-source-file scope only)")
+print("Not run: regression suites, numpydoc lint, GUI, make_figures/final baseline comparison.")
+
+'@ | & 'C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe' -B -
+
+Actual output (exit 0):
+Baseline: fd1192f5b13c10936710525f1e2cd36c82302ac9
+Interpreter: C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+main.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+make_figures.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+cli.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+state.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+integration.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+contacts.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+rendering.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+validation.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+check_cli.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+check_integration.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+check_contacts.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+check_scheduling.py: PASS full AST (docstrings retained), non-comment tokens, operational comments
+state: 5 doctest examples, 0 failures
+integration: 7 doctest examples, 0 failures
+contacts: 7 doctest examples, 0 failures
+Doctest total: 19 examples, 0 failures
+git diff --check exit: 0
+Wrote assign3/part3_source_diff.patch (12-source-file scope only)
+Not run: regression suites, numpydoc lint, GUI, make_figures/final baseline comparison.
+
+Manual review:
+git diff -- integration.py contacts.py rendering.py validation.py check_integration.py check_contacts.py check_scheduling.py
+Reviewed complete output: comments only; no docstrings or executable lines changed
+except removal of trailing ordinary comments. Reviewed all 12 source files.
+No operational comments or encoding declarations were added, removed, or changed.
+
+Preservation command, run before edits and again after verification:
+$targets=@('state.py','integration.py','contacts.py','rendering.py','cli.py','validation.py','main.py','make_figures.py','check_cli.py','check_contacts.py','check_integration.py','check_scheduling.py'); $inventory=Get-ChildItem -Recurse -Force -File | Where-Object { $_.FullName -notmatch '\\.git\\' -and -not ($_.DirectoryName -eq 'D:\CodexCLI\vibecoding\HW2' -and $_.Name -in $targets) -and $_.FullName -notmatch '\\assign3\\part3_.*$' } | Sort-Object FullName | ForEach-Object { $_.FullName+':'+(Get-FileHash -LiteralPath $_.FullName).Hash }; $sha=[Security.Cryptography.SHA256]::Create(); [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($inventory -join "`n")))); git diff --cached --binary | git hash-object --stdin
+
+Matching before/after output:
+6E-AE-C3-B0-2D-C6-6A-23-4F-83-F8-EC-83-B0-C6-DB-0A-B5-5C-7E-D3-F6-B1-44-84-CC-77-CE-63-F1-BA-B9
+2bace6e700b8fb35ed0a0d836de1f1b4c825b3c9
+
+The inventory excludes .git, the 12 target sources, and assign3/part3_* artifacts.
+It covers existing evidence, unrelated files, SPEC, README, dependencies,
+documentation_errors.md and prior Assignment 3 artifacts. Cached diff unchanged.
+The four deleted helpers remain deleted; no staging, restoring, commit, or push.
+
+Pending/not executed:
+- Numpydoc lint across every source file remains required for final verification.
+- Final make_figures output/baseline comparison remains pending.
+- GUI behavior and historical PyVista/VTK rationale were not tested.
+- Regression suites were not rerun in this comments-only stage.
+- SPEC OverflowError qualification awaits later documentation revision.
+- Proposed first-impact criterion remains unimplemented and unexecuted.
+Saved user-run before-baseline results are not agent-executed results.
+
+Final whitespace checks (including untracked Markdown/text artifacts):
+git -c core.autocrlf=false diff --check
+git -c core.autocrlf=false diff --no-index --check -- /dev/null assign3/part3_review.md
+git -c core.autocrlf=false diff --no-index --check -- /dev/null assign3/part3_verification.txt
+Tracked diff check returned exit 0. Both no-index artifact checks returned
+exit 1 (new-file differences), with no whitespace diagnostics. The verification
+log was checked again after recording these results, also with no diagnostics.
+The patch artifact contains the exact git-generated source diff; source
+whitespace was checked above (patch context spaces are diff syntax).
+Final git status: seven source files modified, three part3_* artifacts untracked;
+all pre-existing unrelated status entries remain as recorded at task start.

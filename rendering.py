@@ -17,6 +17,7 @@ from integration import complete_step
 from state import Box, CircleState, PhysicsParameters
 
 
+# Bound work per display callback; excess whole steps are discarded below.
 MAX_STEPS_PER_UPDATE = 60
 
 
@@ -127,6 +128,8 @@ class FixedStepScheduler:
         quotient = total / self.parameters.dt
         if not math.isfinite(quotient):
             raise ValueError("elapsed time / dt is too large for the scheduler")
+        # Snap within eight ulps of a whole-step boundary to allow arithmetic
+        # roundoff; other fractions round down instead of advancing early.
         nearest = round(quotient)
         if abs(quotient - nearest) <= 8 * math.ulp(quotient):
             available = nearest
@@ -136,6 +139,8 @@ class FixedStepScheduler:
         for _ in range(count):
             complete_step(self.state, self.parameters, self.box)
         dropped = available - count
+        # Remove ALL available whole steps, including unsimulated backlog.
+        # Retain the fraction; clamp tiny negatives caused by boundary snapping.
         self.accumulator = max(0.0, total - available * self.parameters.dt)
         self.discarded_steps += dropped
         self.discarded_time += dropped * self.parameters.dt
@@ -229,6 +234,7 @@ def run_simulation(parameters: PhysicsParameters) -> None:
     failure = []
     try:
         plotter.set_background("#f5f7fa")
+        # Tessellation affects the visible disk, not radius-based collision tests.
         disk = pv.Disc(center=(0, 0, 0), inner=0, outer=parameters.radius,
                        normal=(0, 0, 1), r_res=1, c_res=96)
         actor = plotter.add_mesh(disk, color="#1676b8", lighting=False, pickable=False)
@@ -238,6 +244,7 @@ def run_simulation(parameters: PhysicsParameters) -> None:
                            ((0, 0, 0), (0, box.height, 0)),
                            ((box.width, 0, 0), (box.width, box.height, 0))):
             plotter.add_mesh(pv.Line(start, end), color="#27364b", line_width=4, pickable=False)
+        # Twenty 55%-filled segments draw a guide, not a collision surface.
         for index in range(20):
             start = index * box.width / 20
             end = start + 0.55 * box.width / 20
@@ -248,6 +255,8 @@ def run_simulation(parameters: PhysicsParameters) -> None:
                          "Fixed view | Q / Escape: close",
                          position="upper_left", font_size=11, color="#27364b")
         status = plotter.add_text("", position=(12, 12), font_size=10, color="#27364b")
+        # Fixed parallel framing in world units; physics coordinates pass through.
+        # Window/text sizes and offsets above are display settings.
         plotter.camera_position = [(box.width / 2, box.height / 2, 10),
                                    (box.width / 2, box.height / 2, 0), (0, 1, 0)]
         plotter.enable_parallel_projection()
@@ -255,8 +264,8 @@ def run_simulation(parameters: PhysicsParameters) -> None:
         plotter.camera.clipping_range = (0.1, 20)
 
         interactor = plotter.iren
-        # No camera style => no rotate/pan/zoom or VTK style keyboard shortcuts.
-        # Setting the public property also prevents show() restoring the old style.
+        # Clear the interaction style and key callbacks before binding exits.
+        # No application camera controls follow the fixed framing above.
         interactor.style = None
         interactor.clear_key_event_callbacks()
         plotter.add_key_event("q", interactor.terminate_app)
@@ -278,18 +287,18 @@ def run_simulation(parameters: PhysicsParameters) -> None:
                                 "(overload makes simulation lag wall time)")
                 plotter.render()
             except Exception as exc:
-                # VTK callbacks otherwise print/swallow Python exceptions. Exit
-                # the event loop and re-raise with the original traceback below.
+                # Carry callback failures across the event-loop boundary; after
+                # show returns, re-raise the first with its original traceback.
                 failure.append((exc, exc.__traceback__))
                 interactor.terminate_app()
 
         interactor.add_observer("TimerEvent", update)
         interactor.initialize()
+        # Display timer requests milliseconds; physics dt remains in seconds.
         timer_id = interactor.create_timer(16, repeating=True)
         if timer_id <= 0:
             raise RuntimeError("VTK could not create the display timer")
-        # Native event processing keeps the window responsive. Closing the
-        # plotter tears down its interactor, timer, observers, and render window.
+        # Enter the native event loop; finally also closes the plotter on errors.
         plotter.show(auto_close=True)
         if failure:
             error, original_traceback = failure[0]

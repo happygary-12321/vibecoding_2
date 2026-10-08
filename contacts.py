@@ -120,13 +120,22 @@ def resolve_contacts(
     radius, restitution = parameters.radius, parameters.restitution
     records = []
 
+    # Floor, left, right is also record order. At corners the floor and wall
+    # change independent components; width > 2*radius keeps wall regions disjoint.
+    # Reordering these responses changes record order, not the final state.
+    # Lower edge y-radius <= 0 includes exact touch. Correct penetration even
+    # when separating; velocity reversal is a separate decision.
     if state.y <= radius:
         correction, before = radius - state.y, state.vy
         state.y = radius
+        # Only inward motion receives restitution; upward/zero vy is preserved.
+        # No speed cutoff suppresses the small rebounds produced by later steps.
         if state.vy < 0:
             state.vy = -restitution * state.vy
         records.append(ContactRecord("floor", (0.0, correction), before, state.vy))
 
+    # Left edge x-radius <= 0 includes touch; project even separating overlaps.
+    # Negative vx enters this wall; tangential vy is unchanged.
     if state.x <= radius:
         correction, before = radius - state.x, state.vx
         state.x = radius
@@ -134,6 +143,8 @@ def resolve_contacts(
             state.vx = -restitution * state.vx
         records.append(ContactRecord("left", (correction, 0.0), before, state.vx))
 
+    # Right edge x+radius >= width includes touch. Its inward normal is -x:
+    # records negate vx, while reflection requires positive vx into the wall.
     right = box.width - radius
     if state.x >= right:
         correction, before = right - state.x, -state.vx
@@ -142,4 +153,6 @@ def resolve_contacts(
             state.vx = -restitution * state.vx
         records.append(ContactRecord("right", (correction, 0.0), before, -state.vx))
 
+    # Height is not a contact bound: no ceiling response exists, and side-wall
+    # tests apply above the displayed upper guide as well.
     return records

@@ -60,6 +60,7 @@ def whole_steps(duration, dt, option):
     ratio = duration / dt
     if not math.isfinite(ratio):
         raise ValueError(f"{option}/dt is too large; increase --dt or shorten {option}")
+    # Allow roundoff near integral duration/dt, not arbitrary partial steps.
     count = round(ratio)
     if count < 1 or abs(ratio - count) > 8 * math.ulp(ratio):
         suggestion = max(1, count) * dt
@@ -106,7 +107,9 @@ def validate_experiments(dt, duration, bounce_duration):
     bounce = whole_steps(bounce_duration, dt, "--bounce-duration")
     if fine != 2 * coarse:
         raise ValueError("coarse and fine durations must have matching whole-step endpoints")
-    # Coarse discrete trajectory is lower than the exact/fine trajectories.
+    # [EQ-FLIGHT]: coarse Euler heights are below fine/continuous heights.
+    # Check continuous fall time, then the stricter coarse endpoint, for
+    # y0=10 m, radius=0.2 m, and g=9.81 m/s^2.
     if duration >= math.sqrt(2 * (10 - 0.2) / 9.81):
         raise ValueError("--duration reaches the floor in the free-fall experiment; "
                          "shorten --duration (default 1 second)")
@@ -140,6 +143,8 @@ def tolerance(base, count, scale):
     on integration error against continuous motion. See assign3/SPEC.md
     [EQ-TOL] and [EQ-DRIFT].
     """
+    # Formula-residual allowance grows with work and scale, with a base floor.
+    # Eight is this check's policy factor, not a bound on trajectory error.
     return max(base, 8 * sys.float_info.epsilon * count * max(1.0, scale))
 
 
@@ -309,6 +314,8 @@ def free_fall(parameters, count, checks, label):
                    step_energy_residual=row["energy"] - previous_energy - step_drift)
         samples.append(row)
         previous_energy = row["energy"]
+    # SI base allowances: 1e-10 m / m/s and 1e-9 J. These bound residuals
+    # after subtracting Euler error, not distance to continuous free fall.
     position_tol = tolerance(1e-10, count, 10)
     velocity_tol = tolerance(1e-10, count, parameters.gravity * count * parameters.dt)
     energy_tol = tolerance(1e-9, count, initial_energy)
@@ -384,6 +391,8 @@ def bouncing(parameters, count, checks, label):
                 record.normal_velocity_after ** 2 - record.normal_velocity_before ** 2)
             loss = (-0.5 * parameters.mass * (1 - parameters.restitution ** 2)
                     * record.normal_velocity_before ** 2 if record.normal_velocity_before < 0 else 0.0)
+            # Vertical projection changes potential energy separately from
+            # restitution's kinetic loss and contact-free integration drift.
             correction = parameters.mass * parameters.gravity * record.position_correction[1]
             measured_contact_kinetic += kinetic_change
             predicted_loss += loss
@@ -427,6 +436,7 @@ def bouncing(parameters, count, checks, label):
                            ("restitution", max_restitution_residual), ("total accounting", max_total_residual)):
         check_close(checks, f"{label}: max absolute {name} residual (J)", residual, 0, energy_tol)
     check_true(checks, f"{label}: finite bounded trajectory", all_bounded)
+    # Elastic restitution removes this loss term, not drift or projection.
     if parameters.restitution == 1:
         check_close(checks, f"{label}: zero restitution loss (J)", loss_total, 0, energy_tol)
     return dict(parameters=asdict(parameters), box=asdict(box), samples=samples,
@@ -458,6 +468,7 @@ def contact_direction(checks):
     parameters = PhysicsParameters(restitution=0.8)
     state = CircleState(y=0.15, vy=2.0)
     records = resolve_contacts(state, parameters, Box())
+    # Direct single-contact checks use 1e-12 SI roundoff allowances.
     check_close(checks, "upward floor overlap: y (m)", state.y, 0.2, 1e-12)
     check_close(checks, "upward floor overlap: vy (m/s)", state.vy, 2.0, 1e-12)
     check_true(checks, "upward floor overlap: one non-impact floor record",
@@ -546,10 +557,13 @@ def write_plots(report, output):
     See assign3/SPEC.md [EQ-DRIFT] and [EQ-ACCOUNTING].
     """
     import matplotlib
-    matplotlib.use("Agg", force=True)  # Must precede pyplot import.
+    # Select the noninteractive backend before pyplot initializes plotting.
+    matplotlib.use("Agg", force=True)
     import matplotlib.pyplot as plt
 
     report["environment"]["matplotlib_backend"] = matplotlib.get_backend()
+    # Inches, DPI, fonts, markers, and line styles below affect presentation;
+    # the plotted physical quantities are not rescaled.
     plt.rcParams.update({"font.size": 10})
     saved = []
 
@@ -706,6 +720,8 @@ def run_validation(output_dir, restitution, dt, duration, bounce_duration):
         report["free_fall"] = [free_fall(parameters, counts[0], report["checks"], "coarse"),
                                free_fall(replace(parameters, dt=dt / 2), counts[1], report["checks"], "fine")]
         coarse, fine = report["free_fall"]
+        # Every second fine sample matches a coarse time. Combine one coarse
+        # and two fine error allowances; 1e-12 s allows time roundoff only.
         matching = [dict(time=c["time"], fine_time=f["time"], coarse_error=c["signed_error"],
                          fine_error=f["signed_error"], refinement_residual=c["signed_error"] - 2 * f["signed_error"])
                     for c, f in zip(coarse["samples"], fine["samples"][::2])]

@@ -47,6 +47,7 @@ def step(state: CircleState, parameters: PhysicsParameters) -> None:
     >>> (state.vx, state.step_count)
     (1.5, 8)
     """
+    # Velocity-first Euler: position uses this step's new vy.
     state.vy -= parameters.gravity * parameters.dt
     state.x += state.vx * parameters.dt
     state.y += state.vy * parameters.dt
@@ -87,5 +88,7 @@ def complete_step(
     [EQ-FLOOR], [EQ-LEFT], [EQ-RIGHT], and [EQ-MICROBOUNCE].
     """
     box.validate_for(parameters)  # Reject invalid geometry before mutating state.
+    # Resolve contacts at the endpoint after the count advances, without
+    # impact-time subdivision or another time increment.
     step(state, parameters)
     return resolve_contacts(state, parameters, box)

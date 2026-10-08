@@ -15,6 +15,8 @@ from rendering import FixedStepScheduler
 from state import Box, CircleState, PhysicsParameters
 
 
+# The 1e-12 s allowances cover fractional-time arithmetic. Step counts and
+# states reached through identical physics steps still use exact comparisons.
 class SchedulingChecks(unittest.TestCase):
     """Check fixed-step scheduling with synthetic elapsed intervals.
 

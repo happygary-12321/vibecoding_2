@@ -266,6 +266,9 @@ class IntegrationChecks(unittest.TestCase):
             print(f"dt=1/{count}: exact final y=5.095 m; "
                   f"max signed-error formula residual={max_residual:.12g} m", flush=True)
             histories.append(errors)
+        # Coarse - 2*fine combines one coarse and two fine allowances. The
+        # ratio uses 1e-7 because division by the small fine error amplifies
+        # absolute roundoff; it is not a trajectory-accuracy threshold.
         coarse, fine = histories
         for n in range(1, 241):
             self.assertLess(coarse[n], 0)

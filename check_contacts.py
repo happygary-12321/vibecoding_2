@@ -278,9 +278,9 @@ class ContactChecks(unittest.TestCase):
         """
         s, p, box = CircleState(), PhysicsParameters(), Box()
         impacts = set()
-        for n in range(1, 2401):  # Ten simulated seconds.
+        for n in range(1, 2401):
             records = complete_step(s, p, box)
-            s.validate()  # Includes finiteness and integer step count.
+            s.validate()
             self.assertEqual(s.step_count, n)
             self.assertGreaterEqual(s.y, p.radius)
             self.assertGreaterEqual(s.x, p.radius)
