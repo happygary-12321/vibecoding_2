@@ -1,0 +1,160 @@
+Trying:
+    import unittest
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(IntegrationChecks)
+Expecting nothing
+ok
+Trying:
+    suite.countTestCases()
+Expecting:
+    5
+ok
+Trying:
+    import contextlib, io
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    stream = io.StringIO()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(stream):
+        result = IntegrationChecks().measured('height (m)', 0.2, 0.2, 1e-12)
+Expecting nothing
+ok
+Trying:
+    (result is None, 'expected=0.2' in stream.getvalue())
+Expecting:
+    (True, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = IntegrationChecks('test_defaults_and_geometry').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = IntegrationChecks('test_invalid_state_and_parameters').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = IntegrationChecks('test_one_step').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = IntegrationChecks('test_zero_gravity').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_integration import IntegrationChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = IntegrationChecks('test_free_fall_and_refinement').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+7 items passed all tests:
+   4 tests in check_integration.IntegrationChecks
+   5 tests in check_integration.IntegrationChecks.measured
+   5 tests in check_integration.IntegrationChecks.test_defaults_and_geometry
+   5 tests in check_integration.IntegrationChecks.test_free_fall_and_refinement
+   5 tests in check_integration.IntegrationChecks.test_invalid_state_and_parameters
+   5 tests in check_integration.IntegrationChecks.test_one_step
+   5 tests in check_integration.IntegrationChecks.test_zero_gravity
+34 tests in 7 items.
+34 passed and 0 failed.
+Test passed.

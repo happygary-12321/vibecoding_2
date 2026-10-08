@@ -1,0 +1,282 @@
+﻿[
+    {
+        "document":  "README.md",
+        "target":  "requirements-figures.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "requirements-rendering.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "requirements-report.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "requirements.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "main.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "make_figures.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "cli.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "state.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "integration.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "contacts.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "rendering.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "validation.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "check_cli.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "check_integration.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "check_contacts.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "check_scheduling.py",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/SPEC.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/before/figures/results.json",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/before/make_figures.log",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/bug_cases.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/part2_verification.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/part3_verification.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/part3_review.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/part4_review.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/documentation_errors.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/part5_summary.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/verification/",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/verification/final_source_hashes.json",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/verification/final_make_figures.command.txt",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/comparison_results.json",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/verification/lint_revision_summary.json",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/verification/lint_reviewed_all.log",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/before/",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/original_plan.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/change_log.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/provenance.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/report.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "report.pdf",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/report_review.json",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/transcript/manifest.json",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "docs/transcript/README.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/transcript/REFRESH.md",
+        "exists":  true
+    },
+    {
+        "document":  "README.md",
+        "target":  "assign3/part5_summary.md",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/SPEC.md",
+        "target":  "before/",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "verification/",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "requirements-docs.txt",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "documentation_errors.md",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "part5_source_docstrings.patch",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "after/",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "verification/final_source_hashes.json",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "comparison_results.json",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "before/",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "transcript/manifest.json",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "transcript/REFRESH.md",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "submission_files.txt",
+        "exists":  true
+    },
+    {
+        "document":  "assign3/part5_summary.md",
+        "target":  "unrelated_helper_deletions.txt",
+        "exists":  true
+    }
+]

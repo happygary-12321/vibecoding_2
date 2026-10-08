@@ -1,0 +1,62 @@
+﻿[
+    {
+        "path":  "evidence\\assignment3\\before\\commit.txt",
+        "sha256":  "F489EBA2D739009C0B27155EC5389ABE55F3ECAF57EDC4FB04CF49B940E91DCD",
+        "bytes":  41
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\dependencies.txt",
+        "sha256":  "BC194C64CBB4AC2439EFBF03AFC2DE641BC732852094132A5387933B4A5D6610",
+        "bytes":  1703
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\git_status.txt",
+        "sha256":  "8EDA9778DD56B7D153EB276F4F3F6B3CC53D6176C6793E654D9DC85825A4AE92",
+        "bytes":  1111
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\make_figures.exit.txt",
+        "sha256":  "9ACA8DFCE962538FB8131D73F84CADA05E4DC79F5A0D3612C511B1150F3E33E2",
+        "bytes":  4
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\make_figures.log",
+        "sha256":  "DBEBBC70B657FCA599F22D8B50811D33460DAB1218A1B9DEC200DC896B972CEF",
+        "bytes":  445
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\python_version.txt",
+        "sha256":  "6A5D9F6462CA5DFC6788CFD216BA579FFFD7875776AB9D9B35659BE78858F73A",
+        "bytes":  16
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\figures\\bouncing_energy.png",
+        "sha256":  "D7C9C7332EF5C713F1288574FAC77B44D86D6DBECAB81165AFC81CD41ED9D710",
+        "bytes":  225629
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\figures\\contact_direction.png",
+        "sha256":  "66DA597215B8B38D415BF7D1BF50B6EF96EFB0FCC65005D86DBAEB9BAD3EFA8B",
+        "bytes":  80261
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\figures\\free_fall.png",
+        "sha256":  "5C5EB9E8911C22D9BB5C3A946AB185AF93600933170B3B9C09677FA0D8702440",
+        "bytes":  157547
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\figures\\free_fall_energy.png",
+        "sha256":  "83C71E69CA8EE7735F9EC6F308A2DEB312D642A5E74E250ED7BCE0906FD5EFF0",
+        "bytes":  107156
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\figures\\regression_checks.txt",
+        "sha256":  "84B3C3021CE7F245A0DE71C32F8C1F091E1E39AA9B84FB628C4382E16A206E62",
+        "bytes":  3241
+    },
+    {
+        "path":  "evidence\\assignment3\\before\\figures\\results.json",
+        "sha256":  "6FDC2E2C84F15AE1619ED7D4C64C7D03D06F2CB7956BA20C24883A75CEE0B9D7",
+        "bytes":  6889016
+    }
+]

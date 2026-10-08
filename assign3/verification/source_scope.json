@@ -1,0 +1,25 @@
+{
+  "files": [
+    "check_cli.py",
+    "check_contacts.py",
+    "check_integration.py",
+    "check_scheduling.py",
+    "cli.py",
+    "contacts.py",
+    "integration.py",
+    "main.py",
+    "make_figures.py",
+    "rendering.py",
+    "state.py",
+    "validation.py"
+  ],
+  "exclusions": [
+    ".venv/ and other environments",
+    "vendored code",
+    "huang_yuxuan_hw2/",
+    "final/ and archives",
+    ".bug-worktrees/",
+    "four tracked-but-locally-deleted helpers"
+  ],
+  "new_python_helpers": []
+}

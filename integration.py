@@ -14,6 +14,9 @@ from state import Box, CircleState, PhysicsParameters
 def step(state: CircleState, parameters: PhysicsParameters) -> None:
     """Advance state by one contact-free, velocity-first Euler step.
 
+    Use this integrator for contact-free motion and analytical comparisons.
+    Boundary correction belongs to complete_step, not this operation.
+
     Parameters
     ----------
     state : CircleState
@@ -25,6 +28,10 @@ def step(state: CircleState, parameters: PhysicsParameters) -> None:
     -------
     None
         The input state is updated; no new state is returned.
+
+    See Also
+    --------
+    integration.complete_step : Integrate and resolve boundary contacts.
 
     Notes
     -----
@@ -59,6 +66,9 @@ def complete_step(
 ) -> list[ContactRecord]:
     """Integrate once, then correct floor and side-wall contacts.
 
+    This is the scheduler's physical timestep: first integrate, then apply
+    endpoint contact response, with exactly one step-count increment.
+
     Parameters
     ----------
     state : CircleState
@@ -79,6 +89,11 @@ def complete_step(
     ValueError
         If box.validate_for rejects the geometry before integration.
 
+    See Also
+    --------
+    integration.step : Advance without contacts.
+    contacts.resolve_contacts : Apply response without advancing time.
+
     Notes
     -----
     Mutates state through step and resolve_contacts. The count increments
@@ -86,6 +101,17 @@ def complete_step(
     State finiteness is not checked here. There is no resting-contact cutoff;
     small repeated floor rebounds can persist. See assign3/SPEC.md [EQ-STEP],
     [EQ-FLOOR], [EQ-LEFT], [EQ-RIGHT], and [EQ-MICROBOUNCE].
+
+    Examples
+    --------
+    >>> from state import Box, CircleState, PhysicsParameters
+    >>> from integration import complete_step
+    >>> state = CircleState(y=0.2, vy=-1, vx=0)
+    >>> records = complete_step(state, PhysicsParameters(dt=0.01), Box())
+    >>> (state.y, round(state.vy, 6), state.step_count)
+    (0.2, 0.87848, 1)
+    >>> [record.surface for record in records]
+    ['floor']
     """
     box.validate_for(parameters)  # Reject invalid geometry before mutating state.
     # Resolve contacts at the endpoint after the count advances, without

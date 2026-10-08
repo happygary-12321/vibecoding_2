@@ -1,0 +1,67 @@
+import ast, hashlib, io, json, os, pathlib, shutil, subprocess, sys, tokenize
+root = pathlib.Path.cwd()
+out = root / "assign3" / "verification"
+out.mkdir(parents=True, exist_ok=True)
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+os.environ["PYTHONUTF8"] = "1"
+def run(name, args):
+    command = [sys.executable, *args]
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (out / (name + ".command.txt")).write_text(subprocess.list2cmdline(command) + "\n", encoding="utf-8")
+    (out / (name + ".log")).write_bytes(result.stdout)
+    (out / (name + ".exit.txt")).write_text(str(result.returncode) + "\n")
+    print(name, "exit", result.returncode, result.stdout.decode("utf-8", errors="replace")[-1200:], flush=True)
+    return result
+
+import doctest, importlib
+files = json.loads((out/"source_scope.json").read_text())["files"]
+for f in files:
+    run("lint_final_"+pathlib.Path(f).stem, ["-m","numpydoc","lint",f])
+run("lint_explicit_final", ["-m","numpydoc","lint",*files])
+class StripDocstrings(ast.NodeTransformer):
+    def generic_visit(self, node):
+        super().generic_visit(node)
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.body and isinstance(node.body[0],ast.Expr) and isinstance(node.body[0].value,ast.Constant) and isinstance(node.body[0].value.value,str):
+                node.body.pop(0)
+        return node
+baseline="604a32d3d9c8d400a2ecedb7d35f36eee29563fb"
+ast_results=[]
+for f in files:
+    old=subprocess.check_output(["git","show",baseline+":"+f]).decode("utf-8")
+    new=pathlib.Path(f).read_text(encoding="utf-8")
+    equal=ast.dump(StripDocstrings().visit(ast.parse(old,type_comments=True)),include_attributes=False)==ast.dump(StripDocstrings().visit(ast.parse(new,type_comments=True)),include_attributes=False)
+    ast_results.append({"file":f,"executable_ast_equal":equal})
+    assert equal, f
+(out/"ast_comparison.json").write_text(json.dumps({"baseline":baseline,"files":ast_results},indent=2))
+(out/"ast_comparison.exit.txt").write_text("0\n")
+examples=[]
+for name in ("state","integration","contacts"):
+    module=importlib.import_module(name)
+    examples += [{"object":t.name,"examples":len(t.examples)} for t in doctest.DocTestFinder().find(module) if t.examples]
+(out/"doctest_coverage.json").write_text(json.dumps(examples,indent=2))
+assert len(examples)>=3
+run("physics_doctests", ["-B","-m","doctest","-v","state.py","integration.py","contacts.py"])
+for f in ("check_integration.py","check_contacts.py","check_scheduling.py","check_cli.py"):
+    run(pathlib.Path(f).stem,["-B",f])
+run("pip_check",["-m","pip","check"])
+# Use the literal required command with PATH selecting this verified Python.
+os.environ["PATH"]=str(pathlib.Path(sys.executable).parent)+os.pathsep+os.environ["PATH"]
+cmd="python make_figures.py"
+result=subprocess.run(["cmd.exe","/d","/c",cmd],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+(out/"make_figures.command.txt").write_text(cmd+"\nWorking directory: "+str(root)+"\nPATH first: "+str(pathlib.Path(sys.executable).parent)+"\nPYTHONDONTWRITEBYTECODE=1; PYTHONUTF8=1\n")
+(out/"make_figures.log").write_bytes(result.stdout)
+(out/"make_figures.exit.txt").write_text(str(result.returncode)+"\n")
+print("literal make_figures",result.returncode,result.stdout.decode("utf-8",errors="replace"),flush=True)
+assert result.returncode==0
+after=root/"assign3"/"after"
+after.mkdir(exist_ok=True)
+for name in ("free_fall.png","free_fall_energy.png","bouncing_energy.png","contact_direction.png","results.json","regression_checks.txt"):
+    shutil.copyfile(root/"figures"/name,after/name)
+before=root/"evidence"/"assignment3"/"before"
+copy=root/"assign3"/"before"
+assert not copy.exists()
+shutil.copytree(before,copy)
+patch=subprocess.check_output(["git","-c","core.autocrlf=false","diff","--",*files])
+(root/"assign3"/"part5_source_docstrings.patch").write_bytes(patch)
+print("12 AST comparisons passed; doctest objects",examples,flush=True)

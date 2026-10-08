@@ -1,0 +1,92 @@
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from rendering import FixedStepScheduler
+Expecting nothing
+ok
+Trying:
+    scheduler = FixedStepScheduler(CircleState(), PhysicsParameters(dt=0.1), Box())
+Expecting nothing
+ok
+Trying:
+    scheduler.advance(0.04)
+Expecting:
+    0
+ok
+Trying:
+    scheduler.advance(0.06)
+Expecting:
+    1
+ok
+Trying:
+    scheduler.state.step_count
+Expecting:
+    1
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from rendering import FixedStepScheduler
+Expecting nothing
+ok
+Trying:
+    scheduler = FixedStepScheduler(CircleState(), PhysicsParameters(), Box())
+Expecting nothing
+ok
+Trying:
+    scheduler.__post_init__() is None
+Expecting:
+    True
+ok
+Trying:
+    scheduler.state.step_count
+Expecting:
+    0
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from rendering import FixedStepScheduler
+Expecting nothing
+ok
+Trying:
+    scheduler = FixedStepScheduler(CircleState(), PhysicsParameters(dt=0.01), Box())
+Expecting nothing
+ok
+Trying:
+    scheduler.advance(1.2575)
+Expecting:
+    60
+ok
+Trying:
+    (scheduler.discarded_steps, round(scheduler.accumulator, 4))
+Expecting:
+    (65, 0.0075)
+ok
+Trying:
+    from rendering import RenderingDependencyError
+Expecting nothing
+ok
+Trying:
+    error = RenderingDependencyError('Install PyVista/VTK')
+Expecting nothing
+ok
+Trying:
+    (str(error), error.args)
+Expecting:
+    ('Install PyVista/VTK', ('Install PyVista/VTK',))
+ok
+4 items passed all tests:
+   6 tests in rendering.FixedStepScheduler
+   5 tests in rendering.FixedStepScheduler.__post_init__
+   5 tests in rendering.FixedStepScheduler.advance
+   3 tests in rendering.RenderingDependencyError
+19 tests in 4 items.
+19 passed and 0 failed.
+Test passed.

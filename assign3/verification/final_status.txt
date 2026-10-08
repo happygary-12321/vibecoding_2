@@ -1,0 +1,53 @@
+﻿ M README.md
+ M assign3/SPEC.md
+ M assign3/documentation_errors.md
+ D build_report.py
+ M check_cli.py
+ M check_contacts.py
+ M check_integration.py
+ M check_scheduling.py
+ M cli.py
+A  evidence/final/check_cli.exit.txt
+A  evidence/final/check_cli.txt
+A  evidence/final/check_contacts.exit.txt
+A  evidence/final/check_contacts.txt
+A  evidence/final/check_integration.exit.txt
+A  evidence/final/check_integration.txt
+A  evidence/final/check_scheduling.exit.txt
+A  evidence/final/check_scheduling.txt
+A  evidence/final/figures/bouncing_energy.png
+A  evidence/final/figures/contact_direction.png
+A  evidence/final/figures/free_fall.png
+A  evidence/final/figures/free_fall_energy.png
+A  evidence/final/figures/regression_checks.txt
+A  evidence/final/figures/results.json
+A  evidence/final/make_figures.exit.txt
+A  evidence/final/make_figures.txt
+A  evidence/final/pip_check.exit.txt
+A  evidence/final/pip_check.txt
+A  evidence/final/summary.json
+ M figures/regression_checks.txt
+ D final_verify.py
+ D package_submission.py
+ D preserve_transcript.py
+ M validation.py
+?? Simulator_Report.pdf
+?? Simulator_Report_Completed.docx
+?? Simulator_Report_Template.docx
+?? assign3/.gitattributes
+?? assign3/after/
+?? assign3/before/
+?? assign3/comparison_results.json
+?? assign3/part5_source_docstrings.patch
+?? assign3/part5_summary.md
+?? assign3/requirements-docs.txt
+?? assign3/submission_files.txt
+?? assign3/transcript/
+?? assign3/verification/
+?? evidence/assignment3/
+?? evidence/bug_a/
+?? evidence/bug_b/
+?? final/
+?? huang_yuxuan_hw2.zip
+?? huang_yuxuan_hw2/
+?? "tatus --short"

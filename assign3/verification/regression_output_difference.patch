@@ -1,0 +1,61 @@
+--- before
++++ after
+@@ -1,5 +1,7 @@
+-test_defaults_and_geometry (check_integration.IntegrationChecks.test_defaults_and_geometry) ... ok
+-test_free_fall_and_refinement (check_integration.IntegrationChecks.test_free_fall_and_refinement) ... dt=1/240 final y (m): expected=5.0745625, measured=5.0745625, absolute tolerance=1e-10
++test_defaults_and_geometry (check_integration.IntegrationChecks.test_defaults_and_geometry)
++Check defaults, legal penetration, and diameter-dependent geometry. ... ok
++test_free_fall_and_refinement (check_integration.IntegrationChecks.test_free_fall_and_refinement)
++Check signed height error and timestep refinement over one second. ... dt=1/240 final y (m): expected=5.0745625, measured=5.0745625, absolute tolerance=1e-10
+ dt=1/240 final vy (m/s): expected=-9.81, measured=-9.81, absolute tolerance=1e-10
+ dt=1/240 signed height error (m): expected=-0.0204375, measured=-0.0204375, absolute tolerance=1e-10
+ dt=1/240: exact final y=5.095 m; max signed-error formula residual=6.33174068732e-15 m
+@@ -9,22 +11,31 @@
+ dt=1/480: exact final y=5.095 m; max signed-error formula residual=7.35349281467e-15 m
+ final coarse/fine error ratio: expected=2, measured=2, absolute tolerance=1e-07
+ ok
+-test_invalid_state_and_parameters (check_integration.IntegrationChecks.test_invalid_state_and_parameters) ... ok
+-test_one_step (check_integration.IntegrationChecks.test_one_step) ... one step vy (m/s): expected=2.019, measured=2.019, absolute tolerance=1e-12
++test_invalid_state_and_parameters (check_integration.IntegrationChecks.test_invalid_state_and_parameters)
++Check rejected numeric values, ranges, and step-count types. ... ok
++test_one_step (check_integration.IntegrationChecks.test_one_step)
++Check one velocity-first step and the resulting simulation time. ... one step vy (m/s): expected=2.019, measured=2.019, absolute tolerance=1e-12
+ one step y (m): expected=2.2019, measured=2.2019, absolute tolerance=1e-12
+ one step x (m): expected=1.15, measured=1.15, absolute tolerance=1e-12
+ one step time (s): expected=0.8, measured=0.8, absolute tolerance=1e-12
+ ok
+-test_zero_gravity (check_integration.IntegrationChecks.test_zero_gravity) ... zero gravity x (m): expected=-1, measured=-1, absolute tolerance=1e-10
++test_zero_gravity (check_integration.IntegrationChecks.test_zero_gravity)
++Check a one-second constant-velocity trajectory. ... zero gravity x (m): expected=-1, measured=-1, absolute tolerance=1e-10
+ zero gravity y (m): expected=5, measured=5, absolute tolerance=1e-10
+ ok
+-test_both_corners (check_contacts.ContactChecks.test_both_corners) ... ok
+-test_complete_step_order (check_contacts.ContactChecks.test_complete_step_order) ... ok
+-test_default_trajectory (check_contacts.ContactChecks.test_default_trajectory) ... Default trajectory: measured steps=2400, time=10 s; expected steps=2400, time=10 s; impact surfaces=['floor', 'left', 'right']
++test_both_corners (check_contacts.ContactChecks.test_both_corners)
++Check independent floor and wall responses at both lower corners. ... ok
++test_complete_step_order (check_contacts.ContactChecks.test_complete_step_order)
++Check integration before contact correction and one count increment. ... ok
++test_default_trajectory (check_contacts.ContactChecks.test_default_trajectory)
++Check finite bounded default motion for 2400 complete steps. ... Default trajectory: measured steps=2400, time=10 s; expected steps=2400, time=10 s; impact surfaces=['floor', 'left', 'right']
+ ok
+-test_no_contact_and_no_ceiling (check_contacts.ContactChecks.test_no_contact_and_no_ceiling) ... ok
+-test_restitution_endpoints (check_contacts.ContactChecks.test_restitution_endpoints) ... ok
+-test_surfaces_and_directions (check_contacts.ContactChecks.test_surfaces_and_directions) ... floor, initial vy=-2: expected y=0.2, vy=+1.6; measured y=0.2, vy=+1.6; impact=True
++test_no_contact_and_no_ceiling (check_contacts.ContactChecks.test_no_contact_and_no_ceiling)
++Check that interior states at several heights remain unchanged. ... ok
++test_restitution_endpoints (check_contacts.ContactChecks.test_restitution_endpoints)
++Check e=0 and e=1 responses at all three surfaces. ... ok
++test_surfaces_and_directions (check_contacts.ContactChecks.test_surfaces_and_directions)
++Check touching and penetrating contacts for every surface. ... floor, initial vy=-2: expected y=0.2, vy=+1.6; measured y=0.2, vy=+1.6; impact=True
+ floor, initial vy=+2: expected y=0.2, vy=+2; measured y=0.2, vy=+2; impact=False
+ floor, initial vy=+0: expected y=0.2, vy=+0; measured y=0.2, vy=+0; impact=False
+ left, initial vx=-2: expected x=0.2, vx=+1.6; measured x=0.2, vx=+1.6; impact=True
+@@ -36,6 +47,6 @@
+ ok
+ 
+ ----------------------------------------------------------------------
+-Ran 11 tests in 0.006s
++Ran 11 tests in 0.007s
+ 
+ OK

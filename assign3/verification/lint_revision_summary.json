@@ -1,0 +1,389 @@
+{
+  "raw_lint_exit": 1,
+  "diagnostics": {
+    "PR02": 9
+  },
+  "example_statements": 326,
+  "runnable_objects": 75,
+  "example_failures": 0,
+  "per_object": [
+    {
+      "object": "check_cli.CliChecks",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.invoke",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_defaults",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_help",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_main_passes_parameters_without_opening_gui",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering.guarded_import",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors.MissingDependency",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_figure_options",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_headless_figures",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_invalid_inputs",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_cli.CliChecks.test_missing_values",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.close",
+      "examples": 2,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.test_surfaces_and_directions",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.test_no_contact_and_no_ceiling",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.test_both_corners",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.test_restitution_endpoints",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.test_complete_step_order",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_contacts.ContactChecks.test_default_trajectory",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks.measured",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks.test_defaults_and_geometry",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks.test_invalid_state_and_parameters",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks.test_one_step",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks.test_zero_gravity",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_integration.IntegrationChecks.test_free_fall_and_refinement",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.scheduler",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.test_insufficient_and_fractional_time",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.test_display_interval_independence",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.test_cap_discard_and_remainder",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.test_exact_cap_does_not_discard",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.test_invalid_elapsed",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "check_scheduling.SchedulingChecks.test_no_pyvista_import",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "cli.finite_number",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "cli.restitution_value",
+      "examples": 2,
+      "failed": 0
+    },
+    {
+      "object": "cli.timestep_value",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "cli.parse_args",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "contacts.ContactRecord",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "contacts.ContactRecord.is_impact",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "contacts.resolve_contacts",
+      "examples": 7,
+      "failed": 0
+    },
+    {
+      "object": "integration.step",
+      "examples": 7,
+      "failed": 0
+    },
+    {
+      "object": "integration.complete_step",
+      "examples": 6,
+      "failed": 0
+    },
+    {
+      "object": "main.main",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "make_figures.main",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "rendering.FixedStepScheduler",
+      "examples": 6,
+      "failed": 0
+    },
+    {
+      "object": "rendering.FixedStepScheduler.__post_init__",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "rendering.FixedStepScheduler.advance",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "rendering.RenderingDependencyError",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state._finite",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.PhysicsParameters",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.PhysicsParameters.__post_init__",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.Box",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.Box.__post_init__",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.Box.validate_for",
+      "examples": 2,
+      "failed": 0
+    },
+    {
+      "object": "state.CircleState",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.CircleState.__post_init__",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "state.CircleState.validate",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "state.CircleState.time",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "validation.whole_steps",
+      "examples": 2,
+      "failed": 0
+    },
+    {
+      "object": "validation.validate_experiments",
+      "examples": 2,
+      "failed": 0
+    },
+    {
+      "object": "validation.tolerance",
+      "examples": 2,
+      "failed": 0
+    },
+    {
+      "object": "validation.check_close",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "validation.check_true",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "validation.energy",
+      "examples": 3,
+      "failed": 0
+    },
+    {
+      "object": "validation.sample",
+      "examples": 6,
+      "failed": 0
+    },
+    {
+      "object": "validation.free_fall",
+      "examples": 6,
+      "failed": 0
+    },
+    {
+      "object": "validation.bouncing",
+      "examples": 6,
+      "failed": 0
+    },
+    {
+      "object": "validation.contact_direction",
+      "examples": 4,
+      "failed": 0
+    },
+    {
+      "object": "validation.regression_checks",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "validation.write_plots",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "validation.write_plots.save",
+      "examples": 5,
+      "failed": 0
+    },
+    {
+      "object": "validation.run_validation",
+      "examples": 5,
+      "failed": 0
+    }
+  ],
+  "manual_not_executed": [
+    "rendering.run_simulation (native GUI example)"
+  ]
+}

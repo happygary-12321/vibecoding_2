@@ -1,0 +1,468 @@
+
+check_cli.py:31: ES01 No extended summary found
+
+check_cli.py:31: PR02 Unknown parameters {'methodName'}
+
+check_cli.py:31: SA01 See Also section not found
+
+check_cli.py:31: EX01 No examples section found
+
+check_cli.py:56: ES01 No extended summary found
+
+check_cli.py:56: SA01 See Also section not found
+
+check_cli.py:56: EX01 No examples section found
+
+check_cli.py:87: ES01 No extended summary found
+
+check_cli.py:87: SA01 See Also section not found
+
+check_cli.py:87: EX01 No examples section found
+
+check_cli.py:110: ES01 No extended summary found
+
+check_cli.py:110: SA01 See Also section not found
+
+check_cli.py:110: EX01 No examples section found
+
+check_cli.py:137: ES01 No extended summary found
+
+check_cli.py:137: SA01 See Also section not found
+
+check_cli.py:137: EX01 No examples section found
+
+check_cli.py:174: ES01 No extended summary found
+
+check_cli.py:174: SA01 See Also section not found
+
+check_cli.py:174: EX01 No examples section found
+
+check_cli.py:195: ES01 No extended summary found
+
+check_cli.py:195: SA01 See Also section not found
+
+check_cli.py:195: EX01 No examples section found
+
+check_cli.py:234: ES01 No extended summary found
+
+check_cli.py:234: SA01 See Also section not found
+
+check_cli.py:234: EX01 No examples section found
+
+check_cli.py:253: ES01 No extended summary found
+
+check_cli.py:253: SA01 See Also section not found
+
+check_cli.py:253: EX01 No examples section found
+
+check_cli.py:278: ES01 No extended summary found
+
+check_cli.py:278: SA01 See Also section not found
+
+check_cli.py:278: EX01 No examples section found
+
+check_cli.py:317: ES01 No extended summary found
+
+check_cli.py:317: SA01 See Also section not found
+
+check_cli.py:317: EX01 No examples section found
+
+check_cli.py:360: ES01 No extended summary found
+
+check_cli.py:360: SA01 See Also section not found
+
+check_cli.py:360: EX01 No examples section found
+
+check_cli.py:393: ES01 No extended summary found
+
+check_cli.py:393: SA01 See Also section not found
+
+check_cli.py:393: EX01 No examples section found
+
+check_contacts.py:25: ES01 No extended summary found
+
+check_contacts.py:25: PR02 Unknown parameters {'methodName'}
+
+check_contacts.py:25: SA01 See Also section not found
+
+check_contacts.py:25: EX01 No examples section found
+
+check_contacts.py:51: ES01 No extended summary found
+
+check_contacts.py:51: SA01 See Also section not found
+
+check_contacts.py:51: EX01 No examples section found
+
+check_contacts.py:71: ES01 No extended summary found
+
+check_contacts.py:71: SA01 See Also section not found
+
+check_contacts.py:71: EX01 No examples section found
+
+check_contacts.py:129: ES01 No extended summary found
+
+check_contacts.py:129: SA01 See Also section not found
+
+check_contacts.py:129: EX01 No examples section found
+
+check_contacts.py:154: ES01 No extended summary found
+
+check_contacts.py:154: SA01 See Also section not found
+
+check_contacts.py:154: EX01 No examples section found
+
+check_contacts.py:189: ES01 No extended summary found
+
+check_contacts.py:189: SA01 See Also section not found
+
+check_contacts.py:189: EX01 No examples section found
+
+check_contacts.py:222: ES01 No extended summary found
+
+check_contacts.py:222: SA01 See Also section not found
+
+check_contacts.py:222: EX01 No examples section found
+
+check_contacts.py:258: ES01 No extended summary found
+
+check_contacts.py:258: SA01 See Also section not found
+
+check_contacts.py:258: EX01 No examples section found
+
+check_integration.py:23: ES01 No extended summary found
+
+check_integration.py:23: PR02 Unknown parameters {'methodName'}
+
+check_integration.py:23: SA01 See Also section not found
+
+check_integration.py:23: EX01 No examples section found
+
+check_integration.py:49: ES01 No extended summary found
+
+check_integration.py:49: SA01 See Also section not found
+
+check_integration.py:49: EX01 No examples section found
+
+check_integration.py:80: ES01 No extended summary found
+
+check_integration.py:80: SA01 See Also section not found
+
+check_integration.py:80: EX01 No examples section found
+
+check_integration.py:112: ES01 No extended summary found
+
+check_integration.py:112: SA01 See Also section not found
+
+check_integration.py:112: EX01 No examples section found
+
+check_integration.py:158: ES01 No extended summary found
+
+check_integration.py:158: SA01 See Also section not found
+
+check_integration.py:158: EX01 No examples section found
+
+check_integration.py:189: ES01 No extended summary found
+
+check_integration.py:189: SA01 See Also section not found
+
+check_integration.py:189: EX01 No examples section found
+
+check_integration.py:219: ES01 No extended summary found
+
+check_integration.py:219: SA01 See Also section not found
+
+check_integration.py:219: EX01 No examples section found
+
+check_scheduling.py:20: ES01 No extended summary found
+
+check_scheduling.py:20: PR02 Unknown parameters {'methodName'}
+
+check_scheduling.py:20: SA01 See Also section not found
+
+check_scheduling.py:20: EX01 No examples section found
+
+check_scheduling.py:45: ES01 No extended summary found
+
+check_scheduling.py:45: SA01 See Also section not found
+
+check_scheduling.py:45: EX01 No examples section found
+
+check_scheduling.py:69: ES01 No extended summary found
+
+check_scheduling.py:69: SA01 See Also section not found
+
+check_scheduling.py:69: EX01 No examples section found
+
+check_scheduling.py:97: ES01 No extended summary found
+
+check_scheduling.py:97: SA01 See Also section not found
+
+check_scheduling.py:97: EX01 No examples section found
+
+check_scheduling.py:132: ES01 No extended summary found
+
+check_scheduling.py:132: SA01 See Also section not found
+
+check_scheduling.py:132: EX01 No examples section found
+
+check_scheduling.py:170: ES01 No extended summary found
+
+check_scheduling.py:170: SA01 See Also section not found
+
+check_scheduling.py:170: EX01 No examples section found
+
+check_scheduling.py:194: ES01 No extended summary found
+
+check_scheduling.py:194: SA01 See Also section not found
+
+check_scheduling.py:194: EX01 No examples section found
+
+check_scheduling.py:220: ES01 No extended summary found
+
+check_scheduling.py:220: SA01 See Also section not found
+
+check_scheduling.py:220: EX01 No examples section found
+
+cli.py:14: ES01 No extended summary found
+
+cli.py:14: SA01 See Also section not found
+
+cli.py:14: EX01 No examples section found
+
+cli.py:41: ES01 No extended summary found
+
+cli.py:41: SA01 See Also section not found
+
+cli.py:41: EX01 No examples section found
+
+cli.py:69: ES01 No extended summary found
+
+cli.py:69: SA01 See Also section not found
+
+cli.py:69: EX01 No examples section found
+
+cli.py:93: ES01 No extended summary found
+
+cli.py:93: SA01 See Also section not found
+
+cli.py:93: EX01 No examples section found
+
+contacts.py:16: ES01 No extended summary found
+
+contacts.py:16: PR02 Unknown parameters {'normal_velocity_before', 'normal_velocity_after', 'surface', 'position_correction'}
+
+contacts.py:16: SA01 See Also section not found
+
+contacts.py:16: EX01 No examples section found
+
+contacts.py:53: ES01 No extended summary found
+
+contacts.py:53: SA01 See Also section not found
+
+contacts.py:53: EX01 No examples section found
+
+contacts.py:70: ES01 No extended summary found
+
+contacts.py:70: SA01 See Also section not found
+
+integration.py:14: ES01 No extended summary found
+
+integration.py:14: SA01 See Also section not found
+
+integration.py:57: ES01 No extended summary found
+
+integration.py:57: SA01 See Also section not found
+
+integration.py:57: EX01 No examples section found
+
+main.py:16: ES01 No extended summary found
+
+main.py:16: SA01 See Also section not found
+
+main.py:16: EX01 No examples section found
+
+make_figures.py:16: ES01 No extended summary found
+
+make_figures.py:16: SA01 See Also section not found
+
+make_figures.py:16: EX01 No examples section found
+
+rendering.py:25: ES01 No extended summary found
+
+rendering.py:25: PR02 Unknown parameters {'parameters', 'box', 'state'}
+
+rendering.py:25: SA01 See Also section not found
+
+rendering.py:25: EX01 No examples section found
+
+rendering.py:75: ES01 No extended summary found
+
+rendering.py:75: SA01 See Also section not found
+
+rendering.py:75: EX01 No examples section found
+
+rendering.py:93: ES01 No extended summary found
+
+rendering.py:93: SA01 See Also section not found
+
+rendering.py:93: EX01 No examples section found
+
+rendering.py:151: ES01 No extended summary found
+
+rendering.py:151: SA01 See Also section not found
+
+rendering.py:151: EX01 No examples section found
+
+rendering.py:170: ES01 No extended summary found
+
+rendering.py:170: SA01 See Also section not found
+
+rendering.py:170: EX01 No examples section found
+
+state.py:15: ES01 No extended summary found
+
+state.py:15: SA01 See Also section not found
+
+state.py:15: EX01 No examples section found
+
+state.py:44: ES01 No extended summary found
+
+state.py:44: PR02 Unknown parameters {'radius', 'dt', 'gravity', 'restitution', 'mass'}
+
+state.py:44: SA01 See Also section not found
+
+state.py:44: EX01 No examples section found
+
+state.py:85: ES01 No extended summary found
+
+state.py:85: SA01 See Also section not found
+
+state.py:85: EX01 No examples section found
+
+state.py:112: ES01 No extended summary found
+
+state.py:112: PR02 Unknown parameters {'height', 'width'}
+
+state.py:112: SA01 See Also section not found
+
+state.py:112: EX01 No examples section found
+
+state.py:144: ES01 No extended summary found
+
+state.py:144: SA01 See Also section not found
+
+state.py:144: EX01 No examples section found
+
+state.py:164: ES01 No extended summary found
+
+state.py:164: SA01 See Also section not found
+
+state.py:164: EX01 No examples section found
+
+state.py:192: ES01 No extended summary found
+
+state.py:192: PR02 Unknown parameters {'y', 'vy', 'step_count', 'x', 'vx'}
+
+state.py:192: SA01 See Also section not found
+
+state.py:192: EX01 No examples section found
+
+state.py:234: ES01 No extended summary found
+
+state.py:234: SA01 See Also section not found
+
+state.py:234: EX01 No examples section found
+
+state.py:251: ES01 No extended summary found
+
+state.py:251: SA01 See Also section not found
+
+state.py:251: EX01 No examples section found
+
+state.py:277: ES01 No extended summary found
+
+state.py:277: SA01 See Also section not found
+
+validation.py:29: ES01 No extended summary found
+
+validation.py:29: SA01 See Also section not found
+
+validation.py:29: EX01 No examples section found
+
+validation.py:75: ES01 No extended summary found
+
+validation.py:75: SA01 See Also section not found
+
+validation.py:75: EX01 No examples section found
+
+validation.py:123: ES01 No extended summary found
+
+validation.py:123: SA01 See Also section not found
+
+validation.py:123: EX01 No examples section found
+
+validation.py:151: ES01 No extended summary found
+
+validation.py:151: SA01 See Also section not found
+
+validation.py:151: EX01 No examples section found
+
+validation.py:183: ES01 No extended summary found
+
+validation.py:183: SA01 See Also section not found
+
+validation.py:183: EX01 No examples section found
+
+validation.py:207: ES01 No extended summary found
+
+validation.py:207: SA01 See Also section not found
+
+validation.py:207: EX01 No examples section found
+
+validation.py:231: ES01 No extended summary found
+
+validation.py:231: SA01 See Also section not found
+
+validation.py:231: EX01 No examples section found
+
+validation.py:254: ES01 No extended summary found
+
+validation.py:254: SA01 See Also section not found
+
+validation.py:254: EX01 No examples section found
+
+validation.py:334: ES01 No extended summary found
+
+validation.py:334: SA01 See Also section not found
+
+validation.py:334: EX01 No examples section found
+
+validation.py:446: ES01 No extended summary found
+
+validation.py:446: SA01 See Also section not found
+
+validation.py:446: EX01 No examples section found
+
+validation.py:483: ES01 No extended summary found
+
+validation.py:483: SA01 See Also section not found
+
+validation.py:483: EX01 No examples section found
+
+validation.py:524: ES01 No extended summary found
+
+validation.py:524: SA01 See Also section not found
+
+validation.py:524: EX01 No examples section found
+
+validation.py:570: ES01 No extended summary found
+
+validation.py:570: SA01 See Also section not found
+
+validation.py:570: EX01 No examples section found
+
+validation.py:671: ES01 No extended summary found
+
+validation.py:671: SA01 See Also section not found
+
+validation.py:671: EX01 No examples section found

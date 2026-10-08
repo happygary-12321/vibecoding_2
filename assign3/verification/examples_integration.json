@@ -1,0 +1,12 @@
+[
+  {
+    "object": "integration.step",
+    "examples": 7,
+    "failed": 0
+  },
+  {
+    "object": "integration.complete_step",
+    "examples": 6,
+    "failed": 0
+  }
+]

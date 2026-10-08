@@ -1,0 +1,22 @@
+﻿git : warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+所在位置 行:6 字符: 1
++ git diff --check 2>&1 | Out-File -Encoding utf8 assign3/verification/ ...
++ ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'assign3/SPEC.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'assign3/documentation_errors.md', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'check_cli.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'check_contacts.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'check_integration.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'check_scheduling.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'cli.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'contacts.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'integration.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'make_figures.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'rendering.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'state.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'validation.py', LF will be replaced by CRLF the next time Git touches it

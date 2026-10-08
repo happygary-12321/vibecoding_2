@@ -1,0 +1,6 @@
+
+state.py:61: PR02 Unknown parameters {'gravity', 'dt', 'mass', 'radius', 'restitution'}
+
+state.py:157: PR02 Unknown parameters {'width', 'height'}
+
+state.py:280: PR02 Unknown parameters {'x', 'vx', 'step_count', 'y', 'vy'}

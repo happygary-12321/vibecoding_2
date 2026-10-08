@@ -1,0 +1,279 @@
+Trying:
+    from validation import whole_steps
+Expecting nothing
+ok
+Trying:
+    whole_steps(0.2, 0.02, '--duration')
+Expecting:
+    10
+ok
+Trying:
+    from validation import validate_experiments
+Expecting nothing
+ok
+Trying:
+    validate_experiments(0.02, 0.2, 0.2)
+Expecting:
+    (10, 20, 10)
+ok
+Trying:
+    from validation import tolerance
+Expecting nothing
+ok
+Trying:
+    tolerance(1e-10, 480, 10) == 1e-10
+Expecting:
+    True
+ok
+Trying:
+    from validation import check_close
+Expecting nothing
+ok
+Trying:
+    checks = []
+Expecting nothing
+ok
+Trying:
+    check_close(checks, 'height', 0.2, 0.2, 1e-12)
+Expecting nothing
+ok
+Trying:
+    (checks[0]['residual'], checks[0]['passed'])
+Expecting:
+    (0.0, True)
+ok
+Trying:
+    from validation import check_true
+Expecting nothing
+ok
+Trying:
+    checks = []
+Expecting nothing
+ok
+Trying:
+    check_true(checks, 'bounded', True)
+Expecting nothing
+ok
+Trying:
+    checks[0]['passed']
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from validation import energy
+Expecting nothing
+ok
+Trying:
+    round(energy(CircleState(vx=0, vy=0), PhysicsParameters()), 2)
+Expecting:
+    19.62
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from validation import sample
+Expecting nothing
+ok
+Trying:
+    state = CircleState()
+Expecting nothing
+ok
+Trying:
+    row = sample(state, PhysicsParameters())
+Expecting nothing
+ok
+Trying:
+    state.y = 3
+Expecting nothing
+ok
+Trying:
+    (row['y'], row['time'], state.y)
+Expecting:
+    (2.0, 0.0, 3)
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from validation import free_fall
+Expecting nothing
+ok
+Trying:
+    checks = []
+Expecting nothing
+ok
+Trying:
+    run = free_fall(PhysicsParameters(dt=0.1), 1, checks, 'example')
+Expecting nothing
+ok
+Trying:
+    (len(run['samples']), round(run['final']['y'], 4))
+Expecting:
+    (2, 9.9019)
+ok
+Trying:
+    all(check['passed'] for check in checks)
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from validation import bouncing
+Expecting nothing
+ok
+Trying:
+    checks = []
+Expecting nothing
+ok
+Trying:
+    run = bouncing(PhysicsParameters(dt=0.01), 2, checks, 'example')
+Expecting nothing
+ok
+Trying:
+    (len(run['samples']), run['impact_counts']['floor'])
+Expecting:
+    (3, 0)
+ok
+Trying:
+    all(check['passed'] for check in checks)
+Expecting:
+    True
+ok
+Trying:
+    from validation import contact_direction
+Expecting nothing
+ok
+Trying:
+    checks = []
+Expecting nothing
+ok
+Trying:
+    result = contact_direction(checks)
+Expecting nothing
+ok
+Trying:
+    (result['measured_y'], result['measured_correct_vy'], result['correct_is_impact'])
+Expecting:
+    (0.2, 2.0, False)
+ok
+Trying:
+    from pathlib import Path
+Expecting nothing
+ok
+Trying:
+    from tempfile import TemporaryDirectory
+Expecting nothing
+ok
+Trying:
+    from validation import regression_checks
+Expecting nothing
+ok
+Trying:
+    with TemporaryDirectory() as directory:
+        result = regression_checks(Path(directory))
+        exists = (Path(directory) / 'regression_checks.txt').is_file()
+Expecting nothing
+ok
+Trying:
+    (result['tests_run'], result['passed'], exists)
+Expecting:
+    (11, True, True)
+ok
+Trying:
+    from pathlib import Path
+Expecting nothing
+ok
+Trying:
+    from tempfile import TemporaryDirectory
+Expecting nothing
+ok
+Trying:
+    from validation import run_validation, write_plots
+Expecting nothing
+ok
+Trying:
+    with TemporaryDirectory() as data_dir, TemporaryDirectory() as plot_dir:
+        report = run_validation(data_dir, 0.8, 0.02, 0.2, 0.2)
+        saved = write_plots(report, Path(plot_dir))
+        exists = all((Path(plot_dir) / name).is_file() for name in saved)
+Expecting nothing
+ok
+Trying:
+    (len(saved), exists)
+Expecting:
+    (4, True)
+ok
+Trying:
+    from tempfile import TemporaryDirectory
+Expecting nothing
+ok
+Trying:
+    from pathlib import Path
+Expecting nothing
+ok
+Trying:
+    from validation import run_validation
+Expecting nothing
+ok
+Trying:
+    with TemporaryDirectory() as directory:
+        report = run_validation(directory, 0.8, 0.02, 0.2, 0.2)
+        png_count = len(list(Path(directory).glob('*.png')))
+Expecting nothing
+ok
+Trying:
+    (report['status'], png_count)
+Expecting:
+    ('passed', 4)
+ok
+Trying:
+    from tempfile import TemporaryDirectory
+Expecting nothing
+ok
+Trying:
+    from pathlib import Path
+Expecting nothing
+ok
+Trying:
+    from validation import run_validation
+Expecting nothing
+ok
+Trying:
+    with TemporaryDirectory() as directory:
+        report = run_validation(directory, 0.8, 0.02, 0.2, 0.2)
+        png_count = len(list(Path(directory).glob('*.png')))
+Expecting nothing
+ok
+Trying:
+    (report['status'], png_count)
+Expecting:
+    ('passed', 4)
+ok
+14 items passed all tests:
+   6 tests in validation.bouncing
+   4 tests in validation.check_close
+   4 tests in validation.check_true
+   4 tests in validation.contact_direction
+   3 tests in validation.energy
+   6 tests in validation.free_fall
+   5 tests in validation.regression_checks
+   5 tests in validation.run_validation
+   6 tests in validation.sample
+   2 tests in validation.tolerance
+   2 tests in validation.validate_experiments
+   2 tests in validation.whole_steps
+   5 tests in validation.write_plots
+   5 tests in validation.write_plots.save
+59 tests in 14 items.
+59 passed and 0 failed.
+Test passed.

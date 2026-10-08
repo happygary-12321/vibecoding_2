@@ -1,0 +1,24 @@
+{
+  "counts": {
+    "ES01": 76,
+    "PR02": 9,
+    "SA01": 76,
+    "EX01": 73
+  },
+  "total": 234,
+  "passed": false,
+  "per_file": {
+    "check_cli.py": 1,
+    "check_contacts.py": 1,
+    "check_integration.py": 1,
+    "check_scheduling.py": 1,
+    "cli.py": 1,
+    "contacts.py": 1,
+    "integration.py": 1,
+    "main.py": 1,
+    "make_figures.py": 1,
+    "rendering.py": 1,
+    "state.py": 1,
+    "validation.py": 1
+  }
+}

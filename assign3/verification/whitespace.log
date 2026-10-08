@@ -1,0 +1,16 @@
+﻿git : warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+所在位置 行:2 字符: 329
++ ... le]::WriteAllText($full,$text,$utf8) }; git diff --check 2>&1 | Out-F ...
++                                             ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warning: in the... Git touches it:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: in the working copy of 'assign3/SPEC.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'assign3/documentation_errors.md', LF will be replaced by CRLF the next time Git touche
+s it
+warning: in the working copy of 'check_cli.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'check_contacts.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'check_integration.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'check_scheduling.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'cli.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'validation.py', LF will be replaced by CRLF the next time Git touches it

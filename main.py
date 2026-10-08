@@ -16,6 +16,9 @@ from state import PhysicsParameters
 def main(argv=None) -> int:
     """Parse simulator options and launch the blocking native GUI.
 
+    Parsing finishes before the renderer is imported. This permits help and
+    invalid-option checks in a process that never opens a native window.
+
     Parameters
     ----------
     argv : list of str or None, optional
@@ -34,12 +37,31 @@ def main(argv=None) -> int:
     Exception
         Unexpected parameter, import, or rendering errors propagate.
 
+    See Also
+    --------
+    cli.parse_args : Validate the command-line options.
+
     Notes
     -----
     Creates physical parameters, imports rendering after successful parsing,
     and calls run_simulation. Missing rendering dependencies are printed to
     stderr and converted to return code 1. The renderer owns GUI resources
     and prints startup/shutdown information. See assign3/SPEC.md [EQ-STEP].
+
+    Examples
+    --------
+    Help can be inspected without opening a window.
+
+    >>> import contextlib, io
+    >>> from main import main
+    >>> output = io.StringIO()
+    >>> with contextlib.redirect_stdout(output):
+    ...     try:
+    ...         main(['--help'])
+    ...     except SystemExit as exc:
+    ...         status = exc.code
+    >>> (status, '--restitution' in output.getvalue())
+    (0, True)
     """
     args = parse_args("Real-time circle simulation in an open box.", argv)
     parameters = PhysicsParameters(restitution=args.restitution, dt=args.dt)

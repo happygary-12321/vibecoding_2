@@ -1,0 +1,67 @@
+[
+  {
+    "object": "check_cli.CliChecks",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.invoke",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_defaults",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_help",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_passes_parameters_without_opening_gui",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering.guarded_import",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors.MissingDependency",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_figure_options",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_headless_figures",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_invalid_inputs",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_cli.CliChecks.test_missing_values",
+    "examples": 5,
+    "failed": 0
+  }
+]

@@ -1,0 +1,21 @@
+Interpreter: C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+test_cap_discard_and_remainder (__main__.SchedulingChecks.test_cap_discard_and_remainder)
+Check the 60-step cap and discarded whole-step backlog. ... Overload: expected steps=60, discarded=0.65 s, remainder=0.0075 s; measured steps=60, discarded=0.65, remainder=0.0075
+ok
+test_display_interval_independence (__main__.SchedulingChecks.test_display_interval_independence)
+Check identical states for three one-second display schedules. ... Display intervals 0.01/0.04/0.1 s: expected 240 steps and identical state; measured steps=240, states identical.
+ok
+test_exact_cap_does_not_discard (__main__.SchedulingChecks.test_exact_cap_does_not_discard)
+Check that exactly 60 available steps leave no discarded time. ... ok
+test_insufficient_and_fractional_time (__main__.SchedulingChecks.test_insufficient_and_fractional_time)
+Check accumulation of intervals shorter than one timestep. ... ok
+test_invalid_elapsed (__main__.SchedulingChecks.test_invalid_elapsed)
+Check rejection of negative and nonfinite elapsed intervals. ... ok
+test_no_pyvista_import (__main__.SchedulingChecks.test_no_pyvista_import)
+Check that the current process has not loaded PyVista. ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK

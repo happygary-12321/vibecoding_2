@@ -1,0 +1,22 @@
+[
+  {
+    "object": "cli.finite_number",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "cli.restitution_value",
+    "examples": 2,
+    "failed": 0
+  },
+  {
+    "object": "cli.timestep_value",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "cli.parse_args",
+    "examples": 3,
+    "failed": 0
+  }
+]

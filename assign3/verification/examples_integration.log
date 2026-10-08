@@ -1,0 +1,63 @@
+Trying:
+    from state import CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from integration import step
+Expecting nothing
+ok
+Trying:
+    state = CircleState(vy=3.0, step_count=7)
+Expecting nothing
+ok
+Trying:
+    result = step(state, PhysicsParameters(dt=0.1))
+Expecting nothing
+ok
+Trying:
+    result is None
+Expecting:
+    True
+ok
+Trying:
+    (round(state.x, 6), round(state.y, 6), round(state.vy, 6))
+Expecting:
+    (1.15, 2.2019, 2.019)
+ok
+Trying:
+    (state.vx, state.step_count)
+Expecting:
+    (1.5, 8)
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from integration import complete_step
+Expecting nothing
+ok
+Trying:
+    state = CircleState(y=0.2, vy=-1, vx=0)
+Expecting nothing
+ok
+Trying:
+    records = complete_step(state, PhysicsParameters(dt=0.01), Box())
+Expecting nothing
+ok
+Trying:
+    (state.y, round(state.vy, 6), state.step_count)
+Expecting:
+    (0.2, 0.87848, 1)
+ok
+Trying:
+    [record.surface for record in records]
+Expecting:
+    ['floor']
+ok
+2 items passed all tests:
+   6 tests in integration.complete_step
+   7 tests in integration.step
+13 tests in 2 items.
+13 passed and 0 failed.
+Test passed.

@@ -31,10 +31,13 @@ ROOT = Path(__file__).resolve().parent
 class CliChecks(unittest.TestCase):
     """Check CLI parsing, mocked GUI launch, and temporary headless output.
 
+    The inherited unittest lifecycle runs these cases individually or as a
+    suite. Local fixtures exercise CLI dispatch and headless output.
+
     Parameters
     ----------
     methodName : str, optional
-        unittest.TestCase method selector; inherited default is 'runTest'.
+        Selector for unittest.TestCase; inherited default is 'runTest'.
 
     Attributes
     ----------
@@ -47,14 +50,29 @@ class CliChecks(unittest.TestCase):
         Inherited limit on displayed assertion-diff length, 640 characters by
         default. None disables the limit for assertions that use this setting.
 
+    See Also
+    --------
+    unittest.TestCase : Provide assertion methods and test lifecycle.
+
     Notes
     -----
     Inherits unittest.TestCase lifecycle and assertion state; no additional
     persistent data attributes are defined. Test methods create local states
     or fixtures and return None. See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+    Examples
+    --------
+    >>> import unittest
+    >>> from check_cli import CliChecks
+    >>> suite = unittest.defaultTestLoader.loadTestsFromTestCase(CliChecks)
+    >>> suite.countTestCases()
+    9
     """
     def invoke(self, entry, *args):
         """Run an entry script with the current interpreter and capture its output.
+
+        Use the returned status and captured streams to inspect parser behavior.
+        This helper does not turn a child's nonzero exit into a Python exception.
 
         Parameters
         ----------
@@ -73,11 +91,22 @@ class CliChecks(unittest.TestCase):
         OSError
             If the subprocess cannot be started.
 
+        See Also
+        --------
+        check_cli.CliChecks.test_help : Inspect help through both entry scripts.
+
         Notes
         -----
         Uses the repository root as cwd and check=False, so a nonzero script
         status is returned rather than raised as CalledProcessError. Child
         side effects depend on the requested entry and arguments.
+
+        Examples
+        --------
+        >>> from check_cli import CliChecks
+        >>> result = CliChecks().invoke('main.py', '--help')
+        >>> (result.returncode, '--dt' in result.stdout)
+        (0, True)
         """
         return subprocess.run(
             [sys.executable, str(ROOT / entry), *args],
@@ -87,6 +116,9 @@ class CliChecks(unittest.TestCase):
     def test_defaults(self):
         """Check the default shared CLI values.
 
+        Parser defaults are checked without launching either entry point, so
+        this case isolates the public command-line configuration.
+
         Returns
         -------
         None
@@ -97,11 +129,28 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Parses an empty argument list and requires restitution 0.8 and
         dt=1/240 s exactly.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_defaults').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         args = parse_args("CLI check", [])
         self.assertEqual(args.restitution, 0.8)
@@ -110,6 +159,9 @@ class CliChecks(unittest.TestCase):
     def test_help(self):
         """Check help status and text for both entry scripts.
 
+        Both entry scripts must terminate successfully after printing help,
+        without requiring an interactive rendering session.
+
         Returns
         -------
         None
@@ -120,11 +172,28 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Spawns main.py and make_figures.py with --help; captures output,
         requires status 0 and empty stderr, and checks common option text.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_help').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         for entry in ("main.py", "make_figures.py"):
             with self.subTest(entry=entry):
@@ -137,6 +206,9 @@ class CliChecks(unittest.TestCase):
     def test_main_passes_parameters_without_opening_gui(self):
         """Check parsed parameter forwarding through a mocked renderer.
 
+        A mock renderer records the selected parameters. The case checks CLI
+        dispatch independently of native-window availability.
+
         Returns
         -------
         None
@@ -147,12 +219,29 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Temporarily replaces rendering in sys.modules, invokes main with
         four argument sets, and checks one launch call with the expected
         restitution and dt. No native window is opened.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_main_passes_parameters_without_opening_gui').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         cases = (
             ([], 0.8, 1.0 / 240.0),
@@ -174,6 +263,9 @@ class CliChecks(unittest.TestCase):
     def test_main_help_and_invalid_args_do_not_import_rendering(self):
         """Check that help and invalid options precede rendering imports.
 
+        An import guard makes early renderer imports fail immediately. Help
+        and parser rejection must finish before that dependency boundary.
+
         Returns
         -------
         None
@@ -184,15 +276,82 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Temporarily guards builtins.__import__, captures stdout/stderr, and
         expects SystemExit 0/2 without importing rendering or pyvista.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_main_help_and_invalid_args_do_not_import_rendering').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         original_import = builtins.__import__
 
         def guarded_import(name, *args, **kwargs):
+            """Reject premature GUI imports and delegate other imports.
+
+            This closure delegates to the saved import hook except for the two
+            forbidden GUI module names, making premature dependency loading observable.
+
+            Parameters
+            ----------
+            name : str
+                Module name passed to the import hook.
+            *args : tuple
+                Remaining positional import arguments, forwarded unchanged.
+            **kwargs : dict
+                Keyword import arguments, forwarded unchanged.
+
+            Returns
+            -------
+            module
+                Object returned by the saved built-in import function.
+
+            Raises
+            ------
+            AssertionError
+                If name is rendering or pyvista.
+            ImportError
+                If the delegated import fails.
+
+            See Also
+            --------
+            check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering : Install and exercise this guard.
+
+            Notes
+            -----
+            Delegation can load modules into sys.modules during the test.
+
+            Examples
+            --------
+            The enclosing regression installs this local hook and checks help and
+            invalid-option paths without a GUI.
+
+            Run this individual regression through unittest; assertion failures are
+            recorded in the result rather than printed as expected output.
+
+            >>> import contextlib, io, unittest
+            >>> from check_cli import CliChecks
+            >>> result = unittest.TestResult()
+            >>> with contextlib.redirect_stdout(io.StringIO()):
+            ...     _ = CliChecks('test_main_help_and_invalid_args_do_not_import_rendering').run(result)
+            >>> (result.testsRun, result.wasSuccessful())
+            (1, True)
+            """
             if name in {"rendering", "pyvista"}:
                 raise AssertionError(f"Premature import: {name}")
             return original_import(name, *args, **kwargs)
@@ -207,6 +366,9 @@ class CliChecks(unittest.TestCase):
     def test_main_dependency_message_and_unexpected_errors(self):
         """Check handled dependency failures and propagated programming errors.
 
+        The mocked dependency exception must become status 1, while an
+        unrelated programming error must retain its exception semantics.
+
         Returns
         -------
         None
@@ -217,13 +379,64 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Uses a mocked renderer and captured stderr. Requires status 1 for the
         mock dependency error and propagation of an unexpected ValueError.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_main_dependency_message_and_unexpected_errors').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         class MissingDependency(RuntimeError):
+            """Represent a renderer dependency failure in this isolated test.
+
+            A distinct exception type lets the test separate an expected dependency
+            failure from an unexpected ValueError without importing the real renderer.
+
+            Attributes
+            ----------
+            args : tuple
+                Inherited exception arguments, including the test message.
+
+            See Also
+            --------
+            check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors : Exercise handled and propagated errors.
+
+            Notes
+            -----
+            Used only by the mocked rendering module; adds no custom state.
+
+            Examples
+            --------
+            The enclosing regression raises this local exception through its mock
+            renderer and verifies the installation-message path.
+
+            Run this individual regression through unittest; assertion failures are
+            recorded in the result rather than printed as expected output.
+
+            >>> import contextlib, io, unittest
+            >>> from check_cli import CliChecks
+            >>> result = unittest.TestResult()
+            >>> with contextlib.redirect_stdout(io.StringIO()):
+            ...     _ = CliChecks('test_main_dependency_message_and_unexpected_errors').run(result)
+            >>> (result.testsRun, result.wasSuccessful())
+            (1, True)
+            """
             pass
 
         fake = SimpleNamespace(run_simulation=Mock(side_effect=MissingDependency("Install PyVista/VTK")),
@@ -240,6 +453,9 @@ class CliChecks(unittest.TestCase):
     def test_figure_options(self):
         """Check figure defaults and rejected durations/timesteps.
 
+        Figure-only options are parsed and duration restrictions exercised
+        without writing a validation report.
+
         Returns
         -------
         None
@@ -250,12 +466,29 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Checks default durations/output path and launches invalid-option
         subprocesses. Requires status 2 and relevant error text; no valid
         figure-generation run is requested in this method.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_figure_options').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         args = parse_args("Figures", [], figures=True)
         self.assertEqual((args.duration, args.bounce_duration, args.output_dir), (1, 10, "figures"))
@@ -279,6 +512,9 @@ class CliChecks(unittest.TestCase):
     def test_headless_figures(self):
         """Check a small figure run and its temporary output artifacts.
 
+        A short temporary-directory run checks actual PNG signatures and report
+        metadata, including the noninteractive backend and numerical status.
+
         Returns
         -------
         None
@@ -289,6 +525,10 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Creates a temporary directory, launches make_figures.py with dt=0.02 s,
@@ -296,6 +536,19 @@ class CliChecks(unittest.TestCase):
         backend/import metadata, and regression output. The subprocess performs
         physics checks and writes figures; the directory is removed on exit.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_headless_figures').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         with tempfile.TemporaryDirectory() as directory:
             result = self.invoke("make_figures.py", "--output-dir", directory,
@@ -322,6 +575,9 @@ class CliChecks(unittest.TestCase):
     def test_invalid_inputs(self):
         """Check invalid numeric arguments on both entry scripts.
 
+        Malformed, nonfinite and out-of-range option values must be rejected
+        at parsing time rather than passed into simulation setup.
+
         Returns
         -------
         None
@@ -332,11 +588,28 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Runs subprocesses with malformed, nonfinite, or out-of-range dt/e;
         requires status 2 and parser error text.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_invalid_inputs').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         common = ("nan", "inf", "-inf", "1e309", "abc")
         invalid = {
@@ -355,6 +628,9 @@ class CliChecks(unittest.TestCase):
     def test_missing_values(self):
         """Check parser failures when numeric option values are missing.
 
+        Options requiring numeric values must fail when their value is absent.
+        The check requires the parser's error status rather than a runtime failure.
+
         Returns
         -------
         None
@@ -365,11 +641,28 @@ class CliChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_cli.CliChecks : Collect the related regression cases.
+
         Notes
         -----
         Runs both entry scripts with bare --dt or --restitution and requires
         status 2 with an expected-one-argument message.
         See assign3/SPEC.md [EQ-STEP] and Section 8.
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_cli import CliChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = CliChecks('test_missing_values').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         for entry in ("main.py", "make_figures.py"):
             for option in ("--dt", "--restitution"):

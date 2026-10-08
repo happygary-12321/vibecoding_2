@@ -1,0 +1,138 @@
+Trying:
+    from state import CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    state = CircleState(step_count=12)
+Expecting nothing
+ok
+Trying:
+    parameters = PhysicsParameters(dt=0.01)
+Expecting nothing
+ok
+Trying:
+    round(state.time(parameters), 6)
+Expecting:
+    0.12
+ok
+Trying:
+    state.step_count
+Expecting:
+    12
+ok
+25 items had no tests:
+    state
+    state.Box
+    state.Box.__delattr__
+    state.Box.__eq__
+    state.Box.__hash__
+    state.Box.__init__
+    state.Box.__post_init__
+    state.Box.__repr__
+    state.Box.__setattr__
+    state.Box.validate_for
+    state.CircleState
+    state.CircleState.__eq__
+    state.CircleState.__init__
+    state.CircleState.__post_init__
+    state.CircleState.__repr__
+    state.CircleState.validate
+    state.PhysicsParameters
+    state.PhysicsParameters.__delattr__
+    state.PhysicsParameters.__eq__
+    state.PhysicsParameters.__hash__
+    state.PhysicsParameters.__init__
+    state.PhysicsParameters.__post_init__
+    state.PhysicsParameters.__repr__
+    state.PhysicsParameters.__setattr__
+    state._finite
+1 items passed all tests:
+   5 tests in state.CircleState.time
+5 tests in 26 items.
+5 passed and 0 failed.
+Test passed.
+Trying:
+    from state import CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from integration import step
+Expecting nothing
+ok
+Trying:
+    state = CircleState(vy=3.0, step_count=7)
+Expecting nothing
+ok
+Trying:
+    result = step(state, PhysicsParameters(dt=0.1))
+Expecting nothing
+ok
+Trying:
+    result is None
+Expecting:
+    True
+ok
+Trying:
+    (round(state.x, 6), round(state.y, 6), round(state.vy, 6))
+Expecting:
+    (1.15, 2.2019, 2.019)
+ok
+Trying:
+    (state.vx, state.step_count)
+Expecting:
+    (1.5, 8)
+ok
+2 items had no tests:
+    integration
+    integration.complete_step
+1 items passed all tests:
+   7 tests in integration.step
+7 tests in 3 items.
+7 passed and 0 failed.
+Test passed.
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from contacts import resolve_contacts
+Expecting nothing
+ok
+Trying:
+    state = CircleState(y=0.15, vy=2.0, step_count=5)
+Expecting nothing
+ok
+Trying:
+    records = resolve_contacts(state, PhysicsParameters(), Box())
+Expecting nothing
+ok
+Trying:
+    (round(state.y, 6), state.vy, state.step_count)
+Expecting:
+    (0.2, 2.0, 5)
+ok
+Trying:
+    [(record.surface, record.is_impact) for record in records]
+Expecting:
+    [('floor', False)]
+ok
+Trying:
+    tuple(round(value, 6) for value in records[0].position_correction)
+Expecting:
+    (0.0, 0.05)
+ok
+9 items had no tests:
+    contacts
+    contacts.ContactRecord
+    contacts.ContactRecord.__delattr__
+    contacts.ContactRecord.__eq__
+    contacts.ContactRecord.__hash__
+    contacts.ContactRecord.__init__
+    contacts.ContactRecord.__repr__
+    contacts.ContactRecord.__setattr__
+    contacts.ContactRecord.is_impact
+1 items passed all tests:
+   7 tests in contacts.resolve_contacts
+7 tests in 10 items.
+7 passed and 0 failed.
+Test passed.

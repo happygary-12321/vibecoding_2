@@ -1,0 +1,14 @@
+[
+  {
+    "object": "state.CircleState.time",
+    "examples": 5
+  },
+  {
+    "object": "integration.step",
+    "examples": 7
+  },
+  {
+    "object": "contacts.resolve_contacts",
+    "examples": 7
+  }
+]

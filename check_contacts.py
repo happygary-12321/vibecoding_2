@@ -25,10 +25,13 @@ TOL = 1e-12
 class ContactChecks(unittest.TestCase):
     """Check contact directions, record order, endpoints, and bounded motion.
 
+    The inherited unittest lifecycle runs these cases individually or as a
+    suite. Local fixtures exercise surface direction and contact geometry.
+
     Parameters
     ----------
     methodName : str, optional
-        unittest.TestCase method selector; inherited default is 'runTest'.
+        Selector for unittest.TestCase; inherited default is 'runTest'.
 
     Attributes
     ----------
@@ -41,15 +44,30 @@ class ContactChecks(unittest.TestCase):
         Inherited limit on displayed assertion-diff length, 640 characters by
         default. None disables the limit for assertions that use this setting.
 
+    See Also
+    --------
+    unittest.TestCase : Provide assertion methods and test lifecycle.
+
     Notes
     -----
     Inherits unittest.TestCase lifecycle and assertion state; no additional
     persistent data attributes are defined. Test methods create local states
     or fixtures and return None. See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR],
     [EQ-LEFT], and [EQ-RIGHT].
+
+    Examples
+    --------
+    >>> import unittest
+    >>> from check_contacts import ContactChecks
+    >>> suite = unittest.defaultTestLoader.loadTestsFromTestCase(ContactChecks)
+    >>> suite.countTestCases()
+    6
     """
     def close(self, actual, expected):
         """Assert a scalar contact result within the module's 1e-12 allowance.
+
+        This common absolute allowance applies to direct contact computations.
+        Integer counts, flags and record order use separate exact assertions.
 
         Parameters
         ----------
@@ -65,11 +83,24 @@ class ContactChecks(unittest.TestCase):
         ------
         AssertionError
             If the scalar comparison fails.
+
+        See Also
+        --------
+        check_contacts.ContactChecks.test_surfaces_and_directions : Check contact scalars with this helper.
+
+        Examples
+        --------
+        >>> from check_contacts import ContactChecks
+        >>> ContactChecks().close(0.2, 0.2) is None
+        True
         """
         self.assertAlmostEqual(actual, expected, delta=TOL)
 
     def test_surfaces_and_directions(self):
         """Check touching and penetrating contacts for every surface.
+
+        Each surface is exercised with inward, separating and zero normal
+        velocity so overlap correction cannot be confused with restitution.
 
         Returns
         -------
@@ -81,12 +112,29 @@ class ContactChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_contacts.ContactChecks : Collect the related regression cases.
+
         Notes
         -----
         Exercises inward, separating and zero normal speeds. Checks corrections,
         record velocities/flags, unchanged tangent and count, with 1e-12 SI
         allowances for scalar comparisons. Prints penetrating-case results.
         See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_contacts import ContactChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = ContactChecks('test_surfaces_and_directions').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         # Surface, coordinate, velocity, inward-region normal sign, boundary,
         # penetrating coordinate, independently expected signed correction.
@@ -129,6 +177,9 @@ class ContactChecks(unittest.TestCase):
     def test_no_contact_and_no_ceiling(self):
         """Check that interior states at several heights remain unchanged.
 
+        Interior states at different heights should remain unchanged. The high
+        state verifies that no ceiling response is introduced.
+
         Returns
         -------
         None
@@ -139,11 +190,28 @@ class ContactChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_contacts.ContactChecks : Collect the related regression cases.
+
         Notes
         -----
         Calls the resolver at y=2, 3, and 10 m with upward motion;
         requires an empty record list and exact preservation of each state.
         See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_contacts import ContactChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = ContactChecks('test_no_contact_and_no_ceiling').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         for height in (2, 3, 10):
             s = CircleState(y=height, vy=2, step_count=8)
@@ -154,6 +222,9 @@ class ContactChecks(unittest.TestCase):
     def test_both_corners(self):
         """Check independent floor and wall responses at both lower corners.
 
+        The two lower corners require both components to be corrected, while
+        returned records must preserve the floor-before-wall order.
+
         Returns
         -------
         None
@@ -164,11 +235,28 @@ class ContactChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_contacts.ContactChecks : Collect the related regression cases.
+
         Notes
         -----
         Requires floor-first record order, corrected state and signed corrections
         within 1e-12 SI, using inward velocities and default restitution.
         See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_contacts import ContactChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = ContactChecks('test_both_corners').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         for x, vx, final_x, final_vx, wall, dx in (
             (0.15, -2, 0.2, 1.6, "left", 0.05),
@@ -189,6 +277,9 @@ class ContactChecks(unittest.TestCase):
     def test_restitution_endpoints(self):
         """Check e=0 and e=1 responses at all three surfaces.
 
+        The closed coefficient interval includes zero and one. This case checks
+        the corresponding normal responses without introducing a resting cutoff.
+
         Returns
         -------
         None
@@ -199,11 +290,28 @@ class ContactChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_contacts.ContactChecks : Collect the related regression cases.
+
         Notes
         -----
         For inward normal speed -2 m/s, requires outgoing speeds 0 and 2 m/s
         respectively, one impact record, and scalar comparisons within 1e-12 SI.
         See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_contacts import ContactChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = ContactChecks('test_restitution_endpoints').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         for restitution, speed in ((0, 0), (1, 2)):
             for kwargs, velocity, expected in (
@@ -222,6 +330,9 @@ class ContactChecks(unittest.TestCase):
     def test_complete_step_order(self):
         """Check integration before contact correction and one count increment.
 
+        A constructed crossing distinguishes integration-before-resolution
+        from an incorrectly reordered full timestep.
+
         Returns
         -------
         None
@@ -232,12 +343,29 @@ class ContactChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_contacts.ContactChecks : Collect the related regression cases.
+
         Notes
         -----
         Uses g=10 m/s^2 and dt=0.1 s at a lower-left overlap reached by stepping.
         Requires floor/left records, final x=y=0.2 m, vx=vy=0.8 m/s,
         count 8 and time 0.8 s, with 1e-12 SI allowances.
         See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_contacts import ContactChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = ContactChecks('test_complete_step_order').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         p = PhysicsParameters(gravity=10, dt=0.1)
         s = CircleState(x=0.25, y=0.25, vx=-1, vy=0, step_count=7)
@@ -258,6 +386,9 @@ class ContactChecks(unittest.TestCase):
     def test_default_trajectory(self):
         """Check finite bounded default motion for 2400 complete steps.
 
+        Repeated production timesteps must keep the default trajectory finite
+        and bounded below/laterally while recording all three impact surfaces.
+
         Returns
         -------
         None
@@ -268,6 +399,10 @@ class ContactChecks(unittest.TestCase):
         AssertionError
             If an expected result is not satisfied; unittest records failures.
 
+        See Also
+        --------
+        check_contacts.ContactChecks : Collect the related regression cases.
+
         Notes
         -----
         Uses dt=1/240 s over 10 s; validates each state, sequential count,
@@ -275,6 +410,19 @@ class ContactChecks(unittest.TestCase):
         Prints the final count/time and surfaces. Does not assert first-impact
         timing, exact settling, or a prescribed number of impacts.
         See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+        Examples
+        --------
+        Run this individual regression through unittest; assertion failures are
+        recorded in the result rather than printed as expected output.
+
+        >>> import contextlib, io, unittest
+        >>> from check_contacts import ContactChecks
+        >>> result = unittest.TestResult()
+        >>> with contextlib.redirect_stdout(io.StringIO()):
+        ...     _ = ContactChecks('test_default_trajectory').run(result)
+        >>> (result.testsRun, result.wasSuccessful())
+        (1, True)
         """
         s, p, box = CircleState(), PhysicsParameters(), Box()
         impacts = set()

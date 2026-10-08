@@ -1,0 +1,80 @@
+
+check_cli.py:31: ES01 No extended summary found
+
+check_cli.py:31: PR02 Unknown parameters {'methodName'}
+
+check_cli.py:31: SA01 See Also section not found
+
+check_cli.py:31: EX01 No examples section found
+
+check_cli.py:56: ES01 No extended summary found
+
+check_cli.py:56: SA01 See Also section not found
+
+check_cli.py:56: EX01 No examples section found
+
+check_cli.py:87: ES01 No extended summary found
+
+check_cli.py:87: SA01 See Also section not found
+
+check_cli.py:87: EX01 No examples section found
+
+check_cli.py:110: ES01 No extended summary found
+
+check_cli.py:110: SA01 See Also section not found
+
+check_cli.py:110: EX01 No examples section found
+
+check_cli.py:137: ES01 No extended summary found
+
+check_cli.py:137: SA01 See Also section not found
+
+check_cli.py:137: EX01 No examples section found
+
+check_cli.py:174: ES01 No extended summary found
+
+check_cli.py:174: SA01 See Also section not found
+
+check_cli.py:174: EX01 No examples section found
+
+check_cli.py:195: ES01 No extended summary found
+
+check_cli.py:195: SA01 See Also section not found
+
+check_cli.py:195: EX01 No examples section found
+
+check_cli.py:234: ES01 No extended summary found
+
+check_cli.py:234: SA01 See Also section not found
+
+check_cli.py:234: EX01 No examples section found
+
+check_cli.py:253: ES01 No extended summary found
+
+check_cli.py:253: SA01 See Also section not found
+
+check_cli.py:253: EX01 No examples section found
+
+check_cli.py:278: ES01 No extended summary found
+
+check_cli.py:278: SA01 See Also section not found
+
+check_cli.py:278: EX01 No examples section found
+
+check_cli.py:317: ES01 No extended summary found
+
+check_cli.py:317: SA01 See Also section not found
+
+check_cli.py:317: EX01 No examples section found
+
+check_cli.py:360: ES01 No extended summary found
+
+check_cli.py:360: SA01 See Also section not found
+
+check_cli.py:360: EX01 No examples section found
+
+check_cli.py:393: ES01 No extended summary found
+
+check_cli.py:393: SA01 See Also section not found
+
+check_cli.py:393: EX01 No examples section found

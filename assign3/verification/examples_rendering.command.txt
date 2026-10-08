@@ -1,0 +1,21 @@
+C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe -B -c "import ast, doctest, json, pathlib, sys
+filename=sys.argv[1]
+source=pathlib.Path(filename).read_text(encoding=\"utf-8\")
+tree=ast.parse(source)
+runner=doctest.DocTestRunner(verbose=True)
+coverage=[]
+def walk(node,qual):
+    if isinstance(node,(ast.ClassDef,ast.FunctionDef,ast.AsyncFunctionDef)):
+        qual=qual+\".\"+node.name
+        doc=ast.get_docstring(node)
+        if doc:
+            test=doctest.DocTestParser().get_doctest(doc,{},qual,filename,node.lineno)
+            if test.examples:
+                result=runner.run(test)
+                coverage.append({\"object\":qual,\"examples\":result.attempted,\"failed\":result.failed})
+    for child in ast.iter_child_nodes(node): walk(child,qual)
+walk(tree,pathlib.Path(filename).stem)
+result=runner.summarize(verbose=True)
+pathlib.Path(\"assign3/verification/examples_\"+pathlib.Path(filename).stem+\".json\").write_text(json.dumps(coverage,indent=2))
+sys.exit(bool(result.failed))
+" rendering.py

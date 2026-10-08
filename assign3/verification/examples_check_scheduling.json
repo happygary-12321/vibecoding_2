@@ -1,0 +1,42 @@
+[
+  {
+    "object": "check_scheduling.SchedulingChecks",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.scheduler",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_insufficient_and_fractional_time",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_display_interval_independence",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_cap_discard_and_remainder",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_exact_cap_does_not_discard",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_invalid_elapsed",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_no_pyvista_import",
+    "examples": 5,
+    "failed": 0
+  }
+]

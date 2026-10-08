@@ -16,6 +16,9 @@ from validation import run_validation
 def main(argv=None) -> int:
     """Parse experiment options, generate evidence, and return a status code.
 
+    The returned status summarizes the generated report. File-writing
+    failures and failed numerical checks produce a nonzero status.
+
     Parameters
     ----------
     argv : list of str or None, optional
@@ -36,6 +39,10 @@ def main(argv=None) -> int:
         Errors not converted to a failed report or caught as OSError
         propagate, including errors while formatting a malformed report.
 
+    See Also
+    --------
+    cli.parse_args : Validate the command-line options.
+
     Notes
     -----
     Calls run_validation, which creates directories and overwrites PNG,
@@ -43,6 +50,21 @@ def main(argv=None) -> int:
     stdout, or failure diagnostics to stderr. An experiment exception caught
     inside run_validation is reported as a failed report, not re-raised here.
     No GUI is opened. See assign3/SPEC.md [EQ-DRIFT] and [EQ-ACCOUNTING].
+
+    Examples
+    --------
+    Help can be inspected without generating files.
+
+    >>> import contextlib, io
+    >>> from make_figures import main
+    >>> output = io.StringIO()
+    >>> with contextlib.redirect_stdout(output):
+    ...     try:
+    ...         main(['--help'])
+    ...     except SystemExit as exc:
+    ...         status = exc.code
+    >>> (status, '--restitution' in output.getvalue())
+    (0, True)
     """
     args = parse_args("Headless numerical validation and PNG figures.", argv, figures=True)
     try:

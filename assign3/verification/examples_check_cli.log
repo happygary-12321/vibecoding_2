@@ -1,0 +1,289 @@
+Trying:
+    import unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(CliChecks)
+Expecting nothing
+ok
+Trying:
+    suite.countTestCases()
+Expecting:
+    9
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = CliChecks().invoke('main.py', '--help')
+Expecting nothing
+ok
+Trying:
+    (result.returncode, '--dt' in result.stdout)
+Expecting:
+    (0, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_defaults').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_help').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_main_passes_parameters_without_opening_gui').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_main_help_and_invalid_args_do_not_import_rendering').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_main_help_and_invalid_args_do_not_import_rendering').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_main_dependency_message_and_unexpected_errors').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_main_dependency_message_and_unexpected_errors').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_figure_options').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_headless_figures').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_invalid_inputs').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_cli import CliChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = CliChecks('test_missing_values').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+13 items passed all tests:
+   4 tests in check_cli.CliChecks
+   3 tests in check_cli.CliChecks.invoke
+   5 tests in check_cli.CliChecks.test_defaults
+   5 tests in check_cli.CliChecks.test_figure_options
+   5 tests in check_cli.CliChecks.test_headless_figures
+   5 tests in check_cli.CliChecks.test_help
+   5 tests in check_cli.CliChecks.test_invalid_inputs
+   5 tests in check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors
+   5 tests in check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors.MissingDependency
+   5 tests in check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering
+   5 tests in check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering.guarded_import
+   5 tests in check_cli.CliChecks.test_main_passes_parameters_without_opening_gui
+   5 tests in check_cli.CliChecks.test_missing_values
+62 tests in 13 items.
+62 passed and 0 failed.
+Test passed.

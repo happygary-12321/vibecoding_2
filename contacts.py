@@ -16,6 +16,9 @@ from state import Box, CircleState, PhysicsParameters
 class ContactRecord:
     """Store a frozen record of one detected contact.
 
+    A record distinguishes touching/projection from a velocity-changing
+    impact. Normal signs are defined relative to each allowed half-plane.
+
     Parameters
     ----------
     surface : str
@@ -38,11 +41,22 @@ class ContactRecord:
     is_impact : bool
         Whether the two stored normal velocity values compare unequal.
 
+    See Also
+    --------
+    contacts.resolve_contacts : Create records while mutating circle state.
+
     Notes
     -----
     The dataclass performs no value/type validation. Normals are +y, +x,
     and -x for floor, left, and right. Records include touching contacts
     and position-only corrections. See assign3/SPEC.md [EQ-NORMAL].
+
+    Examples
+    --------
+    >>> from contacts import ContactRecord
+    >>> record = ContactRecord('floor', (0.0, 0.05), 2.0, 2.0)
+    >>> (record.position_correction, record.is_impact)
+    ((0.0, 0.05), False)
     """
     surface: str
     position_correction: tuple[float, float]  # Signed (dx, dy), meters.
@@ -53,16 +67,31 @@ class ContactRecord:
     def is_impact(self) -> bool:
         """Compare the stored before and after normal velocities.
 
+        Use this flag to count velocity-changing responses. A nonzero position
+        correction alone does not make the recorded contact an impact.
+
         Returns
         -------
         bool
             True exactly when normal_velocity_before != normal_velocity_after.
+
+        See Also
+        --------
+        contacts.resolve_contacts : Record normal velocities before and after response.
 
         Notes
         -----
         This property does not test penetration, correction size, or force.
         Separating and zero-speed contacts emitted by the resolver have equal
         velocity values. See assign3/SPEC.md [EQ-NORMAL].
+
+        Examples
+        --------
+        >>> from contacts import ContactRecord
+        >>> ContactRecord('floor', (0.0, 0.05), 2.0, 2.0).is_impact
+        False
+        >>> ContactRecord('floor', (0.0, 0.0), -2.0, 1.6).is_impact
+        True
         """
         return self.normal_velocity_before != self.normal_velocity_after
 
@@ -71,6 +100,9 @@ def resolve_contacts(
     state: CircleState, parameters: PhysicsParameters, box: Box
 ) -> list[ContactRecord]:
     """Correct detected floor and wall contacts without advancing time.
+
+    Use direct resolution to project an overlapping state without a timestep.
+    Separating overlaps are corrected without reversing the outgoing velocity.
 
     Parameters
     ----------
@@ -91,6 +123,10 @@ def resolve_contacts(
     ------
     ValueError
         If box.validate_for rejects the geometry.
+
+    See Also
+    --------
+    integration.complete_step : Integrate first, then call this resolver.
 
     Notes
     -----

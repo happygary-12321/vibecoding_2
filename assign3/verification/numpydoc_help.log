@@ -1,0 +1,13 @@
+usage: numpydoc [-h] {render,validate,lint} ...
+
+The CLI for numpydoc.
+
+options:
+  -h, --help            show this help message and exit
+
+subcommands:
+  {render,validate,lint}
+    render              generate the RST docstring with numpydoc
+    validate            validate the object's docstring and report errors
+    lint                validate all docstrings in file(s) using the abstract
+                        syntax tree

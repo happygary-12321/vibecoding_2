@@ -1,0 +1,170 @@
+Trying:
+    import unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(ContactChecks)
+Expecting nothing
+ok
+Trying:
+    suite.countTestCases()
+Expecting:
+    6
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    ContactChecks().close(0.2, 0.2) is None
+Expecting:
+    True
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = ContactChecks('test_surfaces_and_directions').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = ContactChecks('test_no_contact_and_no_ceiling').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = ContactChecks('test_both_corners').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = ContactChecks('test_restitution_endpoints').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = ContactChecks('test_complete_step_order').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_contacts import ContactChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = ContactChecks('test_default_trajectory').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+8 items passed all tests:
+   4 tests in check_contacts.ContactChecks
+   2 tests in check_contacts.ContactChecks.close
+   5 tests in check_contacts.ContactChecks.test_both_corners
+   5 tests in check_contacts.ContactChecks.test_complete_step_order
+   5 tests in check_contacts.ContactChecks.test_default_trajectory
+   5 tests in check_contacts.ContactChecks.test_no_contact_and_no_ceiling
+   5 tests in check_contacts.ContactChecks.test_restitution_endpoints
+   5 tests in check_contacts.ContactChecks.test_surfaces_and_directions
+36 tests in 8 items.
+36 passed and 0 failed.
+Test passed.

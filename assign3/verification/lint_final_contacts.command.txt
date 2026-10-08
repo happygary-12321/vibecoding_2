@@ -1,0 +1,1 @@
+C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe -m numpydoc lint contacts.py

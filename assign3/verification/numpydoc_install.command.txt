@@ -1,0 +1,1 @@
+C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe -m pip install --constraint D:\CodexCLI\vibecoding\HW2\assign3\verification\existing_constraints.txt numpydoc

@@ -1,0 +1,22 @@
+[
+  {
+    "object": "rendering.FixedStepScheduler",
+    "examples": 6,
+    "failed": 0
+  },
+  {
+    "object": "rendering.FixedStepScheduler.__post_init__",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "rendering.FixedStepScheduler.advance",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "rendering.RenderingDependencyError",
+    "examples": 3,
+    "failed": 0
+  }
+]

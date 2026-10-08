@@ -1,0 +1,42 @@
+[
+  {
+    "object": "check_contacts.ContactChecks",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.close",
+    "examples": 2,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_surfaces_and_directions",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_no_contact_and_no_ceiling",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_both_corners",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_restitution_endpoints",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_complete_step_order",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_default_trajectory",
+    "examples": 5,
+    "failed": 0
+  }
+]

@@ -3,7 +3,10 @@
 Describe the simulator currently present at audited commit
 `604a32d3d9c8d400a2ecedb7d35f36eee29563fb` on `main`, including its existing
 limitations. This is a specification of behavior, not authorization to change it.
-The canonical specification is `assign3/SPEC.md`. Paths written as code in this
+The canonical specification is `assign3/SPEC.md`. The byte-preserved
+[before-evidence submission copy](before/) is prepared for submission; original
+historical paths below still refer to `evidence/assignment3/before/`.
+Paths written as code in this
 document are relative to the repository root unless stated otherwise.
 The simulator advances one circle under gravity with floor and side-wall contacts,
 displays it in a native PyVista window, and provides separate deterministic

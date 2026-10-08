@@ -1,0 +1,17 @@
+[
+  {
+    "object": "contacts.ContactRecord",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "contacts.ContactRecord.is_impact",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "contacts.resolve_contacts",
+    "examples": 7,
+    "failed": 0
+  }
+]

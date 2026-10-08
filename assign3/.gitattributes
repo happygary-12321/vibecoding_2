@@ -1,0 +1,5 @@
+# Preserve original evidence and raw session bytes across Git checkouts.
+before/** -text
+after/** -text
+transcript/*.jsonl -text
+verification/** -text

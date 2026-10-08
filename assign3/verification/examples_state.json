@@ -1,0 +1,52 @@
+[
+  {
+    "object": "state._finite",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.PhysicsParameters",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.PhysicsParameters.__post_init__",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.Box",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.Box.__post_init__",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.Box.validate_for",
+    "examples": 2,
+    "failed": 0
+  },
+  {
+    "object": "state.CircleState",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.CircleState.__post_init__",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "state.CircleState.validate",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "state.CircleState.time",
+    "examples": 5,
+    "failed": 0
+  }
+]

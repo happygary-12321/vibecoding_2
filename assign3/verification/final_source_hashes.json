@@ -1,0 +1,60 @@
+{
+  "HEAD": "fafab42d3989503b1eaade2f89fafbd35181be80",
+  "working_tree_source_uncommitted": true,
+  "hash_algorithm": "SHA-256, exact file bytes",
+  "run_started_utc": "2026-10-08T21:11:29.681563+00:00",
+  "interpreter": "C:\\Users\\omen16\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "command": "python make_figures.py",
+  "source_files": {
+    "check_cli.py": {
+      "sha256": "711bb86361ec107122919a3a345f2a67c0de0be386ed893aa9685a3ea0f560a5",
+      "bytes": 26215
+    },
+    "check_contacts.py": {
+      "sha256": "48f252095b9d8a2c3401547e7b99d170789e537e15ec15f7583a10de05daf320",
+      "bytes": 18281
+    },
+    "check_integration.py": {
+      "sha256": "ea9bf45a02947884105de89fbc397d676ae8456510fa8dca105faaff826d87b7",
+      "bytes": 16414
+    },
+    "check_scheduling.py": {
+      "sha256": "1c879283f9578f8fc1c94e89a054605f8ede2a110f2f2e8cf4792b7462b7e038",
+      "bytes": 14991
+    },
+    "cli.py": {
+      "sha256": "cc9500f4a352612bcc59c7f91523842885eb4aa5faa9303d55e175d1c7d87ea9",
+      "bytes": 6789
+    },
+    "contacts.py": {
+      "sha256": "996b55118dcc9f9a19f85dbce8dc6c375713c02803a15b3c6108bd370bc9c814",
+      "bytes": 7336
+    },
+    "integration.py": {
+      "sha256": "d2b12f54197cf6e37afae9bf9ecc1c47d0c9a464be584cf9251be282a14ef6e8",
+      "bytes": 4289
+    },
+    "main.py": {
+      "sha256": "efc27d8f05773db841ba92c0c9593c939e011e4181d6a14ee5f1b803fa5033e2",
+      "bytes": 2460
+    },
+    "make_figures.py": {
+      "sha256": "9b7356ab7e53f2bb9695534b34c482bc0a2c50e737f4751a602d86f020bd6840",
+      "bytes": 3660
+    },
+    "rendering.py": {
+      "sha256": "59c5d18687700445c50ceac5a92850c6dfac602c9bcced9f693fd8815ba7048b",
+      "bytes": 16606
+    },
+    "state.py": {
+      "sha256": "8ec71709e67e2f6cdc20a66311690965d0089118d15cb6eafc99a6020b48b06a",
+      "bytes": 14016
+    },
+    "validation.py": {
+      "sha256": "c1735ddf8c675627683b397e0d1b560ac1f9b1179af6c04cda30c8899ac42785",
+      "bytes": 42886
+    }
+  },
+  "source_files_unchanged_during_run": true
+}

@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\omen16\AppData\Local\Programs\Python\Python312\Lib\site-packages\numpydoc\__main__.py", line 7, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "C:\Users\omen16\AppData\Local\Programs\Python\Python312\Lib\site-packages\numpydoc\cli.py", line 138, in main
+    return func(**args)
+           ^^^^^^^^^^^^
+  File "C:\Users\omen16\AppData\Local\Programs\Python\Python312\Lib\site-packages\numpydoc\hooks\validate_docstrings.py", line 427, in run_hook
+    if file_issues := process_file(file, config_options):
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\omen16\AppData\Local\Programs\Python\Python312\Lib\site-packages\numpydoc\hooks\validate_docstrings.py", line 386, in process_file
+    with open(filepath) as file:
+         ^^^^^^^^^^^^^^
+OSError: [Errno 22] Invalid argument: '*.py'

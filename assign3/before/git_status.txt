@@ -1,0 +1,34 @@
+ D build_report.py
+A  evidence/final/check_cli.exit.txt
+A  evidence/final/check_cli.txt
+A  evidence/final/check_contacts.exit.txt
+A  evidence/final/check_contacts.txt
+A  evidence/final/check_integration.exit.txt
+A  evidence/final/check_integration.txt
+A  evidence/final/check_scheduling.exit.txt
+A  evidence/final/check_scheduling.txt
+A  evidence/final/figures/bouncing_energy.png
+A  evidence/final/figures/contact_direction.png
+A  evidence/final/figures/free_fall.png
+A  evidence/final/figures/free_fall_energy.png
+A  evidence/final/figures/regression_checks.txt
+A  evidence/final/figures/results.json
+A  evidence/final/make_figures.exit.txt
+A  evidence/final/make_figures.txt
+A  evidence/final/pip_check.exit.txt
+A  evidence/final/pip_check.txt
+A  evidence/final/summary.json
+ M figures/regression_checks.txt
+ D final_verify.py
+ D package_submission.py
+ D preserve_transcript.py
+?? Simulator_Report.pdf
+?? Simulator_Report_Completed.docx
+?? Simulator_Report_Template.docx
+?? evidence/assignment3/
+?? evidence/bug_a/
+?? evidence/bug_b/
+?? final/
+?? huang_yuxuan_hw2.zip
+?? huang_yuxuan_hw2/
+?? "tatus --short"

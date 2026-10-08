@@ -1,0 +1,160 @@
+Trying:
+    from state import _finite
+Expecting nothing
+ok
+Trying:
+    _finite('mass', 1.0) is None
+Expecting:
+    True
+ok
+Trying:
+    _finite('mass', True)
+Expecting:
+    Traceback (most recent call last):
+    ...
+    ValueError: mass must be a finite number
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    p = PhysicsParameters(restitution=0, dt=0.01)
+Expecting nothing
+ok
+Trying:
+    (p.restitution, p.dt, p.gravity)
+Expecting:
+    (0, 0.01, 9.81)
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    value = PhysicsParameters()
+Expecting nothing
+ok
+Trying:
+    value.__post_init__() is None
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    box = Box(width=2, height=1)
+Expecting nothing
+ok
+Trying:
+    box.validate_for(PhysicsParameters(radius=0.2)) is None
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    value = Box()
+Expecting nothing
+ok
+Trying:
+    value.__post_init__() is None
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    Box(width=0.4).validate_for(PhysicsParameters())
+Expecting:
+    Traceback (most recent call last):
+    ...
+    ValueError: box width and height must exceed the circle diameter
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    state = CircleState(y=0.1, vy=2)
+Expecting nothing
+ok
+Trying:
+    (state.y, state.vy, state.step_count)
+Expecting:
+    (0.1, 2, 0)
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    value = CircleState()
+Expecting nothing
+ok
+Trying:
+    value.__post_init__() is None
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    state = CircleState()
+Expecting nothing
+ok
+Trying:
+    state.step_count = -1
+Expecting nothing
+ok
+Trying:
+    state.validate()
+Expecting:
+    Traceback (most recent call last):
+    ...
+    ValueError: step_count must be a nonnegative integer
+ok
+Trying:
+    from state import CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    state = CircleState(step_count=12)
+Expecting nothing
+ok
+Trying:
+    parameters = PhysicsParameters(dt=0.01)
+Expecting nothing
+ok
+Trying:
+    round(state.time(parameters), 6)
+Expecting:
+    0.12
+ok
+Trying:
+    state.step_count
+Expecting:
+    12
+ok
+10 items passed all tests:
+   3 tests in state.Box
+   3 tests in state.Box.__post_init__
+   2 tests in state.Box.validate_for
+   3 tests in state.CircleState
+   3 tests in state.CircleState.__post_init__
+   5 tests in state.CircleState.time
+   4 tests in state.CircleState.validate
+   3 tests in state.PhysicsParameters
+   3 tests in state.PhysicsParameters.__post_init__
+   3 tests in state._finite
+32 tests in 10 items.
+32 passed and 0 failed.
+Test passed.

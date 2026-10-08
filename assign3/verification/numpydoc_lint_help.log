@@ -1,0 +1,19 @@
+usage: numpydoc lint [-h] [--config CONFIG] [--ignore IGNORE]
+                     files [files ...]
+
+Run numpydoc validation on files with option to ignore individual checks.
+
+positional arguments:
+  files            File(s) to run numpydoc validation on.
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG  Path to a directory containing a pyproject.toml or setup.cfg file.
+                   The hook will look for it in the root project directory.
+                   If both are present, only pyproject.toml will be used.
+                   Options must be placed under
+                       - [tool:numpydoc_validation] for setup.cfg files and
+                       - [tool.numpydoc_validation] for pyproject.toml files.
+  --ignore IGNORE  Check codes to ignore. Can be specified multiple times; each value
+                   may contain multiple comma or space separated codes
+                   (e.g., --ignore ES01,SA01 or --ignore ES01 --ignore 'SA01 EX01').

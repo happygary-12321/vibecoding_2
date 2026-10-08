@@ -1,0 +1,54 @@
+{
+  "unchanged": true,
+  "copy_equal": true,
+  "files": {
+    "commit.txt": {
+      "sha256": "f489eba2d739009c0b27155ec5389abe55f3ecaf57edc4fb04cf49b940e91dcd",
+      "bytes": 41
+    },
+    "dependencies.txt": {
+      "sha256": "bc194c64cbb4ac2439efbf03afc2de641bc732852094132a5387933b4a5d6610",
+      "bytes": 1703
+    },
+    "figures/bouncing_energy.png": {
+      "sha256": "d7c9c7332ef5c713f1288574fac77b44d86d6dbecab81165afc81cd41ed9d710",
+      "bytes": 225629
+    },
+    "figures/contact_direction.png": {
+      "sha256": "66da597215b8b38d415bf7d1bf50b6ef96efb0fcc65005d86dbaeb9bad3efa8b",
+      "bytes": 80261
+    },
+    "figures/free_fall.png": {
+      "sha256": "5c5eb9e8911c22d9bb5c3a946ab185af93600933170b3b9c09677fa0d8702440",
+      "bytes": 157547
+    },
+    "figures/free_fall_energy.png": {
+      "sha256": "83c71e69ca8ee7735f9ec6f308a2deb312d642a5e74e250ed7bce0906fd5eff0",
+      "bytes": 107156
+    },
+    "figures/regression_checks.txt": {
+      "sha256": "84b3c3021ce7f245a0de71c32f8c1f091e1e39aa9b84fb628c4382e16a206e62",
+      "bytes": 3241
+    },
+    "figures/results.json": {
+      "sha256": "6fdc2e2c84f15ae1619ed7d4c64c7d03d06f2cb7956ba20c24883a75cee0b9d7",
+      "bytes": 6889016
+    },
+    "git_status.txt": {
+      "sha256": "8eda9778dd56b7d153eb276f4f3f6b3cc53d6176c6793e654d9dc85825a4ae92",
+      "bytes": 1111
+    },
+    "make_figures.exit.txt": {
+      "sha256": "9aca8dfce962538fb8131d73f84cada05e4dc79f5a0d3612c511b1150f3e33e2",
+      "bytes": 4
+    },
+    "make_figures.log": {
+      "sha256": "dbebbc70b657fca599f22d8b50811d33460dab1218a1b9dec200dc896b972cef",
+      "bytes": 445
+    },
+    "python_version.txt": {
+      "sha256": "6a5d9f6462ca5dfc6788cfd216ba579fffd7875776ab9d9b35659be78858f73a",
+      "bytes": 16
+    }
+  }
+}

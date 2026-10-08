@@ -1,0 +1,62 @@
+Trying:
+    from cli import finite_number
+Expecting nothing
+ok
+Trying:
+    finite_number('1e-3')
+Expecting:
+    0.001
+ok
+Trying:
+    finite_number('nan')
+Expecting:
+    Traceback (most recent call last):
+    ...
+    argparse.ArgumentTypeError: must be finite
+ok
+Trying:
+    from cli import restitution_value
+Expecting nothing
+ok
+Trying:
+    [restitution_value(text) for text in ('0', '0.8', '1')]
+Expecting:
+    [0.0, 0.8, 1.0]
+ok
+Trying:
+    from cli import timestep_value
+Expecting nothing
+ok
+Trying:
+    timestep_value('0.01')
+Expecting:
+    0.01
+ok
+Trying:
+    timestep_value('0')
+Expecting:
+    Traceback (most recent call last):
+    ...
+    argparse.ArgumentTypeError: must be greater than zero seconds
+ok
+Trying:
+    from cli import parse_args
+Expecting nothing
+ok
+Trying:
+    args = parse_args('Example', ['--dt', '0.02', '--duration', '0.2'], figures=True)
+Expecting nothing
+ok
+Trying:
+    (args.dt, args.duration, args.bounce_duration, args.output_dir)
+Expecting:
+    (0.02, 0.2, 10.0, 'figures')
+ok
+4 items passed all tests:
+   3 tests in cli.finite_number
+   3 tests in cli.parse_args
+   2 tests in cli.restitution_value
+   3 tests in cli.timestep_value
+11 tests in 4 items.
+11 passed and 0 failed.
+Test passed.

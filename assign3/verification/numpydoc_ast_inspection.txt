@@ -1,0 +1,77 @@
+32:         A name for the node to use in the listing of issues for the file as a whole.
+33:     """
+34: 
+35:     def __init__(
+36:         self,
+37:         *,
+38:         ast_node: ast.AST,
+39:         filename: os.PathLike,
+40:         obj_name: str,
+41:         ancestry: list[ast.AST],
+42:     ) -> None:
+48:         self._source_file: os.PathLike = Path(filename).resolve()
+49:         self._name: str = obj_name
+50: 
+51:         self.is_class: bool = isinstance(ast_node, ast.ClassDef)
+52:         self.is_module: bool = isinstance(ast_node, ast.Module)
+53: 
+54:         self.ancestry: list[ast.AST] = ancestry
+55: 
+56:     @staticmethod
+57:     def _load_obj(name):
+58:         raise NotImplementedError("AstValidator does not support this method.")
+114:             if (
+115:                 params
+116:                 and params[0] in {"self", "cls"}
+117:                 and isinstance(parent, ast.ClassDef)
+118:             ):
+119:                 return params[1:]
+120:             return params
+121: 
+122:         params = tuple()
+123:         if self.is_function_or_method:
+124:             params = extract_signature(self.node, self.ancestry[-1])
+124:             params = extract_signature(self.node, self.ancestry[-1])
+125:         elif self.is_class:
+126:             for child in self.node.body:
+127:                 if isinstance(child, ast.FunctionDef) and child.name == "__init__":
+128:                     params = extract_signature(child, self.node)
+129:         return params
+130: 
+131:     @property
+132:     def method_source(self) -> str:
+133:         with open(self.source_file_name) as file:
+134:             source = ast.get_source_segment(file.read(), self.node)
+147:         Configuration options for reviewing flagged issues.
+148:     """
+149: 
+150:     def __init__(
+151:         self,
+152:         filepath: str,
+153:         config: dict,
+154:     ) -> None:
+155:         self.config: dict = config
+156:         self.filepath: str = filepath
+157:         self.module_name: str = Path(self.filepath).stem
+236:             The node to visit.
+237:         """
+238:         if isinstance(
+239:             node, ast.Module | ast.ClassDef | ast.FunctionDef | ast.AsyncFunctionDef
+240:         ):
+241:             self.stack.append(node)
+242: 
+243:             if not (
+244:                 self.config["exclude"]
+245:                 and re.search(self.config["exclude"], self.node_name)
+246:             ):
+361:         except configparser.NoSectionError:
+362:             pass
+363: 
+364:     options["checks"] = validate.get_validation_checks(options["checks"])
+365:     options["exclude"] = compile_regex(options["exclude"])
+366:     options["exclude_files"] = compile_regex(options["exclude_files"])
+367:     return options
+368: 
+369: 
+370: def process_file(filepath: os.PathLike, config: dict) -> "list[list[str]]":
+371:     """

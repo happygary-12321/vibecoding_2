@@ -1,0 +1,38 @@
+import ast, hashlib, io, json, os, pathlib, shutil, subprocess, sys, tokenize
+root = pathlib.Path.cwd()
+out = root / "assign3" / "verification"
+out.mkdir(parents=True, exist_ok=True)
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+os.environ["PYTHONUTF8"] = "1"
+def run(name, args):
+    command = [sys.executable, *args]
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (out / (name + ".command.txt")).write_text(subprocess.list2cmdline(command) + "\n", encoding="utf-8")
+    (out / (name + ".log")).write_bytes(result.stdout)
+    (out / (name + ".exit.txt")).write_text(str(result.returncode) + "\n")
+    print(name, "exit", result.returncode, result.stdout.decode("utf-8", errors="replace")[-1200:], flush=True)
+    return result
+
+files=json.loads((out/"source_scope.json").read_text())["files"]
+runner=(out/"all_examples_runner.txt").read_text(encoding="utf-8")
+for filename in files:
+    result=run("examples_"+pathlib.Path(filename).stem,["-B","-c",runner,filename])
+    print(filename, "EXAMPLES EXIT", result.returncode, flush=True)
+class StripDocs(ast.NodeTransformer):
+    def generic_visit(self,node):
+        super().generic_visit(node)
+        if isinstance(node,(ast.Module,ast.ClassDef,ast.FunctionDef,ast.AsyncFunctionDef)) and node.body and isinstance(node.body[0],ast.Expr) and isinstance(node.body[0].value,ast.Constant) and isinstance(node.body[0].value.value,str):
+            node.body.pop(0)
+        return node
+checks=[]
+for filename in files:
+    old=subprocess.check_output(["git","show","604a32d3d9c8d400a2ecedb7d35f36eee29563fb:"+filename]).decode("utf-8")
+    new=(root/filename).read_text(encoding="utf-8")
+    same=ast.dump(StripDocs().visit(ast.parse(old,type_comments=True)),include_attributes=False)==ast.dump(StripDocs().visit(ast.parse(new,type_comments=True)),include_attributes=False)
+    checks.append({"file":filename,"executable_ast_equal":same})
+    assert same,filename
+(out/"ast_after_lint_revision.json").write_text(json.dumps(checks,indent=2))
+(out/"ast_after_lint_revision.exit.txt").write_text("0\n")
+for filename in files:
+    run("lint_reviewed_"+pathlib.Path(filename).stem,["-m","numpydoc","lint",filename])
+run("lint_reviewed_all",["-m","numpydoc","lint",*files])

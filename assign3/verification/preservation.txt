@@ -1,0 +1,8 @@
+Unrelated-file SHA256 inventory and staged-diff hash before and after match:
+B4-BF-9F-75-8F-53-F9-EA-3E-B4-E2-9E-18-D2-CF-C1-2E-A9-7F-CC-F9-BC-0E-4E-33-3F-29-29-73-E8-45-83
+2bace6e700b8fb35ed0a0d836de1f1b4c825b3c9
+
+Historical Part 2-4 tracked-file diff: exit 0.
+Original before evidence and submission copy: all 12 files byte-equal (before_hashes_final.json).
+Excluded from unrelated-file inventory: .git, assign3 current/historical artifacts, 12 target source files, README.md, regenerated figures/. Historical assign3 records separately checked with git diff.
+No unrelated file restored, deleted, staged, committed, or pushed.

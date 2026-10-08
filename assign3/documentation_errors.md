@@ -117,3 +117,59 @@ reported as agent-executed testing.
 - Supporting evidence: current git status/history, root source inventory,
   `assign3/part3_verification.txt`, and actual entry-point source. These are
   documentation corrections, not software fixes or injected-bug experiments.
+
+## Part 5 lint corrections and remaining diagnostics
+
+- Original wording: four regression-class methodName descriptions started with
+  "unittest.TestCase"; cli.parse_args and five validation helper return
+  descriptions started with lowercase field/formula names.
+- Why flagged: numpydoc 1.11.0 PR08/RT04 require initial capitals in prose.
+  These were formatting errors, not incorrect numerical claims.
+- Correction: "Selector for unittest.TestCase", "Fields ...", "Allowance ...",
+  or capitalized "Parameters ..." preserves the documented meaning.
+- Original location/omission: local check_cli helpers guarded_import and
+  MissingDependency, and validation.write_plots.save had no docstrings (GL08).
+  Part 2's public coverage inventory excluded local helpers; full-file lint
+  revealed this broader coverage gap.
+- Correction: added accurate NumPy-style docstrings for arguments, return value,
+  mutation/file effects and actual errors; the local exception documents
+  inherited args. No executable statement or assertion changed.
+- Evidence: initial and final logs in verification/, the focused
+  part5_source_docstrings.patch, unchanged executable ASTs and passing regressions.
+
+At the first Part 5 checkpoint, unsuppressed lint exited 1 with 234 diagnostics: ES01 (76),
+SA01 (76), EX01 (73), and PR02 (9). ES01/SA01/EX01 request extended summaries,
+cross-reference sections and examples more broadly than the assignment's
+applicable-section rule and three-physics-function example minimum. These
+stylistic gaps were not hidden or filled with invented material. PR02 reports
+real constructor parameters as unknown because the AST linter only reads an
+explicit class __init__, not generated dataclass or inherited constructors.
+Installed-tool source inspection and actual runtime signatures are recorded in
+verification/numpydoc_ast_inspection.txt and runtime_constructor_signatures.json.
+The accurate Parameters sections remain. No warning suppression, exclusion,
+configuration weakening or monkeypatch was used. Lint is not reported as passed.
+
+Part 5 also replaces README's then-pending final-verification status with actual
+results and routes current baseline links to the byte-preserved assign3/before
+submission copy. Part 2-4 logs remain unchanged historical records.
+
+## Part 5 review revision: ES01, SA01 and EX01 corrected
+
+- Original omissions/location: 76 object docstrings lacked an extended summary
+  (ES01) and See Also section (SA01); 73 lacked an Examples section (EX01).
+  The original complete diagnostics remain in verification/lint_explicit_final.log.
+- Correction: added role-specific summaries, verified related APIs, and examples
+  covering numeric outcomes, state mutation, parser errors, unittest execution,
+  and temporary output directories. No constructor or assertion changed.
+- Execution: 326 runnable statements across 75 objects passed with zero failures.
+  The renderer's example is explicitly manual/unexecuted because it opens a
+  native window. Local helper examples execute their containing workflow.
+- Supporting implementation: unchanged source call relationships, actual example
+  output in verification/examples_*.log, executable AST equality against the
+  Assignment 3 starting commit, and non-docstring token equality against HEAD.
+- Final raw result: verification/lint_reviewed_all.log contains exactly nine
+  PR02 diagnostics, exit 1, and no ES01, SA01 or EX01 findings.
+- Distinction: the nine generated/inherited constructor-parameter reports were
+  confirmed by review and runtime signatures as checker limitations. Accurate
+  Parameters sections remain unchanged by this revision. No suppression,
+  constructor modification or numpydoc monkeypatch was introduced.

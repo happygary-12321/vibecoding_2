@@ -1,0 +1,32 @@
+Interpreter: C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+test_defaults_and_geometry (__main__.IntegrationChecks.test_defaults_and_geometry)
+Check defaults, legal penetration, and diameter-dependent geometry. ... ok
+test_free_fall_and_refinement (__main__.IntegrationChecks.test_free_fall_and_refinement)
+Check signed height error and timestep refinement over one second. ... dt=1/240 final y (m): expected=5.0745625, measured=5.0745625, absolute tolerance=1e-10
+dt=1/240 final vy (m/s): expected=-9.81, measured=-9.81, absolute tolerance=1e-10
+dt=1/240 signed height error (m): expected=-0.0204375, measured=-0.0204375, absolute tolerance=1e-10
+dt=1/240: exact final y=5.095 m; max signed-error formula residual=6.33174068732e-15 m
+dt=1/480 final y (m): expected=5.08478125, measured=5.08478125, absolute tolerance=1e-10
+dt=1/480 final vy (m/s): expected=-9.81, measured=-9.81, absolute tolerance=1e-10
+dt=1/480 signed height error (m): expected=-0.01021875, measured=-0.01021875, absolute tolerance=1e-10
+dt=1/480: exact final y=5.095 m; max signed-error formula residual=7.35349281467e-15 m
+final coarse/fine error ratio: expected=2, measured=2, absolute tolerance=1e-07
+ok
+test_invalid_state_and_parameters (__main__.IntegrationChecks.test_invalid_state_and_parameters)
+Check rejected numeric values, ranges, and step-count types. ... ok
+test_one_step (__main__.IntegrationChecks.test_one_step)
+Check one velocity-first step and the resulting simulation time. ... one step vy (m/s): expected=2.019, measured=2.019, absolute tolerance=1e-12
+one step y (m): expected=2.2019, measured=2.2019, absolute tolerance=1e-12
+one step x (m): expected=1.15, measured=1.15, absolute tolerance=1e-12
+one step time (s): expected=0.8, measured=0.8, absolute tolerance=1e-12
+ok
+test_zero_gravity (__main__.IntegrationChecks.test_zero_gravity)
+Check a one-second constant-velocity trajectory. ... zero gravity x (m): expected=-1, measured=-1, absolute tolerance=1e-10
+zero gravity y (m): expected=5, measured=5, absolute tolerance=1e-10
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

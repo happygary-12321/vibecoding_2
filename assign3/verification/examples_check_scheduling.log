@@ -1,0 +1,174 @@
+Trying:
+    import unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    suite = unittest.defaultTestLoader.loadTestsFromTestCase(SchedulingChecks)
+Expecting nothing
+ok
+Trying:
+    suite.countTestCases()
+Expecting:
+    6
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    scheduler = SchedulingChecks().scheduler(dt=0.1)
+Expecting nothing
+ok
+Trying:
+    (scheduler.parameters.dt, scheduler.state.step_count, scheduler.accumulator)
+Expecting:
+    (0.1, 0, 0.0)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = SchedulingChecks('test_insufficient_and_fractional_time').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = SchedulingChecks('test_display_interval_independence').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = SchedulingChecks('test_cap_discard_and_remainder').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = SchedulingChecks('test_exact_cap_does_not_discard').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = SchedulingChecks('test_invalid_elapsed').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+Trying:
+    import contextlib, io, unittest
+Expecting nothing
+ok
+Trying:
+    from check_scheduling import SchedulingChecks
+Expecting nothing
+ok
+Trying:
+    result = unittest.TestResult()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(io.StringIO()):
+        _ = SchedulingChecks('test_no_pyvista_import').run(result)
+Expecting nothing
+ok
+Trying:
+    (result.testsRun, result.wasSuccessful())
+Expecting:
+    (1, True)
+ok
+8 items passed all tests:
+   4 tests in check_scheduling.SchedulingChecks
+   3 tests in check_scheduling.SchedulingChecks.scheduler
+   5 tests in check_scheduling.SchedulingChecks.test_cap_discard_and_remainder
+   5 tests in check_scheduling.SchedulingChecks.test_display_interval_independence
+   5 tests in check_scheduling.SchedulingChecks.test_exact_cap_does_not_discard
+   5 tests in check_scheduling.SchedulingChecks.test_insufficient_and_fractional_time
+   5 tests in check_scheduling.SchedulingChecks.test_invalid_elapsed
+   5 tests in check_scheduling.SchedulingChecks.test_no_pyvista_import
+37 tests in 8 items.
+37 passed and 0 failed.
+Test passed.

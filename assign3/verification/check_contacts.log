@@ -1,0 +1,29 @@
+Interpreter: C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+test_both_corners (__main__.ContactChecks.test_both_corners)
+Check independent floor and wall responses at both lower corners. ... ok
+test_complete_step_order (__main__.ContactChecks.test_complete_step_order)
+Check integration before contact correction and one count increment. ... ok
+test_default_trajectory (__main__.ContactChecks.test_default_trajectory)
+Check finite bounded default motion for 2400 complete steps. ... Default trajectory: measured steps=2400, time=10 s; expected steps=2400, time=10 s; impact surfaces=['floor', 'left', 'right']
+ok
+test_no_contact_and_no_ceiling (__main__.ContactChecks.test_no_contact_and_no_ceiling)
+Check that interior states at several heights remain unchanged. ... ok
+test_restitution_endpoints (__main__.ContactChecks.test_restitution_endpoints)
+Check e=0 and e=1 responses at all three surfaces. ... ok
+test_surfaces_and_directions (__main__.ContactChecks.test_surfaces_and_directions)
+Check touching and penetrating contacts for every surface. ... floor, initial vy=-2: expected y=0.2, vy=+1.6; measured y=0.2, vy=+1.6; impact=True
+floor, initial vy=+2: expected y=0.2, vy=+2; measured y=0.2, vy=+2; impact=False
+floor, initial vy=+0: expected y=0.2, vy=+0; measured y=0.2, vy=+0; impact=False
+left, initial vx=-2: expected x=0.2, vx=+1.6; measured x=0.2, vx=+1.6; impact=True
+left, initial vx=+2: expected x=0.2, vx=+2; measured x=0.2, vx=+2; impact=False
+left, initial vx=+0: expected x=0.2, vx=+0; measured x=0.2, vx=+0; impact=False
+right, initial vx=+2: expected x=3.8, vx=-1.6; measured x=3.8, vx=-1.6; impact=True
+right, initial vx=-2: expected x=3.8, vx=-2; measured x=3.8, vx=-2; impact=False
+right, initial vx=+0: expected x=3.8, vx=+0; measured x=3.8, vx=+0; impact=False
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.005s
+
+OK

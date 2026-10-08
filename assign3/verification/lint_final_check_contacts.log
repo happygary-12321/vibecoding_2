@@ -1,0 +1,50 @@
+
+check_contacts.py:25: ES01 No extended summary found
+
+check_contacts.py:25: PR02 Unknown parameters {'methodName'}
+
+check_contacts.py:25: SA01 See Also section not found
+
+check_contacts.py:25: EX01 No examples section found
+
+check_contacts.py:51: ES01 No extended summary found
+
+check_contacts.py:51: SA01 See Also section not found
+
+check_contacts.py:51: EX01 No examples section found
+
+check_contacts.py:71: ES01 No extended summary found
+
+check_contacts.py:71: SA01 See Also section not found
+
+check_contacts.py:71: EX01 No examples section found
+
+check_contacts.py:129: ES01 No extended summary found
+
+check_contacts.py:129: SA01 See Also section not found
+
+check_contacts.py:129: EX01 No examples section found
+
+check_contacts.py:154: ES01 No extended summary found
+
+check_contacts.py:154: SA01 See Also section not found
+
+check_contacts.py:154: EX01 No examples section found
+
+check_contacts.py:189: ES01 No extended summary found
+
+check_contacts.py:189: SA01 See Also section not found
+
+check_contacts.py:189: EX01 No examples section found
+
+check_contacts.py:222: ES01 No extended summary found
+
+check_contacts.py:222: SA01 See Also section not found
+
+check_contacts.py:222: EX01 No examples section found
+
+check_contacts.py:258: ES01 No extended summary found
+
+check_contacts.py:258: SA01 See Also section not found
+
+check_contacts.py:258: EX01 No examples section found

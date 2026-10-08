@@ -1,0 +1,18 @@
+Final alignment checks
+Exactly one new literal python make_figures.py run: exit 0.
+All 26 numerical checks and 11 embedded regressions passed.
+All four PNGs: byte equality and decoded-pixel equality with original baseline.
+results.json: byte equality, no numerical/environment differences.
+Final 12 source file SHA-256 hashes recorded and rechecked unchanged.
+Original before directory and assign3/before copy remain byte-for-byte unchanged.
+Earlier command/exit/log files preserved; earlier after regression log and
+comparison JSON saved separately before refreshing current evidence.
+git diff --check: exit 0.
+Transcript refresh PowerShell procedure: syntax parsed successfully, not executed.
+Current documentation links exist locally; new submission files remain untracked.
+Unrelated-file inventory and cached-diff hashes match initial Part 5 values.
+Four unrelated helper deletions remain untouched and are listed separately.
+Raw accepted lint remains exit 1 with exactly nine evidenced PR02 limitations.
+Earlier physics verification: 19 examples in three functions.
+Final revised documentation: 326 runnable statements across 75 objects, no failures.
+No simulator source edits, new examples, staging, commits, or push in this alignment.

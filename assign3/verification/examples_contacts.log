@@ -1,0 +1,65 @@
+Trying:
+    from contacts import ContactRecord
+Expecting nothing
+ok
+Trying:
+    record = ContactRecord('floor', (0.0, 0.05), 2.0, 2.0)
+Expecting nothing
+ok
+Trying:
+    (record.position_correction, record.is_impact)
+Expecting:
+    ((0.0, 0.05), False)
+ok
+Trying:
+    from contacts import ContactRecord
+Expecting nothing
+ok
+Trying:
+    ContactRecord('floor', (0.0, 0.05), 2.0, 2.0).is_impact
+Expecting:
+    False
+ok
+Trying:
+    ContactRecord('floor', (0.0, 0.0), -2.0, 1.6).is_impact
+Expecting:
+    True
+ok
+Trying:
+    from state import Box, CircleState, PhysicsParameters
+Expecting nothing
+ok
+Trying:
+    from contacts import resolve_contacts
+Expecting nothing
+ok
+Trying:
+    state = CircleState(y=0.15, vy=2.0, step_count=5)
+Expecting nothing
+ok
+Trying:
+    records = resolve_contacts(state, PhysicsParameters(), Box())
+Expecting nothing
+ok
+Trying:
+    (round(state.y, 6), state.vy, state.step_count)
+Expecting:
+    (0.2, 2.0, 5)
+ok
+Trying:
+    [(record.surface, record.is_impact) for record in records]
+Expecting:
+    [('floor', False)]
+ok
+Trying:
+    tuple(round(value, 6) for value in records[0].position_correction)
+Expecting:
+    (0.0, 0.05)
+ok
+3 items passed all tests:
+   3 tests in contacts.ContactRecord
+   3 tests in contacts.ContactRecord.is_impact
+   7 tests in contacts.resolve_contacts
+13 tests in 3 items.
+13 passed and 0 failed.
+Test passed.

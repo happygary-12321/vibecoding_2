@@ -25,6 +25,9 @@ MAX_STEPS_PER_UPDATE = 60
 class FixedStepScheduler:
     """Accumulate elapsed seconds and execute at most 60 steps per update.
 
+    Supply elapsed wall-clock intervals while keeping the physical timestep
+    fixed. The scheduler owns bookkeeping but shares the supplied state.
+
     Parameters
     ----------
     state : CircleState
@@ -58,11 +61,27 @@ class FixedStepScheduler:
     OverflowError
         If initial state finiteness checking cannot convert a large integer.
 
+    See Also
+    --------
+    rendering.FixedStepScheduler.advance : Consume one elapsed-time interval.
+
     Notes
     -----
     This is a mutable dataclass. The bookkeeping fields are init=False.
     No GUI or clock is owned here. See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
     Discarded whole steps are not simulated later.
+
+    Examples
+    --------
+    >>> from state import Box, CircleState, PhysicsParameters
+    >>> from rendering import FixedStepScheduler
+    >>> scheduler = FixedStepScheduler(CircleState(), PhysicsParameters(dt=0.1), Box())
+    >>> scheduler.advance(0.04)
+    0
+    >>> scheduler.advance(0.06)
+    1
+    >>> scheduler.state.step_count
+    1
     """
     state: CircleState
     parameters: PhysicsParameters
@@ -75,6 +94,9 @@ class FixedStepScheduler:
     def __post_init__(self):
         """Validate the referenced state and geometry after initialization.
 
+        Construction validates the shared references before any elapsed interval
+        is consumed. It does not make a private copy of the mutable circle.
+
         Returns
         -------
         None
@@ -86,12 +108,30 @@ class FixedStepScheduler:
             If state validation or radius-dependent geometry validation fails.
         OverflowError
             If initial state finiteness checking cannot convert a large integer.
+
+        See Also
+        --------
+        state.CircleState.validate : Check numeric state fields.
+        state.Box.validate_for : Check diameter-dependent geometry.
+
+        Examples
+        --------
+        >>> from state import Box, CircleState, PhysicsParameters
+        >>> from rendering import FixedStepScheduler
+        >>> scheduler = FixedStepScheduler(CircleState(), PhysicsParameters(), Box())
+        >>> scheduler.__post_init__() is None
+        True
+        >>> scheduler.state.step_count
+        0
         """
         self.state.validate()
         self.box.validate_for(self.parameters)
 
     def advance(self, elapsed: float) -> int:
         """Consume elapsed seconds and advance the shared state by fixed steps.
+
+        Elapsed time can fund several fixed steps or only a fractional remainder.
+        The work cap bounds each call and permanently discards excess whole steps.
 
         Parameters
         ----------
@@ -112,6 +152,10 @@ class FixedStepScheduler:
         TypeError
             If elapsed does not support the numeric operations used here.
 
+        See Also
+        --------
+        integration.complete_step : Execute each available physical timestep.
+
         Notes
         -----
         Mutates state and scheduler counters. Near-integer quotients snap within
@@ -121,6 +165,16 @@ class FixedStepScheduler:
         dt is not changed and there is no interpolation. An exception during
         stepping does not roll back state. See assign3/SPEC.md [EQ-STEP],
         [EQ-TIME], and Section 5. There is no per-update state validation here.
+
+        Examples
+        --------
+        >>> from state import Box, CircleState, PhysicsParameters
+        >>> from rendering import FixedStepScheduler
+        >>> scheduler = FixedStepScheduler(CircleState(), PhysicsParameters(dt=0.01), Box())
+        >>> scheduler.advance(1.2575)
+        60
+        >>> (scheduler.discarded_steps, round(scheduler.accumulator, 4))
+        (65, 0.0075)
         """
         if not math.isfinite(elapsed) or elapsed < 0:
             raise ValueError("elapsed time must be finite and nonnegative")
@@ -151,6 +205,9 @@ class FixedStepScheduler:
 class RenderingDependencyError(RuntimeError):
     """Signal a missing PyVista or VTK dependency during renderer setup.
 
+    This exception identifies missing renderer dependencies that the GUI
+    entry point converts into a user-facing installation message and status 1.
+
     Attributes
     ----------
     args : tuple
@@ -158,17 +215,31 @@ class RenderingDependencyError(RuntimeError):
         one installation-message string, so emitted instances hold a
         one-element tuple. This class defines no additional state.
 
+    See Also
+    --------
+    main.main : Handle this exception at the GUI entry point.
+
     Notes
     -----
     This RuntimeError subclass adds no custom attributes or constructor.
     run_simulation raises it for ModuleNotFoundError naming pyvista, vtk,
     or vtkmodules while importing/resolving the plotter. main.main catches
     it, prints the installation message, and returns status 1.
+
+    Examples
+    --------
+    >>> from rendering import RenderingDependencyError
+    >>> error = RenderingDependencyError('Install PyVista/VTK')
+    >>> (str(error), error.args)
+    ('Install PyVista/VTK', ('Install PyVista/VTK',))
     """
 
 
 def run_simulation(parameters: PhysicsParameters) -> None:
     """Open a native PyVista window and run until its event loop terminates.
+
+    The GUI constructs its own default circle and box, then passes measured
+    elapsed time to the fixed-step scheduler until the native loop terminates.
 
     Parameters
     ----------
@@ -193,6 +264,11 @@ def run_simulation(parameters: PhysicsParameters) -> None:
         Other setup/rendering errors propagate. Callback exceptions are
         captured, terminate the loop, and are re-raised with their traceback.
 
+    See Also
+    --------
+    rendering.FixedStepScheduler : Schedule physics without owning a GUI.
+    main.main : Parse options and launch this renderer.
+
     Notes
     -----
     Lazily imports PyVista, creates meshes/actor/camera/timer, and prints
@@ -211,6 +287,15 @@ def run_simulation(parameters: PhysicsParameters) -> None:
     discards whole-step backlog above 60 per update. The label uses literal
     default geometry/radius text even for custom physical parameters.
     See assign3/SPEC.md [EQ-STEP], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+
+    Examples
+    --------
+    Interactive example (manual only; opens a native window and blocks until
+    closed with q, Escape, or the close button; not executed by doctest)::
+
+        from rendering import run_simulation
+        from state import PhysicsParameters
+        run_simulation(PhysicsParameters(restitution=0.5))
     """
     try:
         import pyvista as pv

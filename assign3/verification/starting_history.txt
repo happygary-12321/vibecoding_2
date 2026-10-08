@@ -1,0 +1,47 @@
+﻿commit fafab42d3989503b1eaade2f89fafbd35181be80
+Author:     happygary-12321 <hyx13918937916@gmail.com>
+AuthorDate: Thu Oct 8 14:44:15 2026 -0400
+Commit:     happygary-12321 <hyx13918937916@gmail.com>
+CommitDate: Thu Oct 8 14:44:15 2026 -0400
+
+    docs: update README and clarify validation limitations
+
+commit 210030d9aff3f996dfd717d6f58cad510953eaff
+Author:     happygary-12321 <hyx13918937916@gmail.com>
+AuthorDate: Thu Oct 8 14:33:12 2026 -0400
+Commit:     happygary-12321 <hyx13918937916@gmail.com>
+CommitDate: Thu Oct 8 14:33:12 2026 -0400
+
+    docs: explain contact decisions and numerical thresholds
+
+commit fd1192f5b13c10936710525f1e2cd36c82302ac9
+Author:     happygary-12321 <hyx13918937916@gmail.com>
+AuthorDate: Thu Oct 8 13:59:32 2026 -0400
+Commit:     happygary-12321 <hyx13918937916@gmail.com>
+CommitDate: Thu Oct 8 14:01:10 2026 -0400
+
+    docs: document simulator APIs with NumPy-style docstrings
+
+commit d98e8a2c209bc76a77d81be87037b270a12b86e8
+Author:     happygary-12321 <hyx13918937916@gmail.com>
+AuthorDate: Thu Oct 8 13:32:18 2026 -0400
+Commit:     happygary-12321 <hyx13918937916@gmail.com>
+CommitDate: Thu Oct 8 13:32:18 2026 -0400
+
+    docs: specify current simulator behavior
+
+commit 604a32d3d9c8d400a2ecedb7d35f36eee29563fb
+Author:     happygary-12321 <hyx13918937916@gmail.com>
+AuthorDate: Fri Oct 2 06:03:32 2026 -0400
+Commit:     happygary-12321 <hyx13918937916@gmail.com>
+CommitDate: Fri Oct 2 06:03:32 2026 -0400
+
+    docs: update final reviewed report
+
+commit 69a12eb69dc0bef1b78c3a16ba011e75b3ad6a12
+Author:     happygary-12321 <hyx13918937916@gmail.com>
+AuthorDate: Fri Oct 2 06:02:31 2026 -0400
+Commit:     happygary-12321 <hyx13918937916@gmail.com>
+CommitDate: Fri Oct 2 06:02:31 2026 -0400
+
+    fix: restore simulation entry points and validation figures

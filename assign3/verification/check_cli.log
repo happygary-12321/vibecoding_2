@@ -1,0 +1,25 @@
+Interpreter: C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+test_defaults (__main__.CliChecks.test_defaults)
+Check the default shared CLI values. ... ok
+test_figure_options (__main__.CliChecks.test_figure_options)
+Check figure defaults and rejected durations/timesteps. ... ok
+test_headless_figures (__main__.CliChecks.test_headless_figures)
+Check a small figure run and its temporary output artifacts. ... ok
+test_help (__main__.CliChecks.test_help)
+Check help status and text for both entry scripts. ... ok
+test_invalid_inputs (__main__.CliChecks.test_invalid_inputs)
+Check invalid numeric arguments on both entry scripts. ... ok
+test_main_dependency_message_and_unexpected_errors (__main__.CliChecks.test_main_dependency_message_and_unexpected_errors)
+Check handled dependency failures and propagated programming errors. ... ok
+test_main_help_and_invalid_args_do_not_import_rendering (__main__.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering)
+Check that help and invalid options precede rendering imports. ... ok
+test_main_passes_parameters_without_opening_gui (__main__.CliChecks.test_main_passes_parameters_without_opening_gui)
+Check parsed parameter forwarding through a mocked renderer. ... ok
+test_missing_values (__main__.CliChecks.test_missing_values)
+Check parser failures when numeric option values are missing. ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 5.586s
+
+OK

@@ -1,0 +1,131 @@
+{
+  "images": [
+    {
+      "file": "free_fall.png",
+      "before_sha256": "5c5eb9e8911c22d9bb5c3a946ab185af93600933170b3b9c09677fa0d8702440",
+      "after_sha256": "5c5eb9e8911c22d9bb5c3a946ab185af93600933170b3b9c09677fa0d8702440",
+      "byte_equal": true,
+      "pixel_equal": true,
+      "before_size": [
+        1640,
+        1280
+      ],
+      "after_size": [
+        1640,
+        1280
+      ],
+      "before_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      },
+      "after_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      }
+    },
+    {
+      "file": "free_fall_energy.png",
+      "before_sha256": "83c71e69ca8ee7735f9ec6f308a2deb312d642a5e74e250ed7bce0906fd5eff0",
+      "after_sha256": "83c71e69ca8ee7735f9ec6f308a2deb312d642a5e74e250ed7bce0906fd5eff0",
+      "byte_equal": true,
+      "pixel_equal": true,
+      "before_size": [
+        1640,
+        830
+      ],
+      "after_size": [
+        1640,
+        830
+      ],
+      "before_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      },
+      "after_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      }
+    },
+    {
+      "file": "bouncing_energy.png",
+      "before_sha256": "d7c9c7332ef5c713f1288574fac77b44d86d6dbecab81165afc81cd41ed9d710",
+      "after_sha256": "d7c9c7332ef5c713f1288574fac77b44d86d6dbecab81165afc81cd41ed9d710",
+      "byte_equal": true,
+      "pixel_equal": true,
+      "before_size": [
+        2180,
+        1460
+      ],
+      "after_size": [
+        2180,
+        1460
+      ],
+      "before_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      },
+      "after_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      }
+    },
+    {
+      "file": "contact_direction.png",
+      "before_sha256": "66da597215b8b38d415bf7d1bf50b6ef96efb0fcc65005d86dbaeb9bad3efa8b",
+      "after_sha256": "66da597215b8b38d415bf7d1bf50b6ef96efb0fcc65005d86dbaeb9bad3efa8b",
+      "byte_equal": true,
+      "pixel_equal": true,
+      "before_size": [
+        1460,
+        920
+      ],
+      "after_size": [
+        1460,
+        920
+      ],
+      "before_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      },
+      "after_metadata": {
+        "Software": "Matplotlib version3.10.7, https://matplotlib.org/",
+        "dpi": [
+          180.00979999999998,
+          180.00979999999998
+        ]
+      }
+    }
+  ],
+  "results_json_byte_equal": true,
+  "json_differences": [],
+  "after_status": "passed",
+  "checks_total": 26,
+  "checks_passed": 26,
+  "regressions": {
+    "tests_run": 11,
+    "passed": true,
+    "failures": [],
+    "errors": []
+  }
+}

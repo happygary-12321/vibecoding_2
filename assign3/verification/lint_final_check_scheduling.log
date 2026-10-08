@@ -1,0 +1,50 @@
+
+check_scheduling.py:20: ES01 No extended summary found
+
+check_scheduling.py:20: PR02 Unknown parameters {'methodName'}
+
+check_scheduling.py:20: SA01 See Also section not found
+
+check_scheduling.py:20: EX01 No examples section found
+
+check_scheduling.py:45: ES01 No extended summary found
+
+check_scheduling.py:45: SA01 See Also section not found
+
+check_scheduling.py:45: EX01 No examples section found
+
+check_scheduling.py:69: ES01 No extended summary found
+
+check_scheduling.py:69: SA01 See Also section not found
+
+check_scheduling.py:69: EX01 No examples section found
+
+check_scheduling.py:97: ES01 No extended summary found
+
+check_scheduling.py:97: SA01 See Also section not found
+
+check_scheduling.py:97: EX01 No examples section found
+
+check_scheduling.py:132: ES01 No extended summary found
+
+check_scheduling.py:132: SA01 See Also section not found
+
+check_scheduling.py:132: EX01 No examples section found
+
+check_scheduling.py:170: ES01 No extended summary found
+
+check_scheduling.py:170: SA01 See Also section not found
+
+check_scheduling.py:170: EX01 No examples section found
+
+check_scheduling.py:194: ES01 No extended summary found
+
+check_scheduling.py:194: SA01 See Also section not found
+
+check_scheduling.py:194: EX01 No examples section found
+
+check_scheduling.py:220: ES01 No extended summary found
+
+check_scheduling.py:220: SA01 See Also section not found
+
+check_scheduling.py:220: EX01 No examples section found

@@ -1,0 +1,18 @@
+
+contacts.py:16: ES01 No extended summary found
+
+contacts.py:16: PR02 Unknown parameters {'normal_velocity_before', 'position_correction', 'normal_velocity_after', 'surface'}
+
+contacts.py:16: SA01 See Also section not found
+
+contacts.py:16: EX01 No examples section found
+
+contacts.py:53: ES01 No extended summary found
+
+contacts.py:53: SA01 See Also section not found
+
+contacts.py:53: EX01 No examples section found
+
+contacts.py:70: ES01 No extended summary found
+
+contacts.py:70: SA01 See Also section not found

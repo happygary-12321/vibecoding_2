@@ -1,0 +1,50 @@
+[
+  {
+    "file": "check_cli.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "check_contacts.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "check_integration.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "check_scheduling.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "cli.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "contacts.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "integration.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "main.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "make_figures.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "rendering.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "state.py",
+    "non_docstring_tokens_equal_HEAD": true
+  },
+  {
+    "file": "validation.py",
+    "non_docstring_tokens_equal_HEAD": true
+  }
+]

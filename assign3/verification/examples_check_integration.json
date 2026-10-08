@@ -1,0 +1,37 @@
+[
+  {
+    "object": "check_integration.IntegrationChecks",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "check_integration.IntegrationChecks.measured",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_defaults_and_geometry",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_invalid_state_and_parameters",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_one_step",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_zero_gravity",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_free_fall_and_refinement",
+    "examples": 5,
+    "failed": 0
+  }
+]

@@ -1,0 +1,5 @@
+Validation passed. Figures and numerical evidence saved in figures.
+coarse: y=5.0745625 m (expected 5.0745625); vy=-9.81 m/s (expected -9.81); signed error=-0.0204375 m (expected -0.0204375)
+fine: y=5.08478125 m (expected 5.08478125); vy=-9.81 m/s (expected -9.81); signed error=-0.01021875 m (expected -0.01021875)
+selected: e=0.8, impacts={'floor': 1172, 'left': 1, 'right': 2}
+elastic: e=1.0, impacts={'floor': 8, 'left': 2, 'right': 2}

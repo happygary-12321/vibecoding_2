@@ -1,0 +1,2 @@
+# Verified documentation tool; existing simulation requirements unchanged.
+numpydoc==1.11.0

@@ -1,0 +1,90 @@
+import datetime, difflib, hashlib, json, os, pathlib, shutil, subprocess, sys
+from PIL import Image
+root = pathlib.Path.cwd()
+out = root / "assign3/verification"
+files = json.loads((out / "source_scope.json").read_text())["files"]
+assert len(files) == 12
+assert sys.version_info[:3] == (3, 12, 10)
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+def inventory(directory):
+    return {p.relative_to(directory).as_posix(): {"sha256":sha(p),"bytes":p.stat().st_size}
+            for p in sorted(directory.rglob("*")) if p.is_file()}
+source_before = {f: {"sha256":sha(root/f),"bytes":(root/f).stat().st_size} for f in files}
+before = root / "evidence/assignment3/before"
+copy = root / "assign3/before"
+before_hashes = inventory(before)
+expected = json.loads((out/"before_hashes_final.json").read_text())["files"]
+assert before_hashes == expected
+assert inventory(copy) == before_hashes
+assert not (out/"final_make_figures.log").exists(), "Do not repeat the authorized final run."
+# Preserve the earlier comparison and generated text log before refreshing current evidence.
+shutil.copyfile(root/"assign3/comparison_results.json",out/"comparison_before_alignment.json")
+shutil.copyfile(root/"assign3/after/regression_checks.txt",out/"regression_checks_before_alignment.txt")
+os.environ["PATH"] = str(pathlib.Path(sys.executable).parent)+os.pathsep+os.environ["PATH"]
+os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
+os.environ["PYTHONUTF8"] = "1"
+command = "python make_figures.py"
+stamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+(out/"final_make_figures.command.txt").write_text(command+"\nWorking directory: "+str(root)+"\nPATH first: "+str(pathlib.Path(sys.executable).parent)+"\nPYTHONDONTWRITEBYTECODE=1; PYTHONUTF8=1\nStarted UTC: "+stamp+"\n",encoding="utf-8")
+result = subprocess.run(["cmd.exe","/d","/c",command],cwd=root,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+(out/"final_make_figures.log").write_bytes(result.stdout)
+(out/"final_make_figures.exit.txt").write_text(str(result.returncode)+"\n")
+print("Final figure command exit:",result.returncode)
+print(result.stdout.decode("utf-8",errors="replace"))
+assert result.returncode == 0
+names = ["free_fall.png","free_fall_energy.png","bouncing_energy.png","contact_direction.png","results.json","regression_checks.txt"]
+after = root/"assign3/after"
+for name in names:
+    shutil.copyfile(root/"figures"/name,after/name)
+images=[]
+for name in names[:4]:
+    a,b=before/"figures"/name,after/name
+    with Image.open(a) as old, Image.open(b) as new:
+        images.append({"file":name,"before_sha256":sha(a),"after_sha256":sha(b),
+                       "byte_equal":a.read_bytes()==b.read_bytes(),
+                       "pixel_equal":old.size==new.size and old.convert("RGBA").tobytes()==new.convert("RGBA").tobytes(),
+                       "before_size":old.size,"after_size":new.size,
+                       "before_metadata":old.info,"after_metadata":new.info})
+old=json.loads((before/"figures/results.json").read_text())
+new=json.loads((after/"results.json").read_text())
+differences=[]
+def compare(a,b,path=""):
+    if type(a)!=type(b):
+        differences.append({"path":path,"before":a,"after":b})
+    elif isinstance(a,dict):
+        for key in sorted(a.keys()|b.keys()):
+            if key not in a or key not in b:
+                differences.append({"path":path+"/"+key,"before":a.get(key),"after":b.get(key)})
+            else: compare(a[key],b[key],path+"/"+key)
+    elif isinstance(a,list):
+        if len(a)!=len(b): differences.append({"path":path,"lengths":[len(a),len(b)]})
+        else:
+            for i,(x,y) in enumerate(zip(a,b)): compare(x,y,path+"/"+str(i))
+    elif a!=b: differences.append({"path":path,"before":a,"after":b})
+compare(old,new)
+diff="".join(difflib.unified_diff((before/"figures/regression_checks.txt").read_text().splitlines(True),
+                               (after/"regression_checks.txt").read_text().splitlines(True),
+                               fromfile="preserved before",tofile="final revised source"))
+(out/"final_regression_output_difference.patch").write_text(diff,encoding="utf-8",newline="\n")
+source_after={f:{"sha256":sha(root/f),"bytes":(root/f).stat().st_size} for f in files}
+assert source_before == source_after
+assert inventory(before) == before_hashes
+assert inventory(copy) == before_hashes
+revision={"HEAD":subprocess.check_output(["git","rev-parse","HEAD"]).decode().strip(),
+          "working_tree_source_uncommitted":True,"hash_algorithm":"SHA-256, exact file bytes",
+          "run_started_utc":stamp,"interpreter":sys.executable,"python":sys.version,
+          "command":command,"source_files":source_before,"source_files_unchanged_during_run":True}
+(out/"final_source_hashes.json").write_text(json.dumps(revision,indent=2)+"\n",encoding="utf-8",newline="\n")
+report={"run":"final revised source; one literal default-command execution","command_log":"verification/final_make_figures.command.txt",
+        "source_hashes":"verification/final_source_hashes.json","images":images,
+        "results_json_before_sha256":sha(before/"figures/results.json"),"results_json_after_sha256":sha(after/"results.json"),
+        "results_json_byte_equal":(before/"figures/results.json").read_bytes()==(after/"results.json").read_bytes(),
+        "json_differences":differences,"after_status":new["status"],"checks_total":len(new["checks"]),
+        "checks_passed":sum(c["passed"] for c in new["checks"]),"regressions":new["regressions"],
+        "original_before_unchanged":True,"submission_before_copy_unchanged":True,
+        "regression_log_byte_equal":(before/"figures/regression_checks.txt").read_bytes()==(after/"regression_checks.txt").read_bytes()}
+(root/"assign3/comparison_results.json").write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8",newline="\n")
+(out/"final_before_preservation.json").write_text(json.dumps({"unchanged":True,"copy_equal":True,"files":before_hashes},indent=2)+"\n",encoding="utf-8",newline="\n")
+print(json.dumps({k:v for k,v in report.items() if k!="images"},indent=2))
+print("PNG byte/pixel equality:",[(x["file"],x["byte_equal"],x["pixel_equal"]) for x in images])

@@ -1,0 +1,361 @@
+[
+  {
+    "object": "check_cli",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "check_cli.CliChecks.invoke",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_defaults",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_help",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_passes_parameters_without_opening_gui",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_help_and_invalid_args_do_not_import_rendering.guarded_import",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_main_dependency_message_and_unexpected_errors.MissingDependency",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_figure_options",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_headless_figures",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_invalid_inputs",
+    "documented": true
+  },
+  {
+    "object": "check_cli.CliChecks.test_missing_values",
+    "documented": true
+  },
+  {
+    "object": "check_contacts",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.close",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_surfaces_and_directions",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_no_contact_and_no_ceiling",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_both_corners",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_restitution_endpoints",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_complete_step_order",
+    "documented": true
+  },
+  {
+    "object": "check_contacts.ContactChecks.test_default_trajectory",
+    "documented": true
+  },
+  {
+    "object": "check_integration",
+    "documented": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks.measured",
+    "documented": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_defaults_and_geometry",
+    "documented": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_invalid_state_and_parameters",
+    "documented": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_one_step",
+    "documented": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_zero_gravity",
+    "documented": true
+  },
+  {
+    "object": "check_integration.IntegrationChecks.test_free_fall_and_refinement",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.scheduler",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_insufficient_and_fractional_time",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_display_interval_independence",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_cap_discard_and_remainder",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_exact_cap_does_not_discard",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_invalid_elapsed",
+    "documented": true
+  },
+  {
+    "object": "check_scheduling.SchedulingChecks.test_no_pyvista_import",
+    "documented": true
+  },
+  {
+    "object": "cli",
+    "documented": true
+  },
+  {
+    "object": "cli.finite_number",
+    "documented": true
+  },
+  {
+    "object": "cli.restitution_value",
+    "documented": true
+  },
+  {
+    "object": "cli.timestep_value",
+    "documented": true
+  },
+  {
+    "object": "cli.parse_args",
+    "documented": true
+  },
+  {
+    "object": "contacts",
+    "documented": true
+  },
+  {
+    "object": "contacts.ContactRecord",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "contacts.ContactRecord.is_impact",
+    "documented": true
+  },
+  {
+    "object": "contacts.resolve_contacts",
+    "documented": true
+  },
+  {
+    "object": "integration",
+    "documented": true
+  },
+  {
+    "object": "integration.step",
+    "documented": true
+  },
+  {
+    "object": "integration.complete_step",
+    "documented": true
+  },
+  {
+    "object": "main",
+    "documented": true
+  },
+  {
+    "object": "main.main",
+    "documented": true
+  },
+  {
+    "object": "make_figures",
+    "documented": true
+  },
+  {
+    "object": "make_figures.main",
+    "documented": true
+  },
+  {
+    "object": "rendering",
+    "documented": true
+  },
+  {
+    "object": "rendering.FixedStepScheduler",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "rendering.FixedStepScheduler.__post_init__",
+    "documented": true
+  },
+  {
+    "object": "rendering.FixedStepScheduler.advance",
+    "documented": true
+  },
+  {
+    "object": "rendering.RenderingDependencyError",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "rendering.run_simulation",
+    "documented": true
+  },
+  {
+    "object": "state",
+    "documented": true
+  },
+  {
+    "object": "state.PhysicsParameters",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "state.PhysicsParameters.__post_init__",
+    "documented": true
+  },
+  {
+    "object": "state.Box",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "state.Box.__post_init__",
+    "documented": true
+  },
+  {
+    "object": "state.Box.validate_for",
+    "documented": true
+  },
+  {
+    "object": "state.CircleState",
+    "documented": true,
+    "attributes_section": true
+  },
+  {
+    "object": "state.CircleState.__post_init__",
+    "documented": true
+  },
+  {
+    "object": "state.CircleState.validate",
+    "documented": true
+  },
+  {
+    "object": "state.CircleState.time",
+    "documented": true
+  },
+  {
+    "object": "validation",
+    "documented": true
+  },
+  {
+    "object": "validation.whole_steps",
+    "documented": true
+  },
+  {
+    "object": "validation.validate_experiments",
+    "documented": true
+  },
+  {
+    "object": "validation.tolerance",
+    "documented": true
+  },
+  {
+    "object": "validation.check_close",
+    "documented": true
+  },
+  {
+    "object": "validation.check_true",
+    "documented": true
+  },
+  {
+    "object": "validation.energy",
+    "documented": true
+  },
+  {
+    "object": "validation.sample",
+    "documented": true
+  },
+  {
+    "object": "validation.free_fall",
+    "documented": true
+  },
+  {
+    "object": "validation.bouncing",
+    "documented": true
+  },
+  {
+    "object": "validation.contact_direction",
+    "documented": true
+  },
+  {
+    "object": "validation.regression_checks",
+    "documented": true
+  },
+  {
+    "object": "validation.write_plots",
+    "documented": true
+  },
+  {
+    "object": "validation.write_plots.save",
+    "documented": true
+  },
+  {
+    "object": "validation.run_validation",
+    "documented": true
+  }
+]

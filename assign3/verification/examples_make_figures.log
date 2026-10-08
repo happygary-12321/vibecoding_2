@@ -1,0 +1,30 @@
+Trying:
+    import contextlib, io
+Expecting nothing
+ok
+Trying:
+    from make_figures import main
+Expecting nothing
+ok
+Trying:
+    output = io.StringIO()
+Expecting nothing
+ok
+Trying:
+    with contextlib.redirect_stdout(output):
+        try:
+            main(['--help'])
+        except SystemExit as exc:
+            status = exc.code
+Expecting nothing
+ok
+Trying:
+    (status, '--restitution' in output.getvalue())
+Expecting:
+    (0, True)
+ok
+1 items passed all tests:
+   5 tests in make_figures.main
+5 tests in 1 items.
+5 passed and 0 failed.
+Test passed.

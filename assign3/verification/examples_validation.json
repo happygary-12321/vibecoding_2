@@ -1,0 +1,72 @@
+[
+  {
+    "object": "validation.whole_steps",
+    "examples": 2,
+    "failed": 0
+  },
+  {
+    "object": "validation.validate_experiments",
+    "examples": 2,
+    "failed": 0
+  },
+  {
+    "object": "validation.tolerance",
+    "examples": 2,
+    "failed": 0
+  },
+  {
+    "object": "validation.check_close",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "validation.check_true",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "validation.energy",
+    "examples": 3,
+    "failed": 0
+  },
+  {
+    "object": "validation.sample",
+    "examples": 6,
+    "failed": 0
+  },
+  {
+    "object": "validation.free_fall",
+    "examples": 6,
+    "failed": 0
+  },
+  {
+    "object": "validation.bouncing",
+    "examples": 6,
+    "failed": 0
+  },
+  {
+    "object": "validation.contact_direction",
+    "examples": 4,
+    "failed": 0
+  },
+  {
+    "object": "validation.regression_checks",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "validation.write_plots",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "validation.write_plots.save",
+    "examples": 5,
+    "failed": 0
+  },
+  {
+    "object": "validation.run_validation",
+    "examples": 5,
+    "failed": 0
+  }
+]
