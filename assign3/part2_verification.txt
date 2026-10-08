@@ -1,0 +1,30 @@
+Python: 3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]
+Executable: C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe
+Source comparison commit: d98e8a2c209bc76a77d81be87037b270a12b86e8
+check_cli.py: AST PASS; non-docstring text including comments PASS; 12 objects documented
+check_contacts.py: AST PASS; non-docstring text including comments PASS; 9 objects documented
+check_integration.py: AST PASS; non-docstring text including comments PASS; 8 objects documented
+check_scheduling.py: AST PASS; non-docstring text including comments PASS; 9 objects documented
+cli.py: AST PASS; non-docstring text including comments PASS; 5 objects documented
+contacts.py: AST PASS; non-docstring text including comments PASS; 4 objects documented
+integration.py: AST PASS; non-docstring text including comments PASS; 3 objects documented
+main.py: AST PASS; non-docstring text including comments PASS; 2 objects documented
+make_figures.py: AST PASS; non-docstring text including comments PASS; 2 objects documented
+rendering.py: AST PASS; non-docstring text including comments PASS; 6 objects documented
+state.py: AST PASS; non-docstring text including comments PASS; 11 objects documented
+validation.py: AST PASS; non-docstring text including comments PASS; 14 objects documented
+Coverage: 85/85 explicit module/class/function/method/property definitions documented.
+Coverage includes private _finite and explicit __post_init__ hooks; no missing public definitions.
+doctest state: attempted=5, failed=0
+doctest integration: attempted=7, failed=0
+doctest contacts: attempted=7, failed=0
+Doctest total: attempted=19, failed=0
+Direct edge-case check: math.isfinite(10**1000) raises OverflowError.
+No check_*.py suite, figure generation, GUI, or first-impact criterion was executed.
+Numpydoc lint: NOT RUN; required at final verification.
+RenderingDependencyError Attributes: inherited args tuple verified.
+CliChecks Attributes: inherited failureException=AssertionError, longMessage=True, maxDiff=640 verified; no test method executed.
+ContactChecks Attributes: inherited failureException=AssertionError, longMessage=True, maxDiff=640 verified; no test method executed.
+IntegrationChecks Attributes: inherited failureException=AssertionError, longMessage=True, maxDiff=640 verified; no test method executed.
+SchedulingChecks Attributes: inherited failureException=AssertionError, longMessage=True, maxDiff=640 verified; no test method executed.
+SPEC OverflowError qualification: pending for a later documentation revision; accepted SPEC unchanged.

@@ -1,0 +1,2376 @@
+diff --git a/check_cli.py b/check_cli.py
+index 3ee8275..3a7e5b6 100644
+--- a/check_cli.py
++++ b/check_cli.py
+@@ -1,4 +1,13 @@
+-"""CLI regression checks, including one small headless figure-generation run."""
++"""Check CLI parsing, mocked GUI launch, and temporary headless output.
++
++Notes
++-----
++The script guard requires Python 3.12.10 and prints interpreter details
++before invoking unittest. Importing this module does not run its suite.
++Some methods spawn subprocesses; test_headless_figures writes temporary
++PNGs/JSON. GUI behavior is mocked, not interactively tested.
++See assign3/SPEC.md [EQ-STEP] and Section 8.
++"""
+ 
+ import json
+ import builtins
+@@ -20,18 +29,103 @@ ROOT = Path(__file__).resolve().parent
+ 
+ 
+ class CliChecks(unittest.TestCase):
++    """Check CLI parsing, mocked GUI launch, and temporary headless output.
++
++    Parameters
++    ----------
++    methodName : str, optional
++        unittest.TestCase method selector; inherited default is 'runTest'.
++
++    Attributes
++    ----------
++    failureException : type of Exception
++        Inherited assertion-failure exception class; defaults to AssertionError.
++    longMessage : bool
++        Inherited message-combination setting, True by default. Includes the
++        standard assertion message alongside a supplied message.
++    maxDiff : int or None
++        Inherited limit on displayed assertion-diff length, 640 characters by
++        default. None disables the limit for assertions that use this setting.
++
++    Notes
++    -----
++    Inherits unittest.TestCase lifecycle and assertion state; no additional
++    persistent data attributes are defined. Test methods create local states
++    or fixtures and return None. See assign3/SPEC.md [EQ-STEP] and Section 8.
++    """
+     def invoke(self, entry, *args):
++        """Run an entry script with the current interpreter and capture its output.
++
++        Parameters
++        ----------
++        entry : str
++            Script filename resolved relative to the repository root.
++        *args : str
++            Additional command-line arguments.
++
++        Returns
++        -------
++        subprocess.CompletedProcess
++            Contains integer returncode and captured text stdout/stderr.
++
++        Raises
++        ------
++        OSError
++            If the subprocess cannot be started.
++
++        Notes
++        -----
++        Uses the repository root as cwd and check=False, so a nonzero script
++        status is returned rather than raised as CalledProcessError. Child
++        side effects depend on the requested entry and arguments.
++        """
+         return subprocess.run(
+             [sys.executable, str(ROOT / entry), *args],
+             cwd=ROOT, capture_output=True, text=True, check=False,
+         )
+ 
+     def test_defaults(self):
++        """Check the default shared CLI values.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Parses an empty argument list and requires restitution 0.8 and
++        dt=1/240 s exactly.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         args = parse_args("CLI check", [])
+         self.assertEqual(args.restitution, 0.8)
+         self.assertEqual(args.dt, 1.0 / 240.0)
+ 
+     def test_help(self):
++        """Check help status and text for both entry scripts.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Spawns main.py and make_figures.py with --help; captures output,
++        requires status 0 and empty stderr, and checks common option text.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         for entry in ("main.py", "make_figures.py"):
+             with self.subTest(entry=entry):
+                 result = self.invoke(entry, "--help")
+@@ -41,6 +135,25 @@ class CliChecks(unittest.TestCase):
+                 self.assertEqual(result.stderr, "")
+ 
+     def test_main_passes_parameters_without_opening_gui(self):
++        """Check parsed parameter forwarding through a mocked renderer.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Temporarily replaces rendering in sys.modules, invokes main with
++        four argument sets, and checks one launch call with the expected
++        restitution and dt. No native window is opened.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         cases = (
+             ([], 0.8, 1.0 / 240.0),
+             (["--restitution=0", "--dt=0.01"], 0.0, 0.01),
+@@ -59,6 +172,24 @@ class CliChecks(unittest.TestCase):
+                 self.assertEqual(parameters.dt, dt)
+ 
+     def test_main_help_and_invalid_args_do_not_import_rendering(self):
++        """Check that help and invalid options precede rendering imports.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Temporarily guards builtins.__import__, captures stdout/stderr, and
++        expects SystemExit 0/2 without importing rendering or pyvista.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         original_import = builtins.__import__
+ 
+         def guarded_import(name, *args, **kwargs):
+@@ -74,6 +205,24 @@ class CliChecks(unittest.TestCase):
+                     self.assertEqual(caught.exception.code, expected)
+ 
+     def test_main_dependency_message_and_unexpected_errors(self):
++        """Check handled dependency failures and propagated programming errors.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses a mocked renderer and captured stderr. Requires status 1 for the
++        mock dependency error and propagation of an unexpected ValueError.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         class MissingDependency(RuntimeError):
+             pass
+ 
+@@ -89,6 +238,25 @@ class CliChecks(unittest.TestCase):
+                 main.main([])
+ 
+     def test_figure_options(self):
++        """Check figure defaults and rejected durations/timesteps.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Checks default durations/output path and launches invalid-option
++        subprocesses. Requires status 2 and relevant error text; no valid
++        figure-generation run is requested in this method.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         args = parse_args("Figures", [], figures=True)
+         self.assertEqual((args.duration, args.bounce_duration, args.output_dir), (1, 10, "figures"))
+         for option in ("--duration", "--bounce-duration"):
+@@ -109,6 +277,26 @@ class CliChecks(unittest.TestCase):
+                 self.assertIn(message, result.stderr)
+ 
+     def test_headless_figures(self):
++        """Check a small figure run and its temporary output artifacts.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Creates a temporary directory, launches make_figures.py with dt=0.02 s,
++        both durations 0.2 s and e=0.25, then inspects status/checks, PNG headers,
++        backend/import metadata, and regression output. The subprocess performs
++        physics checks and writes figures; the directory is removed on exit.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         with tempfile.TemporaryDirectory() as directory:
+             result = self.invoke("make_figures.py", "--output-dir", directory,
+                                  "--dt=0.02", "--duration=0.2", "--bounce-duration=0.2",
+@@ -132,6 +320,24 @@ class CliChecks(unittest.TestCase):
+             self.assertTrue((output / "regression_checks.txt").is_file())
+ 
+     def test_invalid_inputs(self):
++        """Check invalid numeric arguments on both entry scripts.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Runs subprocesses with malformed, nonfinite, or out-of-range dt/e;
++        requires status 2 and parser error text.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         common = ("nan", "inf", "-inf", "1e309", "abc")
+         invalid = {
+             "--dt": (*common, "0", "-0", "-0.01"),
+@@ -147,6 +353,24 @@ class CliChecks(unittest.TestCase):
+                         self.assertIn(option, result.stderr)
+ 
+     def test_missing_values(self):
++        """Check parser failures when numeric option values are missing.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Runs both entry scripts with bare --dt or --restitution and requires
++        status 2 with an expected-one-argument message.
++        See assign3/SPEC.md [EQ-STEP] and Section 8.
++        """
+         for entry in ("main.py", "make_figures.py"):
+             for option in ("--dt", "--restitution"):
+                 with self.subTest(entry=entry, option=option):
+diff --git a/check_contacts.py b/check_contacts.py
+index 8c80046..93afa88 100644
+--- a/check_contacts.py
++++ b/check_contacts.py
+@@ -1,4 +1,12 @@
+-"""Deterministic contact checks; no GUI or third-party dependencies."""
++"""Check contact directions, record order, endpoints, and bounded motion.
++
++Notes
++-----
++The script guard requires Python 3.12.10 and prints interpreter details
++before invoking unittest. Importing this module does not run its suite.
++Tests use the standard library and do not open a GUI.
++See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++"""
+ 
+ from dataclasses import replace
+ import sys
+@@ -15,10 +23,71 @@ TOL = 1e-12
+ 
+ 
+ class ContactChecks(unittest.TestCase):
++    """Check contact directions, record order, endpoints, and bounded motion.
++
++    Parameters
++    ----------
++    methodName : str, optional
++        unittest.TestCase method selector; inherited default is 'runTest'.
++
++    Attributes
++    ----------
++    failureException : type of Exception
++        Inherited assertion-failure exception class; defaults to AssertionError.
++    longMessage : bool
++        Inherited message-combination setting, True by default. Includes the
++        standard assertion message alongside a supplied message.
++    maxDiff : int or None
++        Inherited limit on displayed assertion-diff length, 640 characters by
++        default. None disables the limit for assertions that use this setting.
++
++    Notes
++    -----
++    Inherits unittest.TestCase lifecycle and assertion state; no additional
++    persistent data attributes are defined. Test methods create local states
++    or fixtures and return None. See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR],
++    [EQ-LEFT], and [EQ-RIGHT].
++    """
+     def close(self, actual, expected):
++        """Assert a scalar contact result within the module's 1e-12 allowance.
++
++        Parameters
++        ----------
++        actual, expected : float
++            Scalars in the same SI unit, usually m or m/s.
++
++        Returns
++        -------
++        None
++            Uses unittest.assertAlmostEqual with delta=TOL.
++
++        Raises
++        ------
++        AssertionError
++            If the scalar comparison fails.
++        """
+         self.assertAlmostEqual(actual, expected, delta=TOL)
+ 
+     def test_surfaces_and_directions(self):
++        """Check touching and penetrating contacts for every surface.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Exercises inward, separating and zero normal speeds. Checks corrections,
++        record velocities/flags, unchanged tangent and count, with 1e-12 SI
++        allowances for scalar comparisons. Prints penetrating-case results.
++        See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         # Surface, coordinate, velocity, inward-region normal sign, boundary,
+         # penetrating coordinate, independently expected signed correction.
+         surfaces = (
+@@ -58,6 +127,24 @@ class ContactChecks(unittest.TestCase):
+                                   f"impact={record.is_impact}", flush=True)
+ 
+     def test_no_contact_and_no_ceiling(self):
++        """Check that interior states at several heights remain unchanged.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Calls the resolver at y=2, 3, and 10 m with upward motion;
++        requires an empty record list and exact preservation of each state.
++        See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         for height in (2, 3, 10):
+             s = CircleState(y=height, vy=2, step_count=8)
+             original = replace(s)
+@@ -65,6 +152,24 @@ class ContactChecks(unittest.TestCase):
+             self.assertEqual(s, original)
+ 
+     def test_both_corners(self):
++        """Check independent floor and wall responses at both lower corners.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Requires floor-first record order, corrected state and signed corrections
++        within 1e-12 SI, using inward velocities and default restitution.
++        See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         for x, vx, final_x, final_vx, wall, dx in (
+             (0.15, -2, 0.2, 1.6, "left", 0.05),
+             (3.85, 2, 3.8, -1.6, "right", -0.05),
+@@ -82,6 +187,24 @@ class ContactChecks(unittest.TestCase):
+                     self.close(actual, expected)
+ 
+     def test_restitution_endpoints(self):
++        """Check e=0 and e=1 responses at all three surfaces.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        For inward normal speed -2 m/s, requires outgoing speeds 0 and 2 m/s
++        respectively, one impact record, and scalar comparisons within 1e-12 SI.
++        See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         for restitution, speed in ((0, 0), (1, 2)):
+             for kwargs, velocity, expected in (
+                 ({"y": 0.15, "vy": -2}, "vy", speed),
+@@ -97,6 +220,25 @@ class ContactChecks(unittest.TestCase):
+                 self.close(records[0].normal_velocity_after, speed)
+ 
+     def test_complete_step_order(self):
++        """Check integration before contact correction and one count increment.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses g=10 m/s^2 and dt=0.1 s at a lower-left overlap reached by stepping.
++        Requires floor/left records, final x=y=0.2 m, vx=vy=0.8 m/s,
++        count 8 and time 0.8 s, with 1e-12 SI allowances.
++        See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         p = PhysicsParameters(gravity=10, dt=0.1)
+         s = CircleState(x=0.25, y=0.25, vx=-1, vy=0, step_count=7)
+         records = complete_step(s, p, Box())
+@@ -114,6 +256,26 @@ class ContactChecks(unittest.TestCase):
+                 self.close(actual, expected)
+ 
+     def test_default_trajectory(self):
++        """Check finite bounded default motion for 2400 complete steps.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses dt=1/240 s over 10 s; validates each state, sequential count,
++        floor/side bounds, and occurrence of all three impact surfaces.
++        Prints the final count/time and surfaces. Does not assert first-impact
++        timing, exact settling, or a prescribed number of impacts.
++        See assign3/SPEC.md [EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         s, p, box = CircleState(), PhysicsParameters(), Box()
+         impacts = set()
+         for n in range(1, 2401):  # Ten simulated seconds.
+diff --git a/check_integration.py b/check_integration.py
+index a8bca35..0298328 100644
+--- a/check_integration.py
++++ b/check_integration.py
+@@ -1,4 +1,12 @@
+-"""Deterministic Stage 2 checks using only the Python standard library."""
++"""Check scalar state validation and contact-free Euler integration.
++
++Notes
++-----
++The script guard requires Python 3.12.10 and prints interpreter details
++before invoking unittest. Importing this module does not run its suite.
++Tests use the standard library and do not open a GUI.
++See assign3/SPEC.md [EQ-STEP], [EQ-TIME], [EQ-FLIGHT], and [EQ-DRIFT].
++"""
+ 
+ import sys
+ import unittest
+@@ -13,12 +21,81 @@ VELOCITY_TOL = 1e-10  # meters/second
+ 
+ 
+ class IntegrationChecks(unittest.TestCase):
++    """Check scalar state validation and contact-free Euler integration.
++
++    Parameters
++    ----------
++    methodName : str, optional
++        unittest.TestCase method selector; inherited default is 'runTest'.
++
++    Attributes
++    ----------
++    failureException : type of Exception
++        Inherited assertion-failure exception class; defaults to AssertionError.
++    longMessage : bool
++        Inherited message-combination setting, True by default. Includes the
++        standard assertion message alongside a supplied message.
++    maxDiff : int or None
++        Inherited limit on displayed assertion-diff length, 640 characters by
++        default. None disables the limit for assertions that use this setting.
++
++    Notes
++    -----
++    Inherits unittest.TestCase lifecycle and assertion state; no additional
++    persistent data attributes are defined. Test methods create local states
++    or fixtures and return None. See assign3/SPEC.md [EQ-STEP], [EQ-TIME],
++    [EQ-FLIGHT], and [EQ-DRIFT].
++    """
+     def measured(self, label, actual, expected, tolerance):
++        """Print and assert one absolute-tolerance comparison.
++
++        Parameters
++        ----------
++        label : str
++            Printed quantity label, including units where applicable.
++        actual, expected : float
++            Measured and reference scalar in the same units.
++        tolerance : float
++            Absolute allowance in those units.
++
++        Returns
++        -------
++        None
++            No comparison value is returned.
++
++        Raises
++        ------
++        AssertionError
++            If the absolute comparison fails.
++
++        Notes
++        -----
++        Prints label, expected/measured values and tolerance to stdout,
++        then checks the values with assertAlmostEqual.
++        """
+         print(f"{label}: expected={expected:.12g}, measured={actual:.12g}, "
+               f"absolute tolerance={tolerance:g}", flush=True)
+         self.assertAlmostEqual(actual, expected, delta=tolerance)
+ 
+     def test_defaults_and_geometry(self):
++        """Check defaults, legal penetration, and diameter-dependent geometry.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Constructs default and invalid geometry cases; expects exact defaults and
++        ValueError for dimensions not exceeding the diameter.
++        See assign3/SPEC.md [EQ-STEP], [EQ-TIME], [EQ-FLIGHT], and [EQ-DRIFT].
++        """
+         p, s, box = PhysicsParameters(), CircleState(), Box()
+         self.assertEqual((p.radius, p.mass, p.gravity, p.restitution, p.dt),
+                          (0.2, 1.0, 9.81, 0.8, 1 / 240))
+@@ -33,6 +110,24 @@ class IntegrationChecks(unittest.TestCase):
+                 box.validate_for(p)
+ 
+     def test_invalid_state_and_parameters(self):
++        """Check rejected numeric values, ranges, and step-count types.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Constructs cases with nonfinite values, nonpositive dimensions/timestep,
++        invalid restitution/gravity, and invalid counts; checks accepted endpoints.
++        See assign3/SPEC.md [EQ-STEP], [EQ-TIME], [EQ-FLIGHT], and [EQ-DRIFT].
++        """
+         for constructor, fields in (
+             (CircleState, ("x", "y", "vx", "vy")),
+             (PhysicsParameters, ("radius", "mass", "gravity", "restitution", "dt")),
+@@ -61,6 +156,25 @@ class IntegrationChecks(unittest.TestCase):
+         PhysicsParameters(restitution=1)
+ 
+     def test_one_step(self):
++        """Check one velocity-first step and the resulting simulation time.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses dt=0.1 s, vy=3 m/s, and count 7; expects vy=2.019 m/s,
++        y=2.2019 m, x=1.15 m, count 8, and time 0.8 s. Prints comparisons;
++        uses 1e-12 SI allowances for the measured scalar results.
++        See assign3/SPEC.md [EQ-STEP], [EQ-TIME], [EQ-FLIGHT], and [EQ-DRIFT].
++        """
+         s = CircleState(vy=3.0, step_count=7)
+         p = PhysicsParameters(dt=0.1)
+         step(s, p)
+@@ -73,6 +187,25 @@ class IntegrationChecks(unittest.TestCase):
+         self.measured("one step time (s)", s.time(p), 0.8, 1e-12)
+ 
+     def test_zero_gravity(self):
++        """Check a one-second constant-velocity trajectory.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Advances 100 steps at dt=0.01 s with vx=-2 and vy=3 m/s.
++        Expects x=-1 m, y=5 m within 1e-10 m and unchanged velocities.
++        Prints endpoint comparisons.
++        See assign3/SPEC.md [EQ-STEP], [EQ-TIME], [EQ-FLIGHT], and [EQ-DRIFT].
++        """
+         p = PhysicsParameters(gravity=0, dt=0.01)
+         s = CircleState(vx=-2, vy=3)
+         for _ in range(100):
+@@ -84,6 +217,27 @@ class IntegrationChecks(unittest.TestCase):
+         self.assertEqual(s.time(p), 1)
+ 
+     def test_free_fall_and_refinement(self):
++        """Check signed height error and timestep refinement over one second.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses dt=1/240 and 1/480 s from y=10 m at rest. Checks every-sample
++        signed error -g*dt*t/2 with 1e-10 m allowance, final vy=-9.81 m/s,
++        matched error difference within 3e-10 m, and endpoint ratio 2 within
++        1e-7. Prints measurements; these tolerances bound formula residuals,
++        not the distance to the continuous trajectory.
++        See assign3/SPEC.md [EQ-STEP], [EQ-TIME], [EQ-FLIGHT], and [EQ-DRIFT].
++        """
+         histories = []
+         for count, expected_y in ((240, 5.0745625), (480, 5.08478125)):
+             p = PhysicsParameters(dt=1 / count)
+diff --git a/check_scheduling.py b/check_scheduling.py
+index ef76168..f921c54 100644
+--- a/check_scheduling.py
++++ b/check_scheduling.py
+@@ -1,4 +1,12 @@
+-"""Synthetic display intervals; standard library only, no GUI/PyVista import."""
++"""Check fixed-step scheduling with synthetic elapsed intervals.
++
++Notes
++-----
++The script guard requires Python 3.12.10 and prints interpreter details
++before invoking unittest. Importing this module does not run its suite.
++Tests use the standard library and do not open a GUI.
++See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++"""
+ 
+ import sys
+ import unittest
+@@ -8,10 +16,73 @@ from state import Box, CircleState, PhysicsParameters
+ 
+ 
+ class SchedulingChecks(unittest.TestCase):
++    """Check fixed-step scheduling with synthetic elapsed intervals.
++
++    Parameters
++    ----------
++    methodName : str, optional
++        unittest.TestCase method selector; inherited default is 'runTest'.
++
++    Attributes
++    ----------
++    failureException : type of Exception
++        Inherited assertion-failure exception class; defaults to AssertionError.
++    longMessage : bool
++        Inherited message-combination setting, True by default. Includes the
++        standard assertion message alongside a supplied message.
++    maxDiff : int or None
++        Inherited limit on displayed assertion-diff length, 640 characters by
++        default. None disables the limit for assertions that use this setting.
++
++    Notes
++    -----
++    Inherits unittest.TestCase lifecycle and assertion state; no additional
++    persistent data attributes are defined. Test methods create local states
++    or fixtures and return None. See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++    """
+     def scheduler(self, dt=0.01):
++        """Construct a scheduler with default state and box for a test.
++
++        Parameters
++        ----------
++        dt : float, optional
++            Positive finite fixed timestep in s; default 0.01.
++
++        Returns
++        -------
++        FixedStepScheduler
++            New mutable scheduler with zero bookkeeping counters.
++
++        Raises
++        ------
++        ValueError
++            If PhysicsParameters rejects dt.
++
++        Notes
++        -----
++        Creates no GUI or PyVista resources. See assign3/SPEC.md [EQ-TIME].
++        """
+         return FixedStepScheduler(CircleState(), PhysicsParameters(dt=dt), Box())
+ 
+     def test_insufficient_and_fractional_time(self):
++        """Check accumulation of intervals shorter than one timestep.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses dt=0.1 s and elapsed intervals 0, 0.04, 0.06 s; expects one step,
++        no discarded time, and final remainder within 1e-12 s of zero.
++        See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++        """
+         scheduler = self.scheduler(dt=0.1)
+         self.assertEqual(scheduler.advance(0), 0)
+         self.assertEqual(scheduler.advance(0.04), 0)
+@@ -22,6 +93,25 @@ class SchedulingChecks(unittest.TestCase):
+         self.assertEqual(scheduler.discarded_time, 0)
+ 
+     def test_display_interval_independence(self):
++        """Check identical states for three one-second display schedules.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses dt=1/240 s and intervals 0.01, 0.04, or 0.1 s. Requires exact
++        state equality and 240 steps without discard; remainder tolerance is
++        1e-12 s. Prints the comparison.
++        See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++        """
+         runs = []
+         for intervals in ([0.01] * 100, [0.04] * 25, [0.1] * 10):
+             scheduler = self.scheduler(dt=1 / 240)
+@@ -38,6 +128,25 @@ class SchedulingChecks(unittest.TestCase):
+               f"state; measured steps={runs[0].step_count}, states identical.", flush=True)
+ 
+     def test_cap_discard_and_remainder(self):
++        """Check the 60-step cap and discarded whole-step backlog.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        At dt=0.01 s, supplies 1.2575 s: expects 60 steps, 65 discarded steps,
++        0.65 s discarded, and 0.0075 s retained. Then supplies 0.0025 s
++        and expects one step. Time allowances are 1e-12 s; prints counters.
++        See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++        """
+         scheduler = self.scheduler()
+         self.assertEqual(scheduler.advance(1.2575), 60)
+         self.assertEqual(scheduler.state.step_count, 60)
+@@ -57,12 +166,48 @@ class SchedulingChecks(unittest.TestCase):
+                                + scheduler.discarded_time + scheduler.accumulator, delta=1e-12)
+ 
+     def test_exact_cap_does_not_discard(self):
++        """Check that exactly 60 available steps leave no discarded time.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Uses dt=0.01 s and elapsed=0.6075 s, retaining 0.0075 s within
++        1e-12 s while executing exactly 60 steps.
++        See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++        """
+         scheduler = self.scheduler()
+         self.assertEqual(scheduler.advance(0.6075), 60)
+         self.assertEqual(scheduler.discarded_time, 0)
+         self.assertAlmostEqual(scheduler.accumulator, 0.0075, delta=1e-12)
+ 
+     def test_invalid_elapsed(self):
++        """Check rejection of negative and nonfinite elapsed intervals.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Requires ValueError for -1, NaN and infinity and no state/count or
++        accumulator advancement in these cases.
++        See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++        """
+         scheduler = self.scheduler()
+         for elapsed in (-1, float("nan"), float("inf")):
+             with self.assertRaises(ValueError):
+@@ -71,6 +216,24 @@ class SchedulingChecks(unittest.TestCase):
+         self.assertEqual(scheduler.accumulator, 0)
+ 
+     def test_no_pyvista_import(self):
++        """Check that the current process has not loaded PyVista.
++
++        Returns
++        -------
++        None
++            Results are reported through unittest assertions.
++
++        Raises
++        ------
++        AssertionError
++            If an expected result is not satisfied; unittest records failures.
++
++        Notes
++        -----
++        Inspects sys.modules for pyvista and submodules. Does not launch a
++        renderer; an unrelated earlier PyVista import would fail this assertion.
++        See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++        """
+         self.assertFalse(any(name == "pyvista" or name.startswith("pyvista.") for name in sys.modules))
+ 
+ 
+diff --git a/cli.py b/cli.py
+index bbca6be..65a6134 100644
+--- a/cli.py
++++ b/cli.py
+@@ -1,11 +1,34 @@
+-"""Shared command-line parsing, independent of physics and rendering."""
++"""Parse shared simulator and headless-validation command-line options.
++
++Notes
++-----
++Numeric arguments use ordinary scalar floats. Figure-mode parsing imports
++validation to check durations; it does not run experiments or open a GUI.
++Defaults and constraints are specified in assign3/SPEC.md Section 4.
++"""
+ 
+ import argparse
+ import math
+ 
+ 
+ def finite_number(text: str) -> float:
+-    """Parse a finite floating-point number with an argparse-friendly error."""
++    """Convert a command-line string to a finite float.
++
++    Parameters
++    ----------
++    text : str
++        Numeric literal accepted by float; expressions are not evaluated.
++
++    Returns
++    -------
++    float
++        Finite parsed scalar; units depend on the option using this parser.
++
++    Raises
++    ------
++    argparse.ArgumentTypeError
++        If float rejects the string or the parsed value is nonfinite.
++    """
+     try:
+         value = float(text)
+     except ValueError as exc:
+@@ -16,6 +39,27 @@ def finite_number(text: str) -> float:
+ 
+ 
+ def restitution_value(text: str) -> float:
++    """Parse a dimensionless restitution coefficient in the closed unit interval.
++
++    Parameters
++    ----------
++    text : str
++        Numeric command-line value.
++
++    Returns
++    -------
++    float
++        Finite scalar restitution in [0, 1].
++
++    Raises
++    ------
++    argparse.ArgumentTypeError
++        If parsing fails, the value is nonfinite, or it is outside [0, 1].
++
++    Notes
++    -----
++    Both endpoints are accepted; see assign3/SPEC.md [EQ-NORMAL].
++    """
+     value = finite_number(text)
+     if not 0.0 <= value <= 1.0:
+         raise argparse.ArgumentTypeError("must be between 0 and 1 inclusive")
+@@ -23,6 +67,23 @@ def restitution_value(text: str) -> float:
+ 
+ 
+ def timestep_value(text: str) -> float:
++    """Parse a finite positive time value in seconds.
++
++    Parameters
++    ----------
++    text : str
++        Numeric command-line value for a timestep or duration.
++
++    Returns
++    -------
++    float
++        Finite scalar greater than zero, in s.
++
++    Raises
++    ------
++    argparse.ArgumentTypeError
++        If parsing fails or the value is nonfinite or nonpositive.
++    """
+     value = finite_number(text)
+     if value <= 0.0:
+         raise argparse.ArgumentTypeError("must be greater than zero seconds")
+@@ -30,6 +91,38 @@ def timestep_value(text: str) -> float:
+ 
+ 
+ def parse_args(description: str, argv=None, *, figures=False) -> argparse.Namespace:
++    """Parse shared options and optionally validate figure experiment durations.
++
++    Parameters
++    ----------
++    description : str
++        Description used in the help text.
++    argv : list of str or None, optional
++        Arguments excluding the executable name; None uses sys.argv[1:].
++    figures : bool, optional
++        False by default. If True, add output and duration options.
++
++    Returns
++    -------
++    argparse.Namespace
++        restitution (default 0.8) and dt (default 1/240 s). Figure mode
++        also supplies output_dir ('figures'), duration (1 s), and
++        bounce_duration (10 s). Numeric options are scalar floats.
++
++    Raises
++    ------
++    SystemExit
++        Status 0 for help, or 2 for parsing/range/duration errors.
++
++    Notes
++    -----
++    May print help to stdout or errors to stderr. Restitution must be finite
++    and in [0, 1]; times must be finite and positive. Figure durations must
++    align to whole fixed steps within eight ulps, obey the per-run one-million
++    step limit, and keep coarse free fall above the floor. Figure validation
++    ValueError is converted to a parser error. No physics step or file write
++    is performed. See assign3/SPEC.md [EQ-TIME] and Section 4.
++    """
+     parser = argparse.ArgumentParser(
+         description=description,
+         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+diff --git a/contacts.py b/contacts.py
+index 2fd2d2b..30b6107 100644
+--- a/contacts.py
++++ b/contacts.py
+@@ -1,4 +1,11 @@
+-"""Discrete floor and side-wall contact resolution in SI units."""
++"""Resolve discrete circle contacts with a floor and two side walls.
++
++Notes
++-----
++The resolver mutates scalar SI state and emits frozen contact records.
++There is no ceiling or side-wall height test. See assign3/SPEC.md
++[EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++"""
+ 
+ from dataclasses import dataclass
+ 
+@@ -7,6 +14,36 @@ from state import Box, CircleState, PhysicsParameters
+ 
+ @dataclass(frozen=True)
+ class ContactRecord:
++    """Store a frozen record of one detected contact.
++
++    Parameters
++    ----------
++    surface : str
++        Resolver-emitted name: 'floor', 'left', or 'right'.
++    position_correction : tuple of float
++        Two-element (dx, dy) signed displacement in m.
++    normal_velocity_before : float
++        Scalar normal velocity in m/s before response.
++    normal_velocity_after : float
++        Scalar normal velocity in m/s after response.
++
++    Attributes
++    ----------
++    surface : str
++        Contact surface name.
++    position_correction : tuple of float
++        Frozen two-element signed position correction in m.
++    normal_velocity_before, normal_velocity_after : float
++        Frozen scalar velocities in m/s; positive points into the region.
++    is_impact : bool
++        Whether the two stored normal velocity values compare unequal.
++
++    Notes
++    -----
++    The dataclass performs no value/type validation. Normals are +y, +x,
++    and -x for floor, left, and right. Records include touching contacts
++    and position-only corrections. See assign3/SPEC.md [EQ-NORMAL].
++    """
+     surface: str
+     position_correction: tuple[float, float]  # Signed (dx, dy), meters.
+     normal_velocity_before: float  # m/s; positive points into allowed region.
+@@ -14,17 +51,70 @@ class ContactRecord:
+ 
+     @property
+     def is_impact(self) -> bool:
+-        """True only when this response actually changed normal velocity."""
++        """Compare the stored before and after normal velocities.
++
++        Returns
++        -------
++        bool
++            True exactly when normal_velocity_before != normal_velocity_after.
++
++        Notes
++        -----
++        This property does not test penetration, correction size, or force.
++        Separating and zero-speed contacts emitted by the resolver have equal
++        velocity values. See assign3/SPEC.md [EQ-NORMAL].
++        """
+         return self.normal_velocity_before != self.normal_velocity_after
+ 
+ 
+ def resolve_contacts(
+     state: CircleState, parameters: PhysicsParameters, box: Box
+ ) -> list[ContactRecord]:
+-    """Correct contacts in floor/left/right order without advancing time.
++    """Correct detected floor and wall contacts without advancing time.
++
++    Parameters
++    ----------
++    state : CircleState
++        Mutable center coordinates in m and velocities in m/s.
++    parameters : PhysicsParameters
++        Supplies positive radius in m and restitution in [0, 1].
++    box : Box
++        Geometry in m; both dimensions must exceed twice the radius.
++
++    Returns
++    -------
++    list of ContactRecord
++        Records in floor, left, right detection order; empty if no contact.
++        Touching surfaces produce records even with zero correction.
++
++    Raises
++    ------
++    ValueError
++        If box.validate_for rejects the geometry.
++
++    Notes
++    -----
++    Correct y <= radius, then x <= radius, then x >= width - radius.
++    Reflect vy only if negative at the floor, vx only if negative at the
++    left wall, and vx only if positive at the right wall. Separating and
++    zero normal velocities and tangential components are preserved.
++    Positions/velocities can change in place; step_count never changes.
++    State finiteness and parameter validity are caller responsibilities.
++    There is no ceiling, wall-height cutoff, or resting-contact threshold.
++    See assign3/SPEC.md [EQ-FLOOR], [EQ-LEFT], [EQ-RIGHT], and [EQ-NORMAL].
+ 
+-    Normal directions are +y at the floor, +x at the left wall, and -x at
+-    the right wall. Touching counts as contact, even with no velocity change.
++    Examples
++    --------
++    >>> from state import Box, CircleState, PhysicsParameters
++    >>> from contacts import resolve_contacts
++    >>> state = CircleState(y=0.15, vy=2.0, step_count=5)
++    >>> records = resolve_contacts(state, PhysicsParameters(), Box())
++    >>> (round(state.y, 6), state.vy, state.step_count)
++    (0.2, 2.0, 5)
++    >>> [(record.surface, record.is_impact) for record in records]
++    [('floor', False)]
++    >>> tuple(round(value, 6) for value in records[0].position_correction)
++    (0.0, 0.05)
+     """
+     box.validate_for(parameters)
+     radius, restitution = parameters.radius, parameters.restitution
+diff --git a/integration.py b/integration.py
+index 6c923f7..6dbce10 100644
+--- a/integration.py
++++ b/integration.py
+@@ -1,11 +1,52 @@
+-"""Contact-free integration and a complete step with discrete contacts."""
++"""Advance scalar physics state with velocity-first semi-implicit Euler.
++
++Notes
++-----
++step is contact-free; complete_step integrates and then resolves contacts.
++Both mutate the supplied state. See assign3/SPEC.md [EQ-STEP] and
++[EQ-TIME]. No GUI, plotting, or file output is performed.
++"""
+ 
+ from contacts import ContactRecord, resolve_contacts
+ from state import Box, CircleState, PhysicsParameters
+ 
+ 
+ def step(state: CircleState, parameters: PhysicsParameters) -> None:
+-    """Advance state in place by one fixed step without resolving contacts."""
++    """Advance state by one contact-free, velocity-first Euler step.
++
++    Parameters
++    ----------
++    state : CircleState
++        Mutable scalar position (m), velocity (m/s), and step count.
++    parameters : PhysicsParameters
++        Supplies gravity in m/s^2 and positive fixed dt in s.
++
++    Returns
++    -------
++    None
++        The input state is updated; no new state is returned.
++
++    Notes
++    -----
++    Callers must supply valid state and parameters; this function does not
++    validate them or check arithmetic results for finiteness. In order, it
++    subtracts gravity * dt from vy, advances x with vx, advances y with the
++    new vy, and increments step_count once. vx is unchanged. No contacts
++    are resolved. See assign3/SPEC.md [EQ-STEP], [EQ-TIME], and [EQ-DRIFT].
++
++    Examples
++    --------
++    >>> from state import CircleState, PhysicsParameters
++    >>> from integration import step
++    >>> state = CircleState(vy=3.0, step_count=7)
++    >>> result = step(state, PhysicsParameters(dt=0.1))
++    >>> result is None
++    True
++    >>> (round(state.x, 6), round(state.y, 6), round(state.vy, 6))
++    (1.15, 2.2019, 2.019)
++    >>> (state.vx, state.step_count)
++    (1.5, 8)
++    """
+     state.vy -= parameters.gravity * parameters.dt
+     state.x += state.vx * parameters.dt
+     state.y += state.vy * parameters.dt
+@@ -15,7 +56,36 @@ def step(state: CircleState, parameters: PhysicsParameters) -> None:
+ def complete_step(
+     state: CircleState, parameters: PhysicsParameters, box: Box
+ ) -> list[ContactRecord]:
+-    """Integrate once, then resolve floor and walls; return contact records."""
++    """Integrate once, then correct floor and side-wall contacts.
++
++    Parameters
++    ----------
++    state : CircleState
++        Mutable center position in m, velocity in m/s, and step count.
++    parameters : PhysicsParameters
++        Valid physical parameters with fixed positive dt in s.
++    box : Box
++        Geometry in m; both dimensions must exceed the circle diameter.
++
++    Returns
++    -------
++    list of ContactRecord
++        Detected contacts in floor, left, right order, possibly empty.
++        Each record contains signed correction and normal velocities.
++
++    Raises
++    ------
++    ValueError
++        If box.validate_for rejects the geometry before integration.
++
++    Notes
++    -----
++    Mutates state through step and resolve_contacts. The count increments
++    once before contact detection; resolution does not advance time again.
++    State finiteness is not checked here. There is no resting-contact cutoff;
++    small repeated floor rebounds can persist. See assign3/SPEC.md [EQ-STEP],
++    [EQ-FLOOR], [EQ-LEFT], [EQ-RIGHT], and [EQ-MICROBOUNCE].
++    """
+     box.validate_for(parameters)  # Reject invalid geometry before mutating state.
+     step(state, parameters)
+     return resolve_contacts(state, parameters, box)
+diff --git a/main.py b/main.py
+index 3f53b3a..7ba2863 100644
+--- a/main.py
++++ b/main.py
+@@ -1,4 +1,11 @@
+-"""Small entry point for the real-time simulation."""
++"""Provide the command-line entry point for the native circle simulator.
++
++Notes
++-----
++Running this file exits with main's returned status. Help and argument
++errors raise SystemExit during parsing, before rendering is imported.
++Importing the module does not open a GUI.
++"""
+ 
+ import sys
+ 
+@@ -7,6 +14,33 @@ from state import PhysicsParameters
+ 
+ 
+ def main(argv=None) -> int:
++    """Parse simulator options and launch the blocking native GUI.
++
++    Parameters
++    ----------
++    argv : list of str or None, optional
++        Arguments excluding the executable name; None uses process arguments.
++        Options select restitution (default 0.8) and dt (default 1/240 s).
++
++    Returns
++    -------
++    int
++        0 after normal GUI completion, or 1 after RenderingDependencyError.
++
++    Raises
++    ------
++    SystemExit
++        Parsing exits with 0 for help or 2 for invalid arguments.
++    Exception
++        Unexpected parameter, import, or rendering errors propagate.
++
++    Notes
++    -----
++    Creates physical parameters, imports rendering after successful parsing,
++    and calls run_simulation. Missing rendering dependencies are printed to
++    stderr and converted to return code 1. The renderer owns GUI resources
++    and prints startup/shutdown information. See assign3/SPEC.md [EQ-STEP].
++    """
+     args = parse_args("Real-time circle simulation in an open box.", argv)
+     parameters = PhysicsParameters(restitution=args.restitution, dt=args.dt)
+     # Help and invalid options finish before the rendering module is imported.
+diff --git a/make_figures.py b/make_figures.py
+index cac0726..32a3ab2 100644
+--- a/make_figures.py
++++ b/make_figures.py
+@@ -1,4 +1,11 @@
+-"""Run deterministic numerical checks and write headless validation figures."""
++"""Provide the command-line entry point for headless figures and evidence.
++
++Notes
++-----
++Running this file exits with main's returned status. Importing it does
++not generate figures. Execution can overwrite the selected output files;
++see validation.run_validation and assign3/SPEC.md Section 6.
++"""
+ 
+ import sys
+ 
+@@ -7,6 +14,36 @@ from validation import run_validation
+ 
+ 
+ def main(argv=None) -> int:
++    """Parse experiment options, generate evidence, and return a status code.
++
++    Parameters
++    ----------
++    argv : list of str or None, optional
++        Arguments excluding the executable name; None uses process arguments.
++        Defaults: restitution 0.8, dt 1/240 s, duration 1 s, bounce duration
++        10 s, and output directory 'figures'.
++
++    Returns
++    -------
++    int
++        0 for a passed report; 1 for a failed report or caught OSError.
++
++    Raises
++    ------
++    SystemExit
++        Parsing exits with 0 for help or 2 for invalid options/durations.
++    Exception
++        Errors not converted to a failed report or caught as OSError
++        propagate, including errors while formatting a malformed report.
++
++    Notes
++    -----
++    Calls run_validation, which creates directories and overwrites PNG,
++    JSON and regression output. Prints successful numerical summaries to
++    stdout, or failure diagnostics to stderr. An experiment exception caught
++    inside run_validation is reported as a failed report, not re-raised here.
++    No GUI is opened. See assign3/SPEC.md [EQ-DRIFT] and [EQ-ACCOUNTING].
++    """
+     args = parse_args("Headless numerical validation and PNG figures.", argv, figures=True)
+     try:
+         report = run_validation(args.output_dir, args.restitution, args.dt,
+diff --git a/rendering.py b/rendering.py
+index c3b5b10..28bfabd 100644
+--- a/rendering.py
++++ b/rendering.py
+@@ -1,7 +1,11 @@
+-"""PyVista scene and fixed-step display scheduling; physics remains in SI units.
++"""Display the circle with PyVista and schedule fixed physics timesteps.
+ 
+-Importing this module does not import PyVista or create a window. This keeps the
+-small scheduler testable with synthetic elapsed times and the standard library.
++Notes
++-----
++Importing this module does not import PyVista or open a window.
++Physics coordinates remain meters; actor positions use (x, y, 0) without
++scaling. Pixel widths and the 16 ms timer request are display settings.
++See assign3/SPEC.md [EQ-STEP], [EQ-TIME], and Section 5's scheduler policy.
+ """
+ 
+ from dataclasses import dataclass, field
+@@ -18,6 +22,47 @@ MAX_STEPS_PER_UPDATE = 60
+ 
+ @dataclass
+ class FixedStepScheduler:
++    """Accumulate elapsed seconds and execute at most 60 steps per update.
++
++    Parameters
++    ----------
++    state : CircleState
++        Mutable physics state held by reference.
++    parameters : PhysicsParameters
++        Fixed physical parameters, including positive dt in s.
++    box : Box
++        Geometry in m compatible with the selected circle radius.
++
++    Attributes
++    ----------
++    state : CircleState
++        Shared state mutated by advance.
++    parameters : PhysicsParameters
++        Parameter reference; callers must keep dt fixed.
++    box : Box
++        Geometry reference used by complete_step.
++    accumulator : float
++        Retained fractional seconds, initially 0.0; not a constructor option.
++    discarded_time : float
++        Cumulative discarded whole-step seconds, initially 0.0.
++    discarded_steps : int
++        Cumulative discarded dimensionless step count, initially 0.
++    elapsed_time : float
++        Cumulative elapsed seconds supplied to successful updates, initially 0.0.
++
++    Raises
++    ------
++    ValueError
++        If initial state.validate or box.validate_for rejects the inputs.
++    OverflowError
++        If initial state finiteness checking cannot convert a large integer.
++
++    Notes
++    -----
++    This is a mutable dataclass. The bookkeeping fields are init=False.
++    No GUI or clock is owned here. See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++    Discarded whole steps are not simulated later.
++    """
+     state: CircleState
+     parameters: PhysicsParameters
+     box: Box
+@@ -27,15 +72,54 @@ class FixedStepScheduler:
+     elapsed_time: float = field(default=0.0, init=False)
+ 
+     def __post_init__(self):
++        """Validate the referenced state and geometry after initialization.
++
++        Returns
++        -------
++        None
++            State and geometry are inspected without integration.
++
++        Raises
++        ------
++        ValueError
++            If state validation or radius-dependent geometry validation fails.
++        OverflowError
++            If initial state finiteness checking cannot convert a large integer.
++        """
+         self.state.validate()
+         self.box.validate_for(self.parameters)
+ 
+     def advance(self, elapsed: float) -> int:
+-        """Consume one display interval and return the number of physics steps.
++        """Consume elapsed seconds and advance the shared state by fixed steps.
++
++        Parameters
++        ----------
++        elapsed : float
++            Finite nonnegative interval in s. The total-time/dt quotient must
++            also be finite. No explicit scalar type check is performed.
++
++        Returns
++        -------
++        int
++            Number of complete physics steps executed, between 0 and 60.
+ 
+-        Near-integer quotients are snapped within eight ulps to avoid losing a
+-        step solely to floating-point addition/division at a timestep boundary.
+-        Excess whole steps are discarded, while the fractional remainder stays.
++        Raises
++        ------
++        ValueError
++            If elapsed is negative/nonfinite, the quotient is nonfinite, or
++            complete_step rejects the geometry.
++        TypeError
++            If elapsed does not support the numeric operations used here.
++
++        Notes
++        -----
++        Mutates state and scheduler counters. Near-integer quotients snap within
++        eight ulps; otherwise available steps are floored. Only min(available, 60)
++        steps execute. All excess whole steps are discarded; the fractional
++        remainder is retained as max(0, total - available * dt).
++        dt is not changed and there is no interpolation. An exception during
++        stepping does not roll back state. See assign3/SPEC.md [EQ-STEP],
++        [EQ-TIME], and Section 5. There is no per-update state validation here.
+         """
+         if not math.isfinite(elapsed) or elapsed < 0:
+             raise ValueError("elapsed time must be finite and nonnegative")
+@@ -60,11 +144,69 @@ class FixedStepScheduler:
+ 
+ 
+ class RenderingDependencyError(RuntimeError):
+-    """Missing PyVista/VTK, distinct from unexpected programming errors."""
++    """Signal a missing PyVista or VTK dependency during renderer setup.
++
++    Attributes
++    ----------
++    args : tuple
++        Inherited exception-constructor arguments. run_simulation supplies
++        one installation-message string, so emitted instances hold a
++        one-element tuple. This class defines no additional state.
++
++    Notes
++    -----
++    This RuntimeError subclass adds no custom attributes or constructor.
++    run_simulation raises it for ModuleNotFoundError naming pyvista, vtk,
++    or vtkmodules while importing/resolving the plotter. main.main catches
++    it, prints the installation message, and returns status 1.
++    """
+ 
+ 
+ def run_simulation(parameters: PhysicsParameters) -> None:
+-    """Open the native GUI and run until the user closes it."""
++    """Open a native PyVista window and run until its event loop terminates.
++
++    Parameters
++    ----------
++    parameters : PhysicsParameters
++        Physical constants and fixed dt in s. State and box are created
++        internally with their defaults; custom radius must fit that box.
++
++    Returns
++    -------
++    None
++        The function blocks during the GUI session and returns after cleanup.
++
++    Raises
++    ------
++    RenderingDependencyError
++        If PyVista/VTK is missing while the plotter type is resolved.
++    ValueError
++        If scheduler initialization rejects state or geometry.
++    RuntimeError
++        If the interactor cannot create a timer.
++    Exception
++        Other setup/rendering errors propagate. Callback exceptions are
++        captured, terminate the loop, and are re-raised with their traceback.
++
++    Notes
++    -----
++    Lazily imports PyVista, creates meshes/actor/camera/timer, and prints
++    versions, settings and final counters. The plotter is closed in finally
++    after successful plotter construction. A first timer event sets the
++    perf_counter baseline; later events pass elapsed seconds to the scheduler.
++    The repeating timer request is 16 ms, not the physical dt.
++
++    The disk center is translated to (state.x, state.y, 0) in world meters,
++    with no application coordinate scaling. Wall line widths and window
++    dimensions are pixels. The camera is fixed and parallel; the dashed
++    upper guide does not collide. Side-wall physics has no height limit.
++    For the disk, only actor position changes; its mesh is not rebuilt.
++    Updates also change the status text and render the scene.
++    Keyboard q/Escape and window closure end the session. The scheduler
++    discards whole-step backlog above 60 per update. The label uses literal
++    default geometry/radius text even for custom physical parameters.
++    See assign3/SPEC.md [EQ-STEP], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++    """
+     try:
+         import pyvista as pv
+ 
+diff --git a/state.py b/state.py
+index 8605aae..74a2873 100644
+--- a/state.py
++++ b/state.py
+@@ -1,10 +1,39 @@
+-"""Small physics data structures in meters, seconds, and kilograms."""
++"""Define scalar physics state and parameter dataclasses in SI units.
++
++Notes
++-----
++Positions describe the circle center, with x rightward and y upward.
++See assign3/SPEC.md [EQ-MOTION], [EQ-STEP], and [EQ-TIME]. Constructors
++check numeric fields; later mutation of CircleState requires explicit
++validation. This module performs no integration or rendering.
++"""
+ 
+ from dataclasses import dataclass
+ import math
+ 
+ 
+ def _finite(name: str, value: float) -> None:
++    """Check a scalar field's type and finiteness.
++
++    Parameters
++    ----------
++    name : str
++        Field name included in error messages.
++    value : int or float
++        Scalar to inspect; bool is rejected.
++
++    Returns
++    -------
++    None
++        The value is not converted or modified.
++
++    Raises
++    ------
++    ValueError
++        If the type is rejected or the numeric value is nonfinite.
++    OverflowError
++        If math.isfinite cannot convert an excessively large integer.
++    """
+     if isinstance(value, bool) or not isinstance(value, (int, float)):
+         raise ValueError(f"{name} must be a finite number")
+     if not math.isfinite(value):
+@@ -13,6 +42,40 @@ def _finite(name: str, value: float) -> None:
+ 
+ @dataclass(frozen=True)
+ class PhysicsParameters:
++    """Hold frozen physical constants and a fixed integration timestep.
++
++    Parameters
++    ----------
++    radius : float, optional
++        Positive circle radius in m; default 0.2.
++    mass : float, optional
++        Positive mass in kg; default 1.0.
++    gravity : float, optional
++        Nonnegative downward acceleration magnitude in m/s^2; default 9.81.
++    restitution : float, optional
++        Dimensionless coefficient in [0, 1]; default 0.8.
++    dt : float, optional
++        Positive fixed timestep in s; default 1/240.
++
++    Attributes
++    ----------
++    radius, mass, gravity, restitution, dt : float
++        Frozen scalar fields with the units and defaults above. Python int
++        values passing finiteness/range checks are retained; bool is rejected.
++
++    Raises
++    ------
++    ValueError
++        If a field has a rejected type, is nonfinite, or violates its range.
++    OverflowError
++        If finiteness checking cannot convert an excessively large integer.
++
++    Notes
++    -----
++    Geometry compatibility is checked separately by Box.validate_for.
++    Gravity is subtracted from vertical velocity in assign3/SPEC.md
++    [EQ-STEP]; restitution follows [EQ-NORMAL]. Keep dt fixed per trajectory.
++    """
+     radius: float = 0.2
+     mass: float = 1.0
+     gravity: float = 9.81
+@@ -20,6 +83,20 @@ class PhysicsParameters:
+     dt: float = 1.0 / 240.0
+ 
+     def __post_init__(self) -> None:
++        """Validate physical scalar fields after dataclass initialization.
++
++        Returns
++        -------
++        None
++            No field is converted or modified.
++
++        Raises
++        ------
++        ValueError
++            If a scalar fails type, finiteness, or physical range checks.
++        OverflowError
++            If an integer is too large for the finiteness check.
++        """
+         for name in ("radius", "mass", "gravity", "restitution", "dt"):
+             _finite(name, getattr(self, name))
+         for name in ("radius", "mass", "dt"):
+@@ -33,23 +110,121 @@ class PhysicsParameters:
+ 
+ @dataclass(frozen=True)
+ class Box:
++    """Hold frozen box dimensions in meters.
++
++    Parameters
++    ----------
++    width : float, optional
++        Positive finite width in m; default 4.0.
++    height : float, optional
++        Positive finite displayed wall height in m; default 3.0.
++
++    Attributes
++    ----------
++    width, height : float
++        Frozen dimensions; int values passing finiteness/range checks are
++        retained without conversion. Bool values are rejected.
++
++    Raises
++    ------
++    ValueError
++        If a dimension has a rejected type, is nonfinite, or is nonpositive.
++    OverflowError
++        If an integer cannot be converted for the finiteness check.
++
++    Notes
++    -----
++    Construction does not check the circle diameter. Call validate_for for
++    that check. Height does not create a ceiling or limit side-wall contact
++    checks; see assign3/SPEC.md [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++    """
+     width: float = 4.0
+     height: float = 3.0
+ 
+     def __post_init__(self) -> None:
++        """Check finite positive dimensions after dataclass initialization.
++
++        Returns
++        -------
++        None
++            Dimensions are not converted or modified.
++
++        Raises
++        ------
++        ValueError
++            If a dimension fails type, finiteness, or positivity checks.
++        OverflowError
++            If an integer is too large for the finiteness check.
++        """
+         for name in ("width", "height"):
+             _finite(name, getattr(self, name))
+             if getattr(self, name) <= 0:
+                 raise ValueError(f"{name} must be positive")
+ 
+     def validate_for(self, parameters: PhysicsParameters) -> None:
+-        """Check geometry against the selected radius, without constraining state."""
++        """Check both box dimensions against a selected circle diameter.
++
++        Parameters
++        ----------
++        parameters : PhysicsParameters
++            Supplies radius in m; callers must provide valid parameters.
++
++        Returns
++        -------
++        None
++            Geometry is unchanged.
++
++        Raises
++        ------
++        ValueError
++            If width or height is less than or equal to twice the radius.
++
++        Notes
++        -----
++        This check does not constrain state positions or introduce a ceiling.
++        See assign3/SPEC.md [EQ-LEFT] and [EQ-RIGHT].
++        """
+         if min(self.width, self.height) <= 2 * parameters.radius:
+             raise ValueError("box width and height must exceed the circle diameter")
+ 
+ 
+ @dataclass
+ class CircleState:
++    """Store mutable circle-center motion and an integer step count.
++
++    Parameters
++    ----------
++    x, y : float, optional
++        Finite center coordinates in m; defaults 1.0 and 2.0.
++    vx, vy : float, optional
++        Finite velocities in m/s; defaults 1.5 and 0.0.
++    step_count : int, optional
++        Nonnegative count with exact Python int type; default 0.
++
++    Attributes
++    ----------
++    x, y : float
++        Mutable center coordinates in m, with x rightward and y upward.
++    vx, vy : float
++        Mutable velocities in m/s.
++    step_count : int
++        Mutable dimensionless count used to compute simulation time.
++
++    Raises
++    ------
++    ValueError
++        If construction fails validate: rejected scalar type, nonfinite
++        value, or invalid count.
++    OverflowError
++        If a scalar integer is too large for finiteness checking.
++
++    Notes
++    -----
++    Int coordinates/velocities passing finiteness checks are retained without
++    coercion; bool is rejected. Penetration and above-box positions are legal.
++    Assignments after construction are not automatically validated.
++    See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
++    """
+     x: float = 1.0
+     y: float = 2.0
+     vx: float = 1.5
+@@ -57,15 +232,74 @@ class CircleState:
+     step_count: int = 0
+ 
+     def __post_init__(self) -> None:
++        """Validate state immediately after dataclass initialization.
++
++        Returns
++        -------
++        None
++            Fields are unchanged.
++
++        Raises
++        ------
++        ValueError
++            If validate rejects the coordinates, velocities, or count.
++        OverflowError
++            If a scalar integer is too large for finiteness checking.
++        """
+         self.validate()
+ 
+     def validate(self) -> None:
+-        """Allow any finite position, including penetration and above-box states."""
++        """Check scalar finiteness and the nonnegative integer count.
++
++        Returns
++        -------
++        None
++            State is inspected without mutation.
++
++        Raises
++        ------
++        ValueError
++            If coordinates or velocities are not finite int/float values
++            excluding bool, or step_count is not an exact nonnegative int.
++        OverflowError
++            If a scalar integer is too large for finiteness checking.
++
++        Notes
++        -----
++        Positions need not be inside the box. This does not resolve contacts;
++        see assign3/SPEC.md [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
++        """
+         for name in ("x", "y", "vx", "vy"):
+             _finite(name, getattr(self, name))
+         if type(self.step_count) is not int or self.step_count < 0:
+             raise ValueError("step_count must be a nonnegative integer")
+ 
+     def time(self, parameters: PhysicsParameters) -> float:
+-        """Elapsed seconds; keep the same fixed dt throughout a trajectory."""
++        """Compute elapsed simulation time from the current step count.
++
++        Parameters
++        ----------
++        parameters : PhysicsParameters
++            Supplies the fixed dt in s. Use the same dt for the whole trajectory.
++
++        Returns
++        -------
++        float or int
++            Scalar time in s, equal to step_count * dt.
++
++        Notes
++        -----
++        No state is changed or revalidated, and prior timestep values are not
++        stored. See assign3/SPEC.md [EQ-TIME].
++
++        Examples
++        --------
++        >>> from state import CircleState, PhysicsParameters
++        >>> state = CircleState(step_count=12)
++        >>> parameters = PhysicsParameters(dt=0.01)
++        >>> round(state.time(parameters), 6)
++        0.12
++        >>> state.step_count
++        12
++        """
+         return self.step_count * parameters.dt
+diff --git a/validation.py b/validation.py
+index c6ca189..61833ba 100644
+--- a/validation.py
++++ b/validation.py
+@@ -1,4 +1,13 @@
+-"""Headless experiments and plotting. Production physics remains in its modules."""
++"""Run headless numerical experiments, regression suites, and plotting.
++
++Notes
++-----
++Numerical histories are lists of dictionaries containing scalar SI values,
++not NumPy state arrays. Production integration/contact functions generate
++the trajectories. Matplotlib is imported only during plotting.
++See assign3/SPEC.md [EQ-DRIFT], [EQ-CONTACT-ENERGY], and [EQ-ACCOUNTING].
++Calling run_validation writes evidence; importing this module does not.
++"""
+ 
+ from contextlib import redirect_stderr, redirect_stdout
+ from dataclasses import asdict, replace
+@@ -18,7 +27,34 @@ from state import Box, CircleState, PhysicsParameters
+ 
+ 
+ def whole_steps(duration, dt, option):
+-    """Accept only whole fixed steps, allowing a few ulps of division roundoff."""
++    """Validate a duration and convert it to a bounded whole-step count.
++
++    Parameters
++    ----------
++    duration : float
++        Finite positive duration in s.
++    dt : float
++        Finite positive fixed step in s.
++    option : str
++        Option label included in error messages.
++
++    Returns
++    -------
++    int
++        Rounded duration/dt, between 1 and 1,000,000 inclusive.
++
++    Raises
++    ------
++    ValueError
++        If inputs or quotient are nonfinite, inputs are nonpositive, the
++        quotient differs from an integer by more than eight ulps, or the
++        count is outside the permitted range.
++
++    Notes
++    -----
++    Does not adjust dt or duration and performs no integration.
++    See assign3/SPEC.md [EQ-TIME]. Numeric argument types are assumed.
++    """
+     if not math.isfinite(duration) or duration <= 0 or not math.isfinite(dt) or dt <= 0:
+         raise ValueError(f"{option} and --dt must be finite and positive")
+     ratio = duration / dt
+@@ -36,6 +72,35 @@ def whole_steps(duration, dt, option):
+ 
+ 
+ def validate_experiments(dt, duration, bounce_duration):
++    """Validate coarse/fine free-fall and bouncing experiment lengths.
++
++    Parameters
++    ----------
++    dt : float
++        Finite positive coarse timestep in s; fine free fall uses dt/2.
++    duration : float
++        Finite positive free-fall duration in s, aligned to both timesteps.
++    bounce_duration : float
++        Finite positive bouncing duration in s, aligned to dt.
++
++    Returns
++    -------
++    tuple of int
++        Three-element (coarse_count, fine_count, bounce_count). Every count
++        is at most 1,000,000 and fine_count is twice coarse_count.
++
++    Raises
++    ------
++    ValueError
++        If whole_steps rejects any run, counts do not match, or the free-fall
++        duration/endpoint reaches the floor under the fixed setup.
++
++    Notes
++    -----
++    Uses y0=10 m, radius=0.2 m, and g=9.81 m/s^2 in its floor checks.
++    These checks are not generalized to arbitrary physical parameters.
++    No files or state are changed. See assign3/SPEC.md [EQ-FLIGHT] and [EQ-STEP].
++    """
+     coarse = whole_steps(duration, dt, "--duration")
+     fine = whole_steps(duration, dt / 2, "--duration (fine run)")
+     bounce = whole_steps(bounce_duration, dt, "--bounce-duration")
+@@ -53,11 +118,57 @@ def validate_experiments(dt, duration, bounce_duration):
+ 
+ 
+ def tolerance(base, count, scale):
+-    """Conservative roundoff budget, separate from discretization error."""
++    """Compute the scale-dependent floating-point residual allowance.
++
++    Parameters
++    ----------
++    base : float
++        Minimum absolute tolerance in the quantity's SI unit.
++    count : int
++        Dimensionless step count used in the roundoff budget.
++    scale : float
++        Numeric magnitude expressed in the same SI unit as base.
++
++    Returns
++    -------
++    float
++        max(base, 8 * machine_epsilon * count * max(1, scale)).
++
++    Notes
++    -----
++    Inputs are not validated. This is a residual allowance, not a bound
++    on integration error against continuous motion. See assign3/SPEC.md
++    [EQ-TOL] and [EQ-DRIFT].
++    """
+     return max(base, 8 * sys.float_info.epsilon * count * max(1.0, scale))
+ 
+ 
+ def check_close(checks, name, measured, expected, tol):
++    """Append a finite absolute-residual check to a result list.
++
++    Parameters
++    ----------
++    checks : list of dict
++        Mutable destination for check records.
++    name : str
++        Human-readable check label.
++    measured, expected : float
++        Scalar values in the same units.
++    tol : float
++        Absolute allowance in those units; caller supplies an appropriate value.
++
++    Returns
++    -------
++    None
++        Appends a dictionary with name, measured, expected, residual,
++        tolerance, and passed; does not raise on a failed comparison.
++
++    Notes
++    -----
++    Passes only for finite measured - expected with absolute value <= tol.
++    Mutates checks; inputs are not otherwise validated.
++    See assign3/SPEC.md [EQ-TOL].
++    """
+     residual = measured - expected
+     checks.append(dict(name=name, measured=measured, expected=expected,
+                        residual=residual, tolerance=tol,
+@@ -65,19 +176,111 @@ def check_close(checks, name, measured, expected, tol):
+ 
+ 
+ def check_true(checks, name, measured):
++    """Append a boolean check without raising an assertion on failure.
++
++    Parameters
++    ----------
++    checks : list of dict
++        Mutable destination for check records.
++    name : str
++        Human-readable check label.
++    measured : object
++        Value converted with bool.
++
++    Returns
++    -------
++    None
++        Appends name, bool(measured), expected=True, and passed=bool(measured).
++
++    Notes
++    -----
++    Mutates checks; exceptions from the object's truth conversion propagate.
++    """
+     checks.append(dict(name=name, measured=bool(measured), expected=True, passed=bool(measured)))
+ 
+ 
+ def energy(state, parameters):
++    """Compute translational kinetic plus gravitational potential energy.
++
++    Parameters
++    ----------
++    state : CircleState
++        Scalar velocities in m/s and center height y in m.
++    parameters : PhysicsParameters
++        Mass in kg and downward gravity magnitude in m/s^2.
++
++    Returns
++    -------
++    float
++        Total mechanical energy in J, using center height in the potential term.
++
++    Notes
++    -----
++    No mutation or validation is performed. This diagnostic does not imply
++    discrete energy conservation. See assign3/SPEC.md [EQ-ENERGY].
++    """
+     return (0.5 * parameters.mass * (state.vx ** 2 + state.vy ** 2)
+             + parameters.mass * parameters.gravity * state.y)
+ 
+ 
+ def sample(state, parameters):
++    """Copy scalar state fields into an energy/time sample dictionary.
++
++    Parameters
++    ----------
++    state : CircleState
++        State to inspect without advancing it.
++    parameters : PhysicsParameters
++        Supplies dt in s, mass in kg, and gravity in m/s^2.
++
++    Returns
++    -------
++    dict
++        time (s), x/y (m), vx/vy (m/s), step_count (integer), and energy (J).
++
++    Notes
++    -----
++    State is not mutated or revalidated. Time is step_count * dt.
++    See assign3/SPEC.md [EQ-TIME] and [EQ-ENERGY].
++    """
+     return dict(time=state.time(parameters), **asdict(state), energy=energy(state, parameters))
+ 
+ 
+ def free_fall(parameters, count, checks, label):
++    """Generate contact-free samples and append discrete-formula checks.
++
++    Parameters
++    ----------
++    parameters : PhysicsParameters
++        Valid physical parameters with fixed positive dt in s.
++    count : int
++        Number of steps; caller must supply a nonnegative integer.
++    checks : list of dict
++        Mutable destination for numerical check records.
++    label : str
++        Prefix for check names, such as 'coarse' or 'fine'.
++
++    Returns
++    -------
++    dict
++        parameters and box dictionaries; samples (count + 1 dictionaries,
++        including time zero); position/velocity/energy tolerances; final sample.
++        Rows include state, analytical references, signed errors, and residuals.
++
++    Raises
++    ------
++    ValueError
++        If the fixed 100 m by 100 m box is incompatible with the radius.
++
++    Notes
++    -----
++    Creates a local state at (50, 10) m with zero velocity and advances it
++    with step, never resolving contacts. Appends checks but does not mutate
++    parameters or write files. Direct calls do not enforce CLI duration limits.
++    Expected signed height error is -g*dt*t/2. Energy checks compare per-step
++    and cumulative drift with discrete predictions, not zero drift.
++    See assign3/SPEC.md [EQ-FLIGHT], [EQ-STEP], [EQ-DRIFT], and [EQ-TOL].
++    """
+     state = CircleState(x=50, y=10, vx=0)
+     box = Box(width=100, height=100)
+     box.validate_for(parameters)
+@@ -122,6 +325,44 @@ def free_fall(parameters, count, checks, label):
+ 
+ 
+ def bouncing(parameters, count, checks, label):
++    """Generate a default-state contact trajectory and energy accounting.
++
++    Parameters
++    ----------
++    parameters : PhysicsParameters
++        Valid physical constants and fixed positive dt in s.
++    count : int
++        Number of complete steps; caller supplies a nonnegative integer.
++    checks : list of dict
++        Mutable destination for checks.
++    label : str
++        Prefix for the appended check names.
++
++    Returns
++    -------
++    dict
++        parameters and box dictionaries, count + 1 sample dictionaries,
++        chronological contact dictionaries, per-surface impact_counts,
++        and scalar energy_tolerance in J. Contact corrections are two-element
++        tuples in m; velocities are scalar m/s.
++
++    Raises
++    ------
++    ValueError
++        If complete_step rejects geometry or post-step state validation fails.
++
++    Notes
++    -----
++    Starts from CircleState() and Box(), advances a local state, and appends
++    checks without file output. Contact dictionaries include time/count,
++    record fields, is_impact, kinetic change, restitution loss, correction
++    energy, and residuals. Counts include only records with changed normal
++    velocity. Integration drift is reconstructed by subtracting measured
++    contact kinetic change and m*g*dy from post-step energy. The e=1 diagnostic
++    checks zero restitution loss, not exact total-energy conservation.
++    See assign3/SPEC.md [EQ-STEP], [EQ-ENERGY], [EQ-DRIFT],
++    [EQ-CONTACT-ENERGY], [EQ-ACCOUNTING], and [EQ-TOL].
++    """
+     state, box = CircleState(), Box()
+     initial_energy = energy(state, parameters)
+     initial = sample(state, parameters)
+@@ -193,6 +434,27 @@ def bouncing(parameters, count, checks, label):
+ 
+ 
+ def contact_direction(checks):
++    """Check upward floor-overlap correction with the production resolver.
++
++    Parameters
++    ----------
++    checks : list of dict
++        Mutable destination for three checks.
++
++    Returns
++    -------
++    dict
++        Initial/expected/measured heights in m, vertical velocities in m/s,
++        restitution, impact flag, and an explicitly illustrative faulty value.
++
++    Notes
++    -----
++    Uses local state y=0.15 m, vy=+2 m/s and e=0.8, independent of CLI e.
++    Checks y=0.2 m, unchanged vy, and one non-impact floor record; scalar
++    allowances are 1e-12 SI. The faulty -1.6 m/s value is an isolated
++    illustration, not a production defect. No files are written.
++    See assign3/SPEC.md [EQ-FLOOR] and [EQ-NORMAL].
++    """
+     parameters = PhysicsParameters(restitution=0.8)
+     state = CircleState(y=0.15, vy=2.0)
+     records = resolve_contacts(state, parameters, Box())
+@@ -208,6 +470,32 @@ def contact_direction(checks):
+ 
+ 
+ def regression_checks(output):
++    """Run integration/contact unittest suites and write their captured output.
++
++    Parameters
++    ----------
++    output : pathlib.Path
++        Existing output directory; this helper does not create it.
++
++    Returns
++    -------
++    dict
++        tests_run (int), passed (bool), and failures/errors (lists of
++        dictionaries with test names and traceback text).
++
++    Raises
++    ------
++    OSError
++        If regression_checks.txt cannot be written.
++
++    Notes
++    -----
++    Imports check_integration and check_contacts and runs their loaded suites.
++    Their script-only version guards do not run on import. Test stdout/stderr
++    are redirected into the overwritten UTF-8 regression_checks.txt file.
++    Failed assertions are returned as unittest results, not re-raised.
++    CLI/scheduler suites are not loaded. See assign3/SPEC.md Section 8.
++    """
+     import check_contacts
+     import check_integration
+ 
+@@ -223,6 +511,40 @@ def regression_checks(output):
+ 
+ 
+ def write_plots(report, output):
++    """Write the four validation PNGs from a populated report.
++
++    Parameters
++    ----------
++    report : dict
++        Requires environment, two free_fall runs, two bouncing runs,
++        and contact_direction data with the structure produced here.
++    output : pathlib.Path
++        Existing destination directory.
++
++    Returns
++    -------
++    list of str
++        Saved filenames in order: free_fall.png, free_fall_energy.png,
++        bouncing_energy.png, contact_direction.png.
++
++    Raises
++    ------
++    ImportError
++        If Matplotlib or a required plotting dependency cannot be imported.
++    OSError
++        If a figure cannot be written.
++    KeyError
++        If a required report key is missing.
++
++    Notes
++    -----
++    Imports Matplotlib, forces Agg before pyplot, sets global font size to
++    10, and mutates report['environment']['matplotlib_backend']. Overwrites
++    PNGs at 180 dpi with tight bounding boxes. Each figure is closed after
++    a successful save; failures can leave partial output or an open figure.
++    Other plotting/data errors propagate. No physics is integrated here.
++    See assign3/SPEC.md [EQ-DRIFT] and [EQ-ACCOUNTING].
++    """
+     import matplotlib
+     matplotlib.use("Agg", force=True)  # Must precede pyplot import.
+     import matplotlib.pyplot as plt
+@@ -309,6 +631,55 @@ def write_plots(report, output):
+ 
+ 
+ def run_validation(output_dir, restitution, dt, duration, bounce_duration):
++    """Run numerical validation and overwrite evidence in a selected directory.
++
++    Parameters
++    ----------
++    output_dir : str or pathlib.Path
++        Output directory, created with parents if necessary.
++    restitution : float
++        Finite dimensionless coefficient in [0, 1].
++    dt : float
++        Finite positive coarse/bouncing timestep in s.
++    duration : float
++        Positive free-fall duration in s, aligned to dt and dt/2 and
++        constrained to stay above the floor.
++    bounce_duration : float
++        Positive bouncing duration in s aligned to dt.
++
++    Returns
++    -------
++    dict
++        Report with status ('passed' or 'failed'), physical parameters,
++        durations, SI units, environment, checks and filenames. Successful
++        reports also contain regressions, free_fall/bouncing histories,
++        matching_samples and contact_direction. Caught failures may instead
++        leave partial results and an exception traceback.
++
++    Raises
++    ------
++    ValueError
++        If initial experiment/parameter validation fails, or final JSON
++        serialization encounters a nonfinite numeric value.
++    OSError
++        If directory creation or initial/final JSON writing fails.
++    Exception
++        Other errors outside the experiment/plotting try block propagate.
++
++    Notes
++    -----
++    All arguments are required in this Python API; defaults belong to the CLI.
++    Writes initial results.json with status 'running', runs integration/contact
++    regressions and experiments, then writes four PNGs and final results.json.
++    Also overwrites regression_checks.txt. Existing directories are not cleared,
++    so a failed run can leave old figures. Captures Python/executable/package
++    versions and checks loaded modules for rendering/PyVista imports.
++    Exceptions inside the experiment/plotting block become failed status and
++    stored traceback; initial setup and final serialization are outside it.
++    No GUI is opened. Uses selected e and an additional elastic bouncing run,
++    plus a fixed-e direction diagnostic. See assign3/SPEC.md [EQ-STEP],
++    [EQ-DRIFT], [EQ-ACCOUNTING], and [EQ-TOL].
++    """
+     counts = validate_experiments(dt, duration, bounce_duration)
+     parameters = PhysicsParameters(restitution=restitution, dt=dt)
+     output = Path(output_dir)

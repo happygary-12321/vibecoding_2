@@ -1,4 +1,11 @@
-"""Discrete floor and side-wall contact resolution in SI units."""
+"""Resolve discrete circle contacts with a floor and two side walls.
+
+Notes
+-----
+The resolver mutates scalar SI state and emits frozen contact records.
+There is no ceiling or side-wall height test. See assign3/SPEC.md
+[EQ-NORMAL], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+"""
 
 from dataclasses import dataclass
 
@@ -7,6 +14,36 @@ from state import Box, CircleState, PhysicsParameters
 
 @dataclass(frozen=True)
 class ContactRecord:
+    """Store a frozen record of one detected contact.
+
+    Parameters
+    ----------
+    surface : str
+        Resolver-emitted name: 'floor', 'left', or 'right'.
+    position_correction : tuple of float
+        Two-element (dx, dy) signed displacement in m.
+    normal_velocity_before : float
+        Scalar normal velocity in m/s before response.
+    normal_velocity_after : float
+        Scalar normal velocity in m/s after response.
+
+    Attributes
+    ----------
+    surface : str
+        Contact surface name.
+    position_correction : tuple of float
+        Frozen two-element signed position correction in m.
+    normal_velocity_before, normal_velocity_after : float
+        Frozen scalar velocities in m/s; positive points into the region.
+    is_impact : bool
+        Whether the two stored normal velocity values compare unequal.
+
+    Notes
+    -----
+    The dataclass performs no value/type validation. Normals are +y, +x,
+    and -x for floor, left, and right. Records include touching contacts
+    and position-only corrections. See assign3/SPEC.md [EQ-NORMAL].
+    """
     surface: str
     position_correction: tuple[float, float]  # Signed (dx, dy), meters.
     normal_velocity_before: float  # m/s; positive points into allowed region.
@@ -14,17 +51,70 @@ class ContactRecord:
 
     @property
     def is_impact(self) -> bool:
-        """True only when this response actually changed normal velocity."""
+        """Compare the stored before and after normal velocities.
+
+        Returns
+        -------
+        bool
+            True exactly when normal_velocity_before != normal_velocity_after.
+
+        Notes
+        -----
+        This property does not test penetration, correction size, or force.
+        Separating and zero-speed contacts emitted by the resolver have equal
+        velocity values. See assign3/SPEC.md [EQ-NORMAL].
+        """
         return self.normal_velocity_before != self.normal_velocity_after
 
 
 def resolve_contacts(
     state: CircleState, parameters: PhysicsParameters, box: Box
 ) -> list[ContactRecord]:
-    """Correct contacts in floor/left/right order without advancing time.
+    """Correct detected floor and wall contacts without advancing time.
 
-    Normal directions are +y at the floor, +x at the left wall, and -x at
-    the right wall. Touching counts as contact, even with no velocity change.
+    Parameters
+    ----------
+    state : CircleState
+        Mutable center coordinates in m and velocities in m/s.
+    parameters : PhysicsParameters
+        Supplies positive radius in m and restitution in [0, 1].
+    box : Box
+        Geometry in m; both dimensions must exceed twice the radius.
+
+    Returns
+    -------
+    list of ContactRecord
+        Records in floor, left, right detection order; empty if no contact.
+        Touching surfaces produce records even with zero correction.
+
+    Raises
+    ------
+    ValueError
+        If box.validate_for rejects the geometry.
+
+    Notes
+    -----
+    Correct y <= radius, then x <= radius, then x >= width - radius.
+    Reflect vy only if negative at the floor, vx only if negative at the
+    left wall, and vx only if positive at the right wall. Separating and
+    zero normal velocities and tangential components are preserved.
+    Positions/velocities can change in place; step_count never changes.
+    State finiteness and parameter validity are caller responsibilities.
+    There is no ceiling, wall-height cutoff, or resting-contact threshold.
+    See assign3/SPEC.md [EQ-FLOOR], [EQ-LEFT], [EQ-RIGHT], and [EQ-NORMAL].
+
+    Examples
+    --------
+    >>> from state import Box, CircleState, PhysicsParameters
+    >>> from contacts import resolve_contacts
+    >>> state = CircleState(y=0.15, vy=2.0, step_count=5)
+    >>> records = resolve_contacts(state, PhysicsParameters(), Box())
+    >>> (round(state.y, 6), state.vy, state.step_count)
+    (0.2, 2.0, 5)
+    >>> [(record.surface, record.is_impact) for record in records]
+    [('floor', False)]
+    >>> tuple(round(value, 6) for value in records[0].position_correction)
+    (0.0, 0.05)
     """
     box.validate_for(parameters)
     radius, restitution = parameters.radius, parameters.restitution

@@ -1,4 +1,13 @@
-"""Headless experiments and plotting. Production physics remains in its modules."""
+"""Run headless numerical experiments, regression suites, and plotting.
+
+Notes
+-----
+Numerical histories are lists of dictionaries containing scalar SI values,
+not NumPy state arrays. Production integration/contact functions generate
+the trajectories. Matplotlib is imported only during plotting.
+See assign3/SPEC.md [EQ-DRIFT], [EQ-CONTACT-ENERGY], and [EQ-ACCOUNTING].
+Calling run_validation writes evidence; importing this module does not.
+"""
 
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import asdict, replace
@@ -18,7 +27,34 @@ from state import Box, CircleState, PhysicsParameters
 
 
 def whole_steps(duration, dt, option):
-    """Accept only whole fixed steps, allowing a few ulps of division roundoff."""
+    """Validate a duration and convert it to a bounded whole-step count.
+
+    Parameters
+    ----------
+    duration : float
+        Finite positive duration in s.
+    dt : float
+        Finite positive fixed step in s.
+    option : str
+        Option label included in error messages.
+
+    Returns
+    -------
+    int
+        Rounded duration/dt, between 1 and 1,000,000 inclusive.
+
+    Raises
+    ------
+    ValueError
+        If inputs or quotient are nonfinite, inputs are nonpositive, the
+        quotient differs from an integer by more than eight ulps, or the
+        count is outside the permitted range.
+
+    Notes
+    -----
+    Does not adjust dt or duration and performs no integration.
+    See assign3/SPEC.md [EQ-TIME]. Numeric argument types are assumed.
+    """
     if not math.isfinite(duration) or duration <= 0 or not math.isfinite(dt) or dt <= 0:
         raise ValueError(f"{option} and --dt must be finite and positive")
     ratio = duration / dt
@@ -36,6 +72,35 @@ def whole_steps(duration, dt, option):
 
 
 def validate_experiments(dt, duration, bounce_duration):
+    """Validate coarse/fine free-fall and bouncing experiment lengths.
+
+    Parameters
+    ----------
+    dt : float
+        Finite positive coarse timestep in s; fine free fall uses dt/2.
+    duration : float
+        Finite positive free-fall duration in s, aligned to both timesteps.
+    bounce_duration : float
+        Finite positive bouncing duration in s, aligned to dt.
+
+    Returns
+    -------
+    tuple of int
+        Three-element (coarse_count, fine_count, bounce_count). Every count
+        is at most 1,000,000 and fine_count is twice coarse_count.
+
+    Raises
+    ------
+    ValueError
+        If whole_steps rejects any run, counts do not match, or the free-fall
+        duration/endpoint reaches the floor under the fixed setup.
+
+    Notes
+    -----
+    Uses y0=10 m, radius=0.2 m, and g=9.81 m/s^2 in its floor checks.
+    These checks are not generalized to arbitrary physical parameters.
+    No files or state are changed. See assign3/SPEC.md [EQ-FLIGHT] and [EQ-STEP].
+    """
     coarse = whole_steps(duration, dt, "--duration")
     fine = whole_steps(duration, dt / 2, "--duration (fine run)")
     bounce = whole_steps(bounce_duration, dt, "--bounce-duration")
@@ -53,11 +118,57 @@ def validate_experiments(dt, duration, bounce_duration):
 
 
 def tolerance(base, count, scale):
-    """Conservative roundoff budget, separate from discretization error."""
+    """Compute the scale-dependent floating-point residual allowance.
+
+    Parameters
+    ----------
+    base : float
+        Minimum absolute tolerance in the quantity's SI unit.
+    count : int
+        Dimensionless step count used in the roundoff budget.
+    scale : float
+        Numeric magnitude expressed in the same SI unit as base.
+
+    Returns
+    -------
+    float
+        max(base, 8 * machine_epsilon * count * max(1, scale)).
+
+    Notes
+    -----
+    Inputs are not validated. This is a residual allowance, not a bound
+    on integration error against continuous motion. See assign3/SPEC.md
+    [EQ-TOL] and [EQ-DRIFT].
+    """
     return max(base, 8 * sys.float_info.epsilon * count * max(1.0, scale))
 
 
 def check_close(checks, name, measured, expected, tol):
+    """Append a finite absolute-residual check to a result list.
+
+    Parameters
+    ----------
+    checks : list of dict
+        Mutable destination for check records.
+    name : str
+        Human-readable check label.
+    measured, expected : float
+        Scalar values in the same units.
+    tol : float
+        Absolute allowance in those units; caller supplies an appropriate value.
+
+    Returns
+    -------
+    None
+        Appends a dictionary with name, measured, expected, residual,
+        tolerance, and passed; does not raise on a failed comparison.
+
+    Notes
+    -----
+    Passes only for finite measured - expected with absolute value <= tol.
+    Mutates checks; inputs are not otherwise validated.
+    See assign3/SPEC.md [EQ-TOL].
+    """
     residual = measured - expected
     checks.append(dict(name=name, measured=measured, expected=expected,
                        residual=residual, tolerance=tol,
@@ -65,19 +176,111 @@ def check_close(checks, name, measured, expected, tol):
 
 
 def check_true(checks, name, measured):
+    """Append a boolean check without raising an assertion on failure.
+
+    Parameters
+    ----------
+    checks : list of dict
+        Mutable destination for check records.
+    name : str
+        Human-readable check label.
+    measured : object
+        Value converted with bool.
+
+    Returns
+    -------
+    None
+        Appends name, bool(measured), expected=True, and passed=bool(measured).
+
+    Notes
+    -----
+    Mutates checks; exceptions from the object's truth conversion propagate.
+    """
     checks.append(dict(name=name, measured=bool(measured), expected=True, passed=bool(measured)))
 
 
 def energy(state, parameters):
+    """Compute translational kinetic plus gravitational potential energy.
+
+    Parameters
+    ----------
+    state : CircleState
+        Scalar velocities in m/s and center height y in m.
+    parameters : PhysicsParameters
+        Mass in kg and downward gravity magnitude in m/s^2.
+
+    Returns
+    -------
+    float
+        Total mechanical energy in J, using center height in the potential term.
+
+    Notes
+    -----
+    No mutation or validation is performed. This diagnostic does not imply
+    discrete energy conservation. See assign3/SPEC.md [EQ-ENERGY].
+    """
     return (0.5 * parameters.mass * (state.vx ** 2 + state.vy ** 2)
             + parameters.mass * parameters.gravity * state.y)
 
 
 def sample(state, parameters):
+    """Copy scalar state fields into an energy/time sample dictionary.
+
+    Parameters
+    ----------
+    state : CircleState
+        State to inspect without advancing it.
+    parameters : PhysicsParameters
+        Supplies dt in s, mass in kg, and gravity in m/s^2.
+
+    Returns
+    -------
+    dict
+        time (s), x/y (m), vx/vy (m/s), step_count (integer), and energy (J).
+
+    Notes
+    -----
+    State is not mutated or revalidated. Time is step_count * dt.
+    See assign3/SPEC.md [EQ-TIME] and [EQ-ENERGY].
+    """
     return dict(time=state.time(parameters), **asdict(state), energy=energy(state, parameters))
 
 
 def free_fall(parameters, count, checks, label):
+    """Generate contact-free samples and append discrete-formula checks.
+
+    Parameters
+    ----------
+    parameters : PhysicsParameters
+        Valid physical parameters with fixed positive dt in s.
+    count : int
+        Number of steps; caller must supply a nonnegative integer.
+    checks : list of dict
+        Mutable destination for numerical check records.
+    label : str
+        Prefix for check names, such as 'coarse' or 'fine'.
+
+    Returns
+    -------
+    dict
+        parameters and box dictionaries; samples (count + 1 dictionaries,
+        including time zero); position/velocity/energy tolerances; final sample.
+        Rows include state, analytical references, signed errors, and residuals.
+
+    Raises
+    ------
+    ValueError
+        If the fixed 100 m by 100 m box is incompatible with the radius.
+
+    Notes
+    -----
+    Creates a local state at (50, 10) m with zero velocity and advances it
+    with step, never resolving contacts. Appends checks but does not mutate
+    parameters or write files. Direct calls do not enforce CLI duration limits.
+    Expected signed height error is -g*dt*t/2. Energy checks compare per-step
+    and cumulative drift with discrete predictions, not zero drift.
+    See assign3/SPEC.md [EQ-FLIGHT], [EQ-STEP], [EQ-DRIFT], and [EQ-TOL].
+    """
     state = CircleState(x=50, y=10, vx=0)
     box = Box(width=100, height=100)
     box.validate_for(parameters)
@@ -122,6 +325,44 @@ def free_fall(parameters, count, checks, label):
 
 
 def bouncing(parameters, count, checks, label):
+    """Generate a default-state contact trajectory and energy accounting.
+
+    Parameters
+    ----------
+    parameters : PhysicsParameters
+        Valid physical constants and fixed positive dt in s.
+    count : int
+        Number of complete steps; caller supplies a nonnegative integer.
+    checks : list of dict
+        Mutable destination for checks.
+    label : str
+        Prefix for the appended check names.
+
+    Returns
+    -------
+    dict
+        parameters and box dictionaries, count + 1 sample dictionaries,
+        chronological contact dictionaries, per-surface impact_counts,
+        and scalar energy_tolerance in J. Contact corrections are two-element
+        tuples in m; velocities are scalar m/s.
+
+    Raises
+    ------
+    ValueError
+        If complete_step rejects geometry or post-step state validation fails.
+
+    Notes
+    -----
+    Starts from CircleState() and Box(), advances a local state, and appends
+    checks without file output. Contact dictionaries include time/count,
+    record fields, is_impact, kinetic change, restitution loss, correction
+    energy, and residuals. Counts include only records with changed normal
+    velocity. Integration drift is reconstructed by subtracting measured
+    contact kinetic change and m*g*dy from post-step energy. The e=1 diagnostic
+    checks zero restitution loss, not exact total-energy conservation.
+    See assign3/SPEC.md [EQ-STEP], [EQ-ENERGY], [EQ-DRIFT],
+    [EQ-CONTACT-ENERGY], [EQ-ACCOUNTING], and [EQ-TOL].
+    """
     state, box = CircleState(), Box()
     initial_energy = energy(state, parameters)
     initial = sample(state, parameters)
@@ -193,6 +434,27 @@ def bouncing(parameters, count, checks, label):
 
 
 def contact_direction(checks):
+    """Check upward floor-overlap correction with the production resolver.
+
+    Parameters
+    ----------
+    checks : list of dict
+        Mutable destination for three checks.
+
+    Returns
+    -------
+    dict
+        Initial/expected/measured heights in m, vertical velocities in m/s,
+        restitution, impact flag, and an explicitly illustrative faulty value.
+
+    Notes
+    -----
+    Uses local state y=0.15 m, vy=+2 m/s and e=0.8, independent of CLI e.
+    Checks y=0.2 m, unchanged vy, and one non-impact floor record; scalar
+    allowances are 1e-12 SI. The faulty -1.6 m/s value is an isolated
+    illustration, not a production defect. No files are written.
+    See assign3/SPEC.md [EQ-FLOOR] and [EQ-NORMAL].
+    """
     parameters = PhysicsParameters(restitution=0.8)
     state = CircleState(y=0.15, vy=2.0)
     records = resolve_contacts(state, parameters, Box())
@@ -208,6 +470,32 @@ def contact_direction(checks):
 
 
 def regression_checks(output):
+    """Run integration/contact unittest suites and write their captured output.
+
+    Parameters
+    ----------
+    output : pathlib.Path
+        Existing output directory; this helper does not create it.
+
+    Returns
+    -------
+    dict
+        tests_run (int), passed (bool), and failures/errors (lists of
+        dictionaries with test names and traceback text).
+
+    Raises
+    ------
+    OSError
+        If regression_checks.txt cannot be written.
+
+    Notes
+    -----
+    Imports check_integration and check_contacts and runs their loaded suites.
+    Their script-only version guards do not run on import. Test stdout/stderr
+    are redirected into the overwritten UTF-8 regression_checks.txt file.
+    Failed assertions are returned as unittest results, not re-raised.
+    CLI/scheduler suites are not loaded. See assign3/SPEC.md Section 8.
+    """
     import check_contacts
     import check_integration
 
@@ -223,6 +511,40 @@ def regression_checks(output):
 
 
 def write_plots(report, output):
+    """Write the four validation PNGs from a populated report.
+
+    Parameters
+    ----------
+    report : dict
+        Requires environment, two free_fall runs, two bouncing runs,
+        and contact_direction data with the structure produced here.
+    output : pathlib.Path
+        Existing destination directory.
+
+    Returns
+    -------
+    list of str
+        Saved filenames in order: free_fall.png, free_fall_energy.png,
+        bouncing_energy.png, contact_direction.png.
+
+    Raises
+    ------
+    ImportError
+        If Matplotlib or a required plotting dependency cannot be imported.
+    OSError
+        If a figure cannot be written.
+    KeyError
+        If a required report key is missing.
+
+    Notes
+    -----
+    Imports Matplotlib, forces Agg before pyplot, sets global font size to
+    10, and mutates report['environment']['matplotlib_backend']. Overwrites
+    PNGs at 180 dpi with tight bounding boxes. Each figure is closed after
+    a successful save; failures can leave partial output or an open figure.
+    Other plotting/data errors propagate. No physics is integrated here.
+    See assign3/SPEC.md [EQ-DRIFT] and [EQ-ACCOUNTING].
+    """
     import matplotlib
     matplotlib.use("Agg", force=True)  # Must precede pyplot import.
     import matplotlib.pyplot as plt
@@ -309,6 +631,55 @@ def write_plots(report, output):
 
 
 def run_validation(output_dir, restitution, dt, duration, bounce_duration):
+    """Run numerical validation and overwrite evidence in a selected directory.
+
+    Parameters
+    ----------
+    output_dir : str or pathlib.Path
+        Output directory, created with parents if necessary.
+    restitution : float
+        Finite dimensionless coefficient in [0, 1].
+    dt : float
+        Finite positive coarse/bouncing timestep in s.
+    duration : float
+        Positive free-fall duration in s, aligned to dt and dt/2 and
+        constrained to stay above the floor.
+    bounce_duration : float
+        Positive bouncing duration in s aligned to dt.
+
+    Returns
+    -------
+    dict
+        Report with status ('passed' or 'failed'), physical parameters,
+        durations, SI units, environment, checks and filenames. Successful
+        reports also contain regressions, free_fall/bouncing histories,
+        matching_samples and contact_direction. Caught failures may instead
+        leave partial results and an exception traceback.
+
+    Raises
+    ------
+    ValueError
+        If initial experiment/parameter validation fails, or final JSON
+        serialization encounters a nonfinite numeric value.
+    OSError
+        If directory creation or initial/final JSON writing fails.
+    Exception
+        Other errors outside the experiment/plotting try block propagate.
+
+    Notes
+    -----
+    All arguments are required in this Python API; defaults belong to the CLI.
+    Writes initial results.json with status 'running', runs integration/contact
+    regressions and experiments, then writes four PNGs and final results.json.
+    Also overwrites regression_checks.txt. Existing directories are not cleared,
+    so a failed run can leave old figures. Captures Python/executable/package
+    versions and checks loaded modules for rendering/PyVista imports.
+    Exceptions inside the experiment/plotting block become failed status and
+    stored traceback; initial setup and final serialization are outside it.
+    No GUI is opened. Uses selected e and an additional elastic bouncing run,
+    plus a fixed-e direction diagnostic. See assign3/SPEC.md [EQ-STEP],
+    [EQ-DRIFT], [EQ-ACCOUNTING], and [EQ-TOL].
+    """
     counts = validate_experiments(dt, duration, bounce_duration)
     parameters = PhysicsParameters(restitution=restitution, dt=dt)
     output = Path(output_dir)

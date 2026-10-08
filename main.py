@@ -1,4 +1,11 @@
-"""Small entry point for the real-time simulation."""
+"""Provide the command-line entry point for the native circle simulator.
+
+Notes
+-----
+Running this file exits with main's returned status. Help and argument
+errors raise SystemExit during parsing, before rendering is imported.
+Importing the module does not open a GUI.
+"""
 
 import sys
 
@@ -7,6 +14,33 @@ from state import PhysicsParameters
 
 
 def main(argv=None) -> int:
+    """Parse simulator options and launch the blocking native GUI.
+
+    Parameters
+    ----------
+    argv : list of str or None, optional
+        Arguments excluding the executable name; None uses process arguments.
+        Options select restitution (default 0.8) and dt (default 1/240 s).
+
+    Returns
+    -------
+    int
+        0 after normal GUI completion, or 1 after RenderingDependencyError.
+
+    Raises
+    ------
+    SystemExit
+        Parsing exits with 0 for help or 2 for invalid arguments.
+    Exception
+        Unexpected parameter, import, or rendering errors propagate.
+
+    Notes
+    -----
+    Creates physical parameters, imports rendering after successful parsing,
+    and calls run_simulation. Missing rendering dependencies are printed to
+    stderr and converted to return code 1. The renderer owns GUI resources
+    and prints startup/shutdown information. See assign3/SPEC.md [EQ-STEP].
+    """
     args = parse_args("Real-time circle simulation in an open box.", argv)
     parameters = PhysicsParameters(restitution=args.restitution, dt=args.dt)
     # Help and invalid options finish before the rendering module is imported.

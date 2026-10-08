@@ -1,7 +1,11 @@
-"""PyVista scene and fixed-step display scheduling; physics remains in SI units.
+"""Display the circle with PyVista and schedule fixed physics timesteps.
 
-Importing this module does not import PyVista or create a window. This keeps the
-small scheduler testable with synthetic elapsed times and the standard library.
+Notes
+-----
+Importing this module does not import PyVista or open a window.
+Physics coordinates remain meters; actor positions use (x, y, 0) without
+scaling. Pixel widths and the 16 ms timer request are display settings.
+See assign3/SPEC.md [EQ-STEP], [EQ-TIME], and Section 5's scheduler policy.
 """
 
 from dataclasses import dataclass, field
@@ -18,6 +22,47 @@ MAX_STEPS_PER_UPDATE = 60
 
 @dataclass
 class FixedStepScheduler:
+    """Accumulate elapsed seconds and execute at most 60 steps per update.
+
+    Parameters
+    ----------
+    state : CircleState
+        Mutable physics state held by reference.
+    parameters : PhysicsParameters
+        Fixed physical parameters, including positive dt in s.
+    box : Box
+        Geometry in m compatible with the selected circle radius.
+
+    Attributes
+    ----------
+    state : CircleState
+        Shared state mutated by advance.
+    parameters : PhysicsParameters
+        Parameter reference; callers must keep dt fixed.
+    box : Box
+        Geometry reference used by complete_step.
+    accumulator : float
+        Retained fractional seconds, initially 0.0; not a constructor option.
+    discarded_time : float
+        Cumulative discarded whole-step seconds, initially 0.0.
+    discarded_steps : int
+        Cumulative discarded dimensionless step count, initially 0.
+    elapsed_time : float
+        Cumulative elapsed seconds supplied to successful updates, initially 0.0.
+
+    Raises
+    ------
+    ValueError
+        If initial state.validate or box.validate_for rejects the inputs.
+    OverflowError
+        If initial state finiteness checking cannot convert a large integer.
+
+    Notes
+    -----
+    This is a mutable dataclass. The bookkeeping fields are init=False.
+    No GUI or clock is owned here. See assign3/SPEC.md [EQ-STEP] and [EQ-TIME].
+    Discarded whole steps are not simulated later.
+    """
     state: CircleState
     parameters: PhysicsParameters
     box: Box
@@ -27,15 +72,54 @@ class FixedStepScheduler:
     elapsed_time: float = field(default=0.0, init=False)
 
     def __post_init__(self):
+        """Validate the referenced state and geometry after initialization.
+
+        Returns
+        -------
+        None
+            State and geometry are inspected without integration.
+
+        Raises
+        ------
+        ValueError
+            If state validation or radius-dependent geometry validation fails.
+        OverflowError
+            If initial state finiteness checking cannot convert a large integer.
+        """
         self.state.validate()
         self.box.validate_for(self.parameters)
 
     def advance(self, elapsed: float) -> int:
-        """Consume one display interval and return the number of physics steps.
+        """Consume elapsed seconds and advance the shared state by fixed steps.
 
-        Near-integer quotients are snapped within eight ulps to avoid losing a
-        step solely to floating-point addition/division at a timestep boundary.
-        Excess whole steps are discarded, while the fractional remainder stays.
+        Parameters
+        ----------
+        elapsed : float
+            Finite nonnegative interval in s. The total-time/dt quotient must
+            also be finite. No explicit scalar type check is performed.
+
+        Returns
+        -------
+        int
+            Number of complete physics steps executed, between 0 and 60.
+
+        Raises
+        ------
+        ValueError
+            If elapsed is negative/nonfinite, the quotient is nonfinite, or
+            complete_step rejects the geometry.
+        TypeError
+            If elapsed does not support the numeric operations used here.
+
+        Notes
+        -----
+        Mutates state and scheduler counters. Near-integer quotients snap within
+        eight ulps; otherwise available steps are floored. Only min(available, 60)
+        steps execute. All excess whole steps are discarded; the fractional
+        remainder is retained as max(0, total - available * dt).
+        dt is not changed and there is no interpolation. An exception during
+        stepping does not roll back state. See assign3/SPEC.md [EQ-STEP],
+        [EQ-TIME], and Section 5. There is no per-update state validation here.
         """
         if not math.isfinite(elapsed) or elapsed < 0:
             raise ValueError("elapsed time must be finite and nonnegative")
@@ -60,11 +144,69 @@ class FixedStepScheduler:
 
 
 class RenderingDependencyError(RuntimeError):
-    """Missing PyVista/VTK, distinct from unexpected programming errors."""
+    """Signal a missing PyVista or VTK dependency during renderer setup.
+
+    Attributes
+    ----------
+    args : tuple
+        Inherited exception-constructor arguments. run_simulation supplies
+        one installation-message string, so emitted instances hold a
+        one-element tuple. This class defines no additional state.
+
+    Notes
+    -----
+    This RuntimeError subclass adds no custom attributes or constructor.
+    run_simulation raises it for ModuleNotFoundError naming pyvista, vtk,
+    or vtkmodules while importing/resolving the plotter. main.main catches
+    it, prints the installation message, and returns status 1.
+    """
 
 
 def run_simulation(parameters: PhysicsParameters) -> None:
-    """Open the native GUI and run until the user closes it."""
+    """Open a native PyVista window and run until its event loop terminates.
+
+    Parameters
+    ----------
+    parameters : PhysicsParameters
+        Physical constants and fixed dt in s. State and box are created
+        internally with their defaults; custom radius must fit that box.
+
+    Returns
+    -------
+    None
+        The function blocks during the GUI session and returns after cleanup.
+
+    Raises
+    ------
+    RenderingDependencyError
+        If PyVista/VTK is missing while the plotter type is resolved.
+    ValueError
+        If scheduler initialization rejects state or geometry.
+    RuntimeError
+        If the interactor cannot create a timer.
+    Exception
+        Other setup/rendering errors propagate. Callback exceptions are
+        captured, terminate the loop, and are re-raised with their traceback.
+
+    Notes
+    -----
+    Lazily imports PyVista, creates meshes/actor/camera/timer, and prints
+    versions, settings and final counters. The plotter is closed in finally
+    after successful plotter construction. A first timer event sets the
+    perf_counter baseline; later events pass elapsed seconds to the scheduler.
+    The repeating timer request is 16 ms, not the physical dt.
+
+    The disk center is translated to (state.x, state.y, 0) in world meters,
+    with no application coordinate scaling. Wall line widths and window
+    dimensions are pixels. The camera is fixed and parallel; the dashed
+    upper guide does not collide. Side-wall physics has no height limit.
+    For the disk, only actor position changes; its mesh is not rebuilt.
+    Updates also change the status text and render the scene.
+    Keyboard q/Escape and window closure end the session. The scheduler
+    discards whole-step backlog above 60 per update. The label uses literal
+    default geometry/radius text even for custom physical parameters.
+    See assign3/SPEC.md [EQ-STEP], [EQ-FLOOR], [EQ-LEFT], and [EQ-RIGHT].
+    """
     try:
         import pyvista as pv
 

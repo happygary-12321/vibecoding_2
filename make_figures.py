@@ -1,4 +1,11 @@
-"""Run deterministic numerical checks and write headless validation figures."""
+"""Provide the command-line entry point for headless figures and evidence.
+
+Notes
+-----
+Running this file exits with main's returned status. Importing it does
+not generate figures. Execution can overwrite the selected output files;
+see validation.run_validation and assign3/SPEC.md Section 6.
+"""
 
 import sys
 
@@ -7,6 +14,36 @@ from validation import run_validation
 
 
 def main(argv=None) -> int:
+    """Parse experiment options, generate evidence, and return a status code.
+
+    Parameters
+    ----------
+    argv : list of str or None, optional
+        Arguments excluding the executable name; None uses process arguments.
+        Defaults: restitution 0.8, dt 1/240 s, duration 1 s, bounce duration
+        10 s, and output directory 'figures'.
+
+    Returns
+    -------
+    int
+        0 for a passed report; 1 for a failed report or caught OSError.
+
+    Raises
+    ------
+    SystemExit
+        Parsing exits with 0 for help or 2 for invalid options/durations.
+    Exception
+        Errors not converted to a failed report or caught as OSError
+        propagate, including errors while formatting a malformed report.
+
+    Notes
+    -----
+    Calls run_validation, which creates directories and overwrites PNG,
+    JSON and regression output. Prints successful numerical summaries to
+    stdout, or failure diagnostics to stderr. An experiment exception caught
+    inside run_validation is reported as a failed report, not re-raised here.
+    No GUI is opened. See assign3/SPEC.md [EQ-DRIFT] and [EQ-ACCOUNTING].
+    """
     args = parse_args("Headless numerical validation and PNG figures.", argv, figures=True)
     try:
         report = run_validation(args.output_dir, args.restitution, args.dt,
