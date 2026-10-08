@@ -1,341 +1,145 @@
-# vibecoding_2
+# Circle simulator
 
-Circle simulation assignment. Stage 5 adds native PyVista real-time rendering.
-Physics includes SI-unit state, semi-implicit Euler, and floor/side-wall contacts.
-Headless validation, energy accounting, PNG figures, and JSON results remain
-available independently. The accepted production baseline is `71834cd`. The user
-reports that the local GUI works correctly. Stage 6 documentation and packaging
-are under review; fresh final verification and PDF generation remain pending.
+This simulator moves a 2D circle under constant gravity inside an open box, using velocity-first semi-implicit Euler integration and radius-based floor and side-wall collisions with configurable restitution. A native PyVista window displays the motion in real time; a separate headless entry point produces numerical validation, energy accounting, and figures.
 
-## Python and dependencies
+## Installation on Windows
 
-Use **Python 3.12.10** consistently. Check `python --version` before running
-commands; the unqualified `py` launcher may select a different version.
-Physics, contact, integration, and scheduling checks need only the standard library.
-Figure generation and its CLI smoke test require Matplotlib and its dependencies.
-Install rendering dependencies in the same Python 3.12.10 environment used for
-the accepted figures. The following also ensures figure dependencies are present:
+Use **Python 3.12.10**. All four regression scripts explicitly require that exact version; no other Python version is claimed verified. From the repository root, these **CMD** commands use the interpreter already verified on this machine. On another machine, replace the quoted interpreter path with the path to its Python 3.12.10 installation.
 
-```text
+```bat
+cd /d D:\CodexCLI\vibecoding\HW2
+"C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe" --version
+"C:\Users\omen16\AppData\Local\Programs\Python\Python312\python.exe" -m venv .venv
+call .venv\Scripts\activate.bat
 python --version
-python -m pip install -r requirements-figures.txt
-python -m pip install -r requirements-rendering.txt
+python -m pip install -r requirements-figures.txt -r requirements-rendering.txt
 python -m pip check
-python -m pip show pyvista vtk
+python -m pip show matplotlib pyvista vtk
 ```
 
-No packages were installed in the agent session: Python execution is unavailable.
-Successful generation records actual Python, executable, Matplotlib, NumPy, and
-plotting dependency versions in `results.json`; no versions are guessed.
-The renderer prints actual Python, PyVista, and VTK versions at startup. Preserve
-that output with the GUI observations before recording verified versions.
-`pyvista>=0.46.3` is an API minimum checked against upstream source, not a claim
-that this version is installed or locally tested. No Qt dependency is required.
+Use an existing suitable environment instead of recreating it. After activation, the commands below use its Python; use `.venv\Scripts\python.exe` explicitly if needed. Run `deactivate` to leave it.
 
-For later stages, create an environment using the verified interpreter:
+[Figure requirements](requirements-figures.txt) declare Matplotlib. [Rendering requirements](requirements-rendering.txt) declare `pyvista>=0.46.3`; pip resolves its dependencies, including VTK. Physics and the integration/contact/scheduler checks use the standard library; the CLI check also needs the plotting dependencies. These files do not pin a complete environment, so retain actual installed versions with verification results. The renderer prints Python/PyVista/VTK versions; figure results record Python and plotting-package versions.
 
-```text
-python -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
+[Report requirements](requirements-report.txt) contain `reportlab` and `pypdf`, which are not needed to run the simulator or figures. If working on report tooling, install them separately:
+
+```bat
+python -m pip install -r requirements-report.txt
+python -m pip check
 ```
 
-Dependency versions will be recorded after actual installation and verification.
+The aggregate [requirements.txt](requirements.txt) includes all three lists. Installation commands are instructions, not evidence that packages were installed during this documentation stage.
 
-## Commands available now
+## Run the simulator or generate figures
 
-```text
+```bat
 python main.py --help
 python make_figures.py --help
-python main.py --restitution 0.8 --dt 0.004166666666666667
-python make_figures.py --restitution 0.8 --dt 0.004166666666666667
-python check_cli.py
-python check_integration.py
-python check_contacts.py
-python check_scheduling.py
-```
-
-Both entry points accept `--restitution` (default 0.8, finite and in [0, 1])
-and `--dt` (seconds, default 1/240, finite and greater than zero). Supply a
-decimal or scientific-notation number, not a literal expression such as `1/240`.
-Invalid inputs exit with status 2. Help exits with status 0. `main.py` validates
-arguments before importing rendering, then passes the selected restitution and
-dt into `PhysicsParameters` and opens the native window. Missing PyVista/VTK
-produces an installation message and status 1. Unexpected errors retain their
-tracebacks. Normal GUI shutdown returns status 0. `make_figures.py` exits with status 0 only after
-all required numerical checks and figure writes succeed; failures exit nonzero.
-
-`check_cli.py` requires Python 3.12.10 and checks both help paths, parsed defaults,
-custom values, restitution endpoints, invalid numbers, missing values, duration
-constraints, mocked `main.py` parameter forwarding/error handling, and a small headless figure run in
-a temporary output directory. That run also executes the physics regression suites.
-No automated CLI check opens an interactive GUI. Help and invalid-option tests
-also guard against importing rendering before argument validation.
-
-`check_integration.py` also requires Python 3.12.10. It prints expected and
-measured values for one-step motion, zero gravity, and one-second free fall at
-1/240 s and 1/480 s. It checks the signed semi-implicit Euler height error at
-every sample and compares coarse samples with every second fine sample.
-Expected final heights are 5.0745625 m and 5.08478125 m, respectively; both final
-vertical velocities are -9.81 m/s. These are references, not claimed test results.
-Stage 2 was accepted and committed by the user at `1c9fdce`.
-
-Checks use absolute tolerances of 1e-12 for single-step values and 1e-10 m or
-m/s for trajectories of at most 480 steps, allowing roundoff while remaining far
-below the approximately 0.01 m discretization error. The refinement difference
-allows 3e-10 m (one coarse plus twice one fine tolerance); its endpoint ratio
-allows 1e-7, conservatively accounting for division by a roughly 0.01 m error.
-
-## Module boundaries
-
-Present: `cli.py` owns shared parsing; `main.py` and `make_figures.py` are entry
-points. `check_cli.py` provides ongoing CLI regression checks.
-
-`state.py` defines mutable `CircleState` and frozen `PhysicsParameters` and
-`Box` dataclasses. Construction validates finite values and physical ranges;
-`state.validate()` can recheck manually edited state. Positions may penetrate
-surfaces or exceed the displayed height. `box.validate_for(parameters)` checks
-both box dimensions against the selected diameter. `state.time(parameters)`
-returns `step_count * dt`; keep dt fixed throughout each trajectory.
-
-`integration.step(state, parameters)` mutates state in place: update vy with
-gravity, update x and y using the new velocity, then increment the integer step
-count once. vx is unchanged. This contact-free function assumes valid input
-state and does not use box geometry or enforce boundaries. `check_integration.py`
-is the Stage 2 verification command. No third-party dependencies are required.
-
-`contacts.resolve_contacts(state, parameters, box)` corrects floor, left-wall,
-and right-wall contacts in that order, reflecting only inward normal velocity.
-Outward and zero normal velocity are preserved, as is tangential velocity.
-Direct resolution does not advance time. Both floor-wall corner components are
-resolved independently. There is no ceiling, friction, rotation, continuous
-collision detection, or resting-contact threshold.
-
-`integration.complete_step(state, parameters, box)` calls the existing contact-free
-`step` once, then resolves contacts and returns records. It increments the count
-exactly once through `step`. Keep using `step` for contact-free validation.
-
-Each `ContactRecord` contains `surface` (`floor`, `left`, or `right`), signed
-`position_correction` `(dx, dy)` in meters, and normal velocities before and after
-response in m/s. Normals point into the allowed region: +y, +x, and -x respectively.
-Thus positive normal velocity means moving away, including at the right wall.
-`is_impact` is true only when normal velocity actually changes. Touching or
-position-only correction still produces a record but is not an impact.
-
-`check_contacts.py` uses Python 3.12.10 and the standard library. It checks all
-three surfaces, inward/outward/zero velocities, exact touching, no contact,
-tangential preservation, corners, restitution endpoints, records, step order,
-and a 2400-step default trajectory. Direct checks use absolute tolerance 1e-12
-in the relevant SI unit: enough for roundoff over a few operations, much smaller
-than the response being tested. Representative expected/measured values are
-printed, including the upward-moving floor overlap (expected y=0.2, vy=+2).
-Stage 3 was accepted at `a5f5654`; Stage 4 and its dependency update were accepted
-through `38cd01e`; Stage 5 was accepted at `71834cd`.
-
-`rendering.py` alone owns PyVista, camera, meshes,
-colors, display settings, and fixed-step real-time scheduling. `validation.py`
-now provides deterministic headless checks and plots. No ceiling collision.
-Unimplemented modules are not represented by empty placeholder files.
-
-## Headless numerical validation (Stage 4)
-
-```text
-python check_contacts.py
-python check_integration.py
-python check_cli.py
-python make_figures.py --output-dir figures
-python make_figures.py --restitution 0.6 --dt 0.0020833333333333333 --output-dir figures_fine
-```
-
-`--duration` sets free-fall duration (default 1 second); `--bounce-duration` sets
-each bouncing run's duration (default 10 seconds). Both must be positive, finite,
-and aligned to whole timesteps. Alignment allows eight ulps of quotient roundoff;
-errors suggest an aligned duration. dt is never silently adjusted. The free-fall
-fine run uses dt/2 and must have exactly twice the coarse step count. A requested
-duration is rejected if the predicted coarse free-fall endpoint reaches the floor.
-Experiments are limited to one million steps per run to bound trace size and work;
-larger requests receive an error suggesting a shorter duration or larger dt.
-
-Free fall starts at rest at (50, 10) m in a 100-by-100 m box. Every sample,
-including time zero, is saved. The integrator produces the trajectories; analytical
-formulas are used only as references. Matching samples check the signed error
-`-g*dt*t/2` and that halving dt halves it. Both per-step and cumulative contact-free
-energy drift are checked. Defaults expect heights 5.0745625 m and 5.08478125 m
-against 5.095 m analytical height, and final vy=-9.81 m/s. Expected energy drifts
-are -0.200491875 J and -0.1002459375 J. These are references, not measured results.
-
-Bouncing uses `complete_step` for both the selected restitution and an additional
-e=1 diagnostic. Recorded normal velocities give measured contact kinetic-energy
-changes; signed position corrections give `m*g*dy`. Subtracting those from the
-post-step energy reconstructs pre-contact energy without duplicating integration.
-Checks compare integration drift with `-m*g*g*dt*dt/2`, inward-contact restitution
-loss with `-m*(1-e*e)*vn_before*vn_before/2`, and total/cumulative accounting.
-Correction energy is a numerical artifact, not physical restitution loss. Even
-the elastic discrete simulation can drift; no exact-conservation claim is made.
-
-Tolerances use `max(base, 8*machine_epsilon*step_count*max(1, scale))`, with bases
-1e-10 m or m/s and 1e-9 J; scale is the experiment's height, speed, or energy.
-The factor-eight budget allows accumulated arithmetic roundoff, not truncation
-error. Matching-error tolerance is coarse tolerance plus twice fine tolerance.
-Direct contact checks retain 1e-12 SI. Actual tolerances and residuals are saved.
-
-Outputs (existing files with these names are replaced on rerun):
-
-| File | Caption / interpretation |
-|---|---|
-| `free_fall.png` | Height and signed error versus time, dt and dt/2, with analytical predictions. Measured/predicted error lines should overlap. |
-| `free_fall_energy.png` | Measured and predicted contact-free energy drift; finer steps reduce drift. |
-| `bouncing_energy.png` | Selected e and elastic runs; actual floor/left/right impacts marked above, cumulative integration/restitution/correction contributions below. |
-| `contact_direction.png` | Upward-moving floor overlap: real resolver preserves +2 m/s; illustrative faulty rule gives -1.6 m/s. Both correct y to 0.2 m. |
-| `results.json` | Parameters, durations, versions, check outcomes/tolerances, expected/measured values, complete numerical traces, residuals, contact records, and impact counts. |
-| `regression_checks.txt` | Actual integration/contact regression output, including failures if any. |
-
-The direction comparison always uses e=0.8, independently of the CLI choice.
-It calls the real resolver for the correct response and checks y=0.2, vy=+2,
-and no impact. The faulty comparison is isolated in validation code and is
-explicitly **not evidence of an injected production-code defect**.
-
-Matplotlib uses Agg, selected before importing pyplot. The validation path never
-imports PyVista or rendering, and checks loaded modules for those imports.
-Failed numerical checks retain traces and diagnostic figures when possible;
-unexpected errors save a traceback in `results.json` and cause a nonzero exit.
-Check `status` and the figure list in the current JSON: old PNG files can remain
-after a failed rerun. Unwritable output directories are reported to stderr.
-Stage 4 was accepted by the user. The Stage 5 rerun has not been executed in the
-agent session; no new plot inspection or runtime results are claimed.
-
-## Real-time rendering (Stage 5)
-
-```text
 python main.py
+python make_figures.py
+```
+
+**Interactive:** `python main.py` opens the native PyVista window and runs until it closes. Press **q** or **Escape**, or use the window close button. The code clears the interaction style and default key callbacks, then binds the two exit keys; it provides no application camera controls. The parallel camera has fixed framing. Startup prints versions/settings; shutdown prints simulated steps/time and discarded backlog. Historical user feedback that the GUI worked is recorded in the prior documentation; no new GUI check was performed for Part 4.
+
+**Headless:** `python make_figures.py` runs integration/contact regressions, coarse/fine free fall, selected-restitution and elastic bouncing, and the contact-direction diagnostic. It uses Matplotlib Agg without opening PyVista. By default it creates or reuses `figures/` relative to the current directory. Existing same-named files are overwritten. For a separate run, select a fresh directory; never target the saved `evidence/assignment3/before/` baseline.
+
+```bat
 python main.py --restitution 0.5 --dt 0.0020833333333333333
+python make_figures.py --output-dir assign3/figures_after --restitution 0.8
 ```
 
-The scene uses a filled disk of radius 0.2 m, a 4 m floor and two 3 m side walls.
-The dashed upper guide is explicitly non-colliding. All scene geometry is created
-once in world meters; display-only colors, pixel widths, and framing stay in
-`rendering.py`. The circle actor's position changes; its mesh is not rebuilt.
-An orthographic camera looks along -z at the x-y plane with +y upward. Mouse
-rotate/pan/zoom styles and default view-changing keyboard callbacks are disabled.
-Q, Escape, and the window close button exit. The initial framing is fixed; a very
-narrow resized window may crop the sides rather than automatically move the camera.
+The second example is a command for a later run, not a claim that the Assignment 3 after-comparison has happened.
 
-A native repeating timer requests display updates every 16 ms, but actual elapsed
-time comes from `perf_counter`, not the requested timer interval. Timing starts
-at the first callback, excluding scene setup. `FixedStepScheduler.advance(elapsed)`
-accumulates elapsed seconds and calls the production `complete_step` only with the
-unchanged selected dt. It renders the latest completed state once per timer
-callback, with no interpolation. Ordinary expose/resize events may also repaint.
+| Output within the selected directory | Purpose |
+| --- | --- |
+| `free_fall.png` | Coarse/fine heights and signed errors against analytical references. |
+| `free_fall_energy.png` | Measured and predicted contact-free integration energy drift. |
+| `bouncing_energy.png` | Impact markers and integration/restitution/position-correction energy contributions for selected e and e=1. |
+| `contact_direction.png` | Upward-overlap response from the real resolver versus an isolated illustrative faulty rule; the diagnostic uses e=0.8 independently of the CLI selection. |
+| `results.json` | Status, environment, parameters, durations, checks/tolerances, numerical traces, contact records/counts, and figure list. |
+| `regression_checks.txt` | Captured integration/contact regression output. It does not represent the CLI or scheduler suites. |
 
-At most 60 physics steps run per callback. Excess whole steps are discarded and
-their time is accumulated; the fractional remainder is retained. Near timestep
-boundaries, an eight-ulp normalization prevents roundoff alone from losing a step.
-Overload makes simulation time lag wall time; it never increases dt. The window
-shows accumulated discarded time, and shutdown prints total steps, simulated time,
-discarded time/steps, and remainder. The native event loop remains active between
-short callbacks. Closing the plotter tears down its interactor and timer; callback
-exceptions end the event loop and are re-raised with their original traceback.
+Help exits with status **0**; argument/range/duration errors exit with **2** through argparse. Normal GUI completion returns **0**; missing PyVista/VTK handled by `main.main` prints an installation message and returns **1**. Other unexpected GUI errors propagate, including saved callback exceptions after the event loop ends.
 
-`check_scheduling.py` uses synthetic intervals and imports no PyVista. It checks
-insufficient/fractional elapsed time, identical physics state for different display
-intervals, the 60-step cap, discarded whole steps, preserved remainder, invalid
-elapsed time, and unchanged dt. Expected overload example: dt=0.01 s and elapsed
-1.2575 s produces 60 steps, discards 0.65 s, and retains 0.0075 s. These are
-expectations, not claimed local results. Timing comparisons allow 1e-12 s roundoff.
+Figure generation returns **0** for a passed report and **1** for a failed report or caught `OSError`. Experiment/plotting exceptions inside the validator's guarded block become failed reports with tracebacks. Setup and final serialization errors outside that block can propagate. Inspect the current JSON status and figure list, not just the presence of PNGs.
 
-API references: [PyVista repeating timers](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.renderwindowinteractor.create_timer),
-[interactor style](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.renderwindowinteractor.style),
-and [Plotter.show](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.plotter.show).
-The API use was also checked against the v0.46.3 upstream interactor source;
-compatibility with the actual installed PyVista/VTK versions still requires the
-following local checks. No offscreen image substitutes for the interactive test.
+## Command-line options
 
-### Local Stage 5 verification
+“Both” means `main.py` and `make_figures.py`. Numeric arguments accept decimal/scientific notation; the expression `1/240` is not evaluated. Initial state, gravity, mass, radius, and box dimensions are Python-only configuration, not CLI options.
 
-```text
-python --version
-python check_integration.py
-python check_contacts.py
-python check_scheduling.py
-python check_cli.py
-python make_figures.py --output-dir figures_stage5
-python main.py
-python main.py --restitution 0.5 --dt 0.0020833333333333333
+| Entry point | Option | Default | Units | Accepted values / constraints | Effect |
+| --- | --- | --- | --- | --- | --- |
+| Both | `-h`, `--help` | Not requested | None | No value | Print help and exit 0. |
+| Both | `--restitution` | 0.8 | Dimensionless | Finite float in [0, 1], endpoints included | Set inward-contact restitution. |
+| Both | `--dt` | 1/240 (about 0.004166666666666667) | s | Finite float >0; figure constraints below also apply | Set fixed physics step; free-fall fine run uses dt/2. |
+| Figures only | `--output-dir` | figures | Path | String; no parser writability check; directory must be creatable/writable at execution | Select output directory. |
+| Figures only | `--duration` | 1.0 | s | Finite, positive, aligned duration; free fall must remain above floor | Set coarse and fine free-fall interval. |
+| Figures only | `--bounce-duration` | 10.0 | s | Finite, positive, aligned duration | Set each bouncing interval, including e=1 diagnostic. |
+
+For figures, each duration/timestep quotient must be finite and within eight ulps of an integer, with **1 to 1,000,000 steps per run**, including the dt/2 fine run. Fine free fall must have exactly twice the coarse step count. The free-fall duration must precede continuous floor contact and leave the predicted coarse discrete endpoint strictly above radius 0.2 m (from y=10 m at rest, g=9.81 m/s²). The default 1 s satisfies these checks. The parser rejects invalid experiments and may suggest an aligned duration; it never silently adjusts dt. Sources: `cli.parse_args` and `validation.validate_experiments/whole_steps`.
+
+## Conventions and source layout
+
+Physics uses SI units: meters, seconds, kilograms, m/s and m/s²; restitution and step counts are dimensionless. The origin is the floor's left end, +x points right, +y up, and state coordinates locate the circle center. Gravity is stored as a nonnegative magnitude and subtracted from vy. Defaults are radius 0.2 m, mass 1 kg, g=9.81 m/s², box 4 by 3 m, center (1, 2) m, and velocity (1.5, 0) m/s.
+
+Each complete step validates geometry, updates vy, then x and y using the updated velocity, increments the step count, and resolves floor/left/right contacts in that order. Edge tests include exact touch. Penetration correction does not require inward motion; restitution does. Direct contact resolution does not advance time. Keep dt fixed for a trajectory because time is computed as step_count × dt.
+
+Rendering passes (x, y, 0) and the physical radius directly into scene coordinates without application-level meters-to-pixels scaling. Window sizes and line widths are display pixels; fonts, tessellation, and camera framing are display settings. The requested 16 ms timer is not the physics timestep: elapsed seconds feed a fixed-step scheduler.
+
+| Root module | Responsibility |
+| --- | --- |
+| [main.py](main.py) | GUI entry point, parameter construction, handled dependency failure status. |
+| [make_figures.py](make_figures.py) | Headless entry point, validation summaries and exit status. |
+| [cli.py](cli.py) | Shared parser and figure-only options/duration validation. |
+| [state.py](state.py) | Mutable circle state, frozen physics/box dataclasses, explicit validation, simulation time. |
+| [integration.py](integration.py) | Contact-free semi-implicit Euler and the complete integration/contact step. |
+| [contacts.py](contacts.py) | Floor/wall correction and inward-velocity response; immutable contact records. |
+| [rendering.py](rendering.py) | Fixed-step scheduler, native PyVista scene, camera, timer and GUI lifecycle. |
+| [validation.py](validation.py) | Headless numerical experiments, energy accounting, captured regressions, JSON and PNG output. |
+| [check_cli.py](check_cli.py) | Parser/status and mocked GUI-dispatch regressions; temporary headless figure smoke test. |
+| [check_integration.py](check_integration.py) | State/default/range, step order, free-fall and timestep-refinement regressions. |
+| [check_contacts.py](check_contacts.py) | Contact direction, touching, corners, restitution endpoints, complete-step and bounded-trajectory checks. |
+| [check_scheduling.py](check_scheduling.py) | Synthetic elapsed-time, fractional remainder and backlog-discard checks without a GUI. |
+
+[assign3/SPEC.md](assign3/SPEC.md) holds stable equation labels, detailed conventions, interfaces and validation criteria. Other `assign3/` files record documentation reviews, errors and verification. Duplicate submission folders and intentional-bug worktrees are not simulator modules.
+
+**Audit-time working-tree status:** the tracked `build_report.py`, `final_verify.py`, `package_submission.py`, and `preserve_transcript.py` helpers are locally deleted. They are not available commands in this checkout. This is a working-tree observation, not a permanent module-layout decision.
+
+## Known Issues and limitations
+
+- **Numerical contact limitation:** there is no resting-speed cutoff or continuous impact-time resolution. Small floor rebounds persist rather than reaching exact rest. The saved user-run [before results](evidence/assignment3/before/figures/results.json) record 1,172 floor impacts and vy≈+0.0181667 m/s at 10 s for defaults; the [saved log](evidence/assignment3/before/make_figures.log) records the impact count. This was not a new Part 4 run. The fixed timestep does not resolve the finite-time accumulation of ideal inelastic bounces described in SPEC.
+- **Numerical energy limitation:** semi-implicit Euler introduces contact-free energy drift, and vertical position projection changes potential energy. Even e=1 removes only restitution loss, not those effects. Small accounting residuals do not mean an equally small error against the continuous trajectory.
+- **Intentional scope and geometry limitation:** there is no ceiling, friction, rotation, or circle-circle collision. Side-wall tests continue above the drawn wall height; the top dashed line is only a guide.
+- **Display limitation:** the fixed camera does not follow high trajectories, so they may leave the visible frame while physics continues. This consequence follows from the framing and absence of a height bound; no new off-screen GUI experiment was performed.
+- **Scheduling policy:** each update executes at most 60 steps. Additional whole-step backlog is discarded permanently, retaining only the fraction. Overload can make simulated time lag wall time; dt is not enlarged.
+- **Display defect for Python customization:** the scene text literally says radius 0.2 m even when `run_simulation` receives a different valid radius. The CLI does not expose radius.
+- **Validation limitation:** excessively large Python integers can propagate `OverflowError` from `math.isfinite` in `state._finite`. Explicit type/finiteness/range checks raise `ValueError`; they are not a universal exception guarantee. Low-level mutation/integration also does not validate every subsequent arithmetic result.
+- **Output lifecycle limitation:** failed reruns can leave old PNGs or other previous outputs because the directory is not cleared first. Use a fresh directory and inspect current status/figure metadata.
+- **Unverified concern:** detailed PyVista/VTK interaction and cleanup behavior across dependency versions has not been rechecked during documentation. The minimum requirement is not a guarantee that every later version was tested.
+
+The [Assignment 2 bug case studies](docs/bug_cases.md) intentionally changed Euler order and removed the floor velocity-direction guard in separate local branches. Their [Bug A](evidence/bug_a/) and [Bug B](evidence/bug_b/) saved results are historical injected-defect evidence, not unresolved defects in the current simulator. Current integration remains velocity-first, and upward floor overlap preserves upward velocity.
+
+## Verification and provenance
+
+After activating Python 3.12.10, run the existing checks from the root:
+
+```bat
+python -B -m doctest -v state.py integration.py contacts.py
+python -B check_integration.py
+python -B check_contacts.py
+python -B check_scheduling.py
+python -B check_cli.py
+python -m pip check
 ```
 
-For each GUI run, record actual startup versions, arguments, observed behavior,
-shutdown output, and any traceback. Check:
+The CLI suite generates a short headless run in a temporary directory; these commands are not all read-only. It does not launch a GUI. Numerical checks distinguish signed integration error from floating-point residuals; detailed tolerances and the still-proposed first-impact criterion are in SPEC. That proposed criterion remains unimplemented and unexecuted.
 
-- Default motion starts at (1, 2) m, moves right/down, and bounces off floor and
-  both walls. Observe at least 10 simulated seconds to see both side walls.
-- The disk diameter is 0.4 m (one tenth of the 4 m floor); it stays circular and
-  touches the floor/walls at its edge. The dashed top is labeled non-colliding.
-- Drag each mouse button, use the wheel and modifiers, and press R/V/X/Y/Z:
-  the camera should not rotate, pan, zoom, or change projection.
-- Changed restitution produces lower bounces; the displayed dt and e match the
-  second command. Meshes do not visibly flicker or rebuild.
-- The window responds to move/resize and closes without a hanging process or
-  traceback. Exercise the close button, Q, and Escape across separate runs.
-- If overload occurs, discarded time increases while motion remains based on
-  fixed physics steps. The deterministic overload check supplies repeatable evidence.
+[Part 2 verification](assign3/part2_verification.txt) and [Part 3 verification](assign3/part3_verification.txt) record actual checks. Part 3 reports 19 physics doctest examples passing on Python 3.12.10, all 12 full AST comparisons retaining docstrings, and non-comment token comparisons. These are prior-stage results, not tests rerun for this README. [Part 3 review](assign3/part3_review.md), [Part 4 review](assign3/part4_review.md), and [documentation errors](assign3/documentation_errors.md) explain changes and qualifications.
 
-The user subsequently accepted Stage 5 and reported that the GUI works. The
-detailed checklist above describes suggested observations, not an assertion that
-each was reported. Stage 6 final checks record the currently installed versions.
+**Numpydoc lint across every source file and the final Assignment 3 before/after figure comparison remain pending.** No packages were installed, GUI run performed, regression suite rerun, or figures regenerated in Part 4.
 
-## Plans, review, and evidence
+The immutable [Assignment 3 before evidence](evidence/assignment3/before/) identifies starting commit `604a32d3d9c8d400a2ecedb7d35f36eee29563fb` and contains saved user-local execution results. Its exact shell command was not recorded; do not reconstruct it as established fact. [Assignment 2 final evidence](evidence/final/) is historical evidence, not Assignment 3 final verification.
 
-The [original plan](docs/original_plan.md) is unchanged. The
-[approved revisions](docs/change_log.md) record both user requests and reasons,
-and the final staged workflow. [Provenance](docs/provenance.md) distinguishes
-known metadata from unavailable evidence. An actual raw session-log snapshot is
-preserved in docs/transcript; refresh it after the final review for complete
-coverage. These explanatory documents do not substitute for that original log.
+Historical materials remain available: [original plan](docs/original_plan.md), [change log](docs/change_log.md), [provenance](docs/provenance.md), [report source](docs/report.md), [report PDF](report.pdf), and [report review record](docs/report_review.json). Their stage-specific claims and outstanding review status should be read in that historical context; the current implementation is authoritative.
 
-Each significant task starts from an accepted committed baseline. Show changes
-and actual verification results, then wait for user acceptance before committing
-or beginning the next stage. Never upload an intentionally broken branch without
-explicit authorization. Existing Word files are preserved; temporary files and
-the unrelated `test.txt` are excluded from commits.
-
-## Stage 6 local verification and submission
-
-Both intentionally faulty branches remain local. Their actual-module plots,
-complete test output, exit codes, commit identifiers, and defect diffs are in
-`evidence/bug_a` and `evidence/bug_b`; see `docs/bug_cases.md`. The agent inspected
-these artifacts and plots. The tests were run by the user locally, not by the agent.
-
-Run in local CMD from this repository with Python 3.12.10:
-
-```text
-python --version
-python -m pip install -r requirements-report.txt
-python final_verify.py
-echo Final verification exit code: %ERRORLEVEL%
-python build_report.py
-echo Report generation exit code: %ERRORLEVEL%
-```
-
-Stop and inspect any nonzero result. `final_verify.py` runs all four check scripts,
-headless figure generation into `evidence/final/figures`, and `pip check`. Complete
-logs, exit codes, environment versions, and the current commit are captured in
-`evidence/final`. It opens no GUI and leaves accepted figures intact.
-
-`docs/report.md` is the editable report source. `build_report.py` expands the
-actual inventory/provenance/check status into `docs/report.expanded.md` and creates
-`report.pdf`. It verifies the original plan against its documentation baseline,
-reproduces it literally in Appendix A, and embeds the exact source as an attachment.
-It uses Windows Arial and Consolas fonts by default. `docs/report_build.json`
-records the PDF hash, page count, and attachment check. Generation is not visual QA:
-open the PDF and inspect every page for clipping, unreadable captions, broken
-symbols, missing figures, and appendix completeness. If Poppler is available:
-
-```text
-pdftoppm -png -r 120 report.pdf tmp\pdfs\report
-```
-
-Reflection and root-cause wording are drafts for the student's review. Record only
-actual review in `docs/report_review.json`, including the reviewed PDF's SHA-256
-from `docs/report_build.json`. Rebuilding the PDF invalidates that reviewed hash.
-See `docs/transcript/README.md` for final transcript refresh and archive instructions.
-No new script has yet been executed in the agent session; local execution and PDF
-inspection are pending. No final main commit or push is authorized before review.
+The [historical transcript index](docs/transcript/README.md) concerns an earlier session snapshot and does not establish complete Assignment 3 coverage. Preserve the complete Assignment 3 transcript through the final review. No new exact model identifier or complete-transcript location is asserted here.

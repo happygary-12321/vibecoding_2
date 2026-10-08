@@ -100,10 +100,13 @@ coordinate scaling or a meters-to-pixels conversion in application code.
 Source: `rendering.run_simulation`.
 
 `PhysicsParameters` and `Box` are frozen dataclasses; `CircleState` is mutable.
-Their real-valued fields are annotated `float`, but constructors accept finite
-Python `int` or `float` values without coercion, excluding `bool`.
-`step_count` must have exact type `int` and be nonnegative. Invalid values raise
-`ValueError`. Sources: `state._finite`, dataclass constructors, `CircleState.validate`.
+Their real-valued fields are annotated `float`; Python `int` or `float` values
+passing the finiteness and range checks are retained without coercion, excluding
+`bool`. `step_count` must have exact type `int` and be nonnegative. Explicit
+checks reject unsupported types, bool, nonfinite values and invalid ranges with
+`ValueError`. Excessively large integers passed to `math.isfinite` can instead
+propagate `OverflowError`. Sources: `state._finite`, dataclass constructors,
+`CircleState.validate`.
 
 | Owner / parameter | Default | Unit / accepted range | CLI exposure |
 |---|---|---|---|

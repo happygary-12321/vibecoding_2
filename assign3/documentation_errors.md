@@ -41,7 +41,7 @@ bug experiment is counted as a current documentation error.
   rebuilt. Updates also change the status text and render the scene."
 - Status: corrected during manual diff review, without changing the callback.
 
-## Specification discrepancy pending review: extremely large integers
+## Resolved by Part 4 documentation: extremely large integers
 
 - Original wording/location: accepted `assign3/SPEC.md`, Section 4, says
   constructors "accept finite Python int or float values without coercion" and
@@ -53,14 +53,14 @@ bug experiment is counted as a current documentation error.
 - Support: the unchanged `_finite` implementation; an executed Python 3.12.10
   check of `math.isfinite(10**1000)` raised `OverflowError`, recorded in
   `assign3/part2_verification.txt`.
-- Proposed corrected specification wording: "Python int/float values passing
+- Corrected specification wording (Part 4): "Python int/float values passing
   finiteness and range checks are retained without coercion, excluding bool.
   Explicit validation failures raise ValueError; excessively large integers can
   propagate OverflowError from the finiteness check."
-- Status: the new state docstrings qualify integer acceptance and document
-  `OverflowError`. The accepted specification is unchanged; its qualification
-  remains pending for a later documentation revision.
-  This is a documentation qualification, not a request to change validation.
+- Status: resolved by documentation in Part 4. Section 4 of `assign3/SPEC.md`
+  now distinguishes explicit ValueError checks from possible OverflowError in
+  `math.isfinite`; the README includes the same limitation. Existing state
+  docstrings already qualify this behavior. No validation code changed.
 
 ## Corrected: incomplete class-docstring Attributes coverage
 
@@ -94,3 +94,26 @@ unchanged and are documented as limitations. No fixes are included.
 The proposed first-floor-impact criterion remains unimplemented and unexecuted.
 The saved Assignment 3 before-evidence remains user-run evidence; it is not
 reported as agent-executed testing.
+
+## Corrected in Part 4: stale README instructions and verification scope
+
+- Original wording/location: README opening described "Stage 6 documentation
+  and packaging" as under review and called `71834cd` the accepted production
+  baseline. Installation/provenance sections stated "Python execution is
+  unavailable" and "No new script has yet been executed in the agent session".
+- Why incorrect as current guidance: these historical checkpoints do not describe
+  the current documentation state. Part 3 is committed at `210030d`; its saved
+  verification records actual Python 3.12.10 execution of 19 doctest examples.
+- Corrected wording: the README describes current functionality and attributes
+  Part 2/3 execution to their stage logs, while keeping final Assignment 3 lint
+  and figure comparison explicitly pending. No new Part 4 runtime pass is claimed.
+- Original commands/location: README's Stage 6 section instructed readers to run
+  `python final_verify.py` and `python build_report.py`.
+- Why unusable in this checkout: git status reports these tracked helpers locally
+  deleted, alongside packaging/transcript helpers. They were not restored.
+- Corrected guidance: list existing entry points and regression scripts; label
+  helper absence as audit-time working-tree status and retain historical report
+  links without advertising unavailable commands.
+- Supporting evidence: current git status/history, root source inventory,
+  `assign3/part3_verification.txt`, and actual entry-point source. These are
+  documentation corrections, not software fixes or injected-bug experiments.
